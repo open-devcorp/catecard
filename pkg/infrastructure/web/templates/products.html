@@ -1,0 +1,7 @@
+{{ define "content" }}
+    <h1>PRODUCTS VIEW</h1>
+{{ range . }}
+    <div>{{ .Name }} - ${{ .Price }}</div>
+{{ end }}
+
+{{ end }}

@@ -1,7 +1,7 @@
 package web
 
 import (
-	"goapp/pkg/handlers"
+	"catecard/pkg/handlers"
 	"net/http"
 
 	"github.com/gorilla/mux"

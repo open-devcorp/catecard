@@ -1,11 +1,11 @@
 package web
 
 import (
+	"catecard/pkg/config"
+	"catecard/pkg/domain/usecases"
+	"catecard/pkg/handlers"
+	"catecard/pkg/infrastructure/repositories"
 	"database/sql"
-	"goapp/pkg/config"
-	"goapp/pkg/domain/usecases"
-	"goapp/pkg/handlers"
-	"goapp/pkg/infrastructure/repositories"
 	"log"
 	"net/http"
 	"os"

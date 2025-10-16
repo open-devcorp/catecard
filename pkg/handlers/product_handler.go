@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"goapp/pkg/domain/entities"
-	"goapp/pkg/domain/usecases"
+	"catecard/pkg/domain/entities"
+	"catecard/pkg/domain/usecases"
 	"log"
 	"net/http"
 	"strconv"

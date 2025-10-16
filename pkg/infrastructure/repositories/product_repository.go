@@ -1,8 +1,8 @@
 package repositories
 
 import (
+	"catecard/pkg/domain/entities"
 	"database/sql"
-	"goapp/pkg/domain/entities"
 	"log"
 )
 

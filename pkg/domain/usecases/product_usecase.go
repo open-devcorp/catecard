@@ -1,9 +1,9 @@
 package usecases
 
 import (
+	"catecard/pkg/domain/entities"
+	"catecard/pkg/infrastructure/repositories"
 	"fmt"
-	"goapp/pkg/domain/entities"
-	"goapp/pkg/infrastructure/repositories"
 	"log"
 )
 

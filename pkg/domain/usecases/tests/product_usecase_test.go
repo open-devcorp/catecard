@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"goapp/pkg/domain/entities"
-	"goapp/pkg/domain/usecases"
-	"goapp/pkg/intrastructure/repositories"
+	"catecard/pkg/domain/entities"
+	"catecard/pkg/domain/usecases"
+	"catecard/pkg/infrastructure/repositories"
 	"log"
 	"testing"
 

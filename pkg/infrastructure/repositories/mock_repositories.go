@@ -1,6 +1,6 @@
 package repositories
 
-import "goapp/pkg/domain/entities"
+import "catecard/pkg/domain/entities"
 
 type MockProductRepository struct {
 	Products []*entities.Product

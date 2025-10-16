@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"goapp/pkg/domain/entities"
+	"catecard/pkg/domain/entities"
 	"testing"
 )
 

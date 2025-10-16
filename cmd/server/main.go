@@ -1,9 +1,9 @@
 package main
 
 import (
+	"catecard/pkg/config"
+	"catecard/pkg/infrastructure/web"
 	"flag"
-	"goapp/pkg/config"
-	"goapp/pkg/infrastructure/web"
 	"log"
 )
 

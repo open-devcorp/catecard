@@ -1,4 +1,4 @@
-module goapp
+module catecard
 
 go 1.24.3
 

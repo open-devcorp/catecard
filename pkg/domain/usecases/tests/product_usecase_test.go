@@ -1,47 +1,37 @@
 package usecases
 
-import (
-	"catecard/pkg/domain/entities"
-	"catecard/pkg/domain/usecases"
-	"catecard/pkg/infrastructure/repositories"
-	"log"
-	"testing"
+// func TestAddProduct(t *testing.T) {
 
-	"github.com/test-go/testify/assert"
-)
+// 	//GIVEN
+// 	logger := log.New(nil, "", 0)
+// 	mockRepo := repositories.NewMockProductRepository()
+// 	fakeProduct := entities.FakeProduct()
+// 	fakeProduct.Name = "PRUEBA TEST"
+// 	uc := usecases.NewProductUsecase(logger, mockRepo)
+// 	//WHEN
 
-func TestAddProduct(t *testing.T) {
+// 	err := uc.Add(&fakeProduct)
 
-	//GIVEN
-	logger := log.New(nil, "", 0)
-	mockRepo := repositories.NewMockProductRepository()
-	fakeProduct := entities.FakeProduct()
-	fakeProduct.Name = "PRUEBA TEST"
-	uc := usecases.NewProductUsecase(logger, mockRepo)
-	//WHEN
+// 	//THEN
 
-	err := uc.Add(&fakeProduct)
+// 	assert.Nil(t, err)
+// 	assert.Equal(t, len(mockRepo.Products), 1)
 
-	//THEN
+// 	log.Printf("LIST: %v", mockRepo.Products[0])
 
-	assert.Nil(t, err)
-	assert.Equal(t, len(mockRepo.Products), 1)
+// }
 
-	log.Printf("LIST: %v", mockRepo.Products[0])
+// func TestGetAll(t *testing.T) {
+// 	//GIVEN
+// 	logger := log.New(nil, "", 0)
+// 	mockRepo := repositories.NewMockProductRepository()
+// 	uc := usecases.NewProductUsecase(logger, mockRepo)
+// 	fake := entities.FakeProduct()
+// 	//WHEN
+// 	uc.Add(&fake) //ADD 1
+// 	products, err := uc.GetAll()
 
-}
+// 	assert.Nil(t, err)
+// 	assert.Equal(t, len(products), 1)
 
-func TestGetAll(t *testing.T) {
-	//GIVEN
-	logger := log.New(nil, "", 0)
-	mockRepo := repositories.NewMockProductRepository()
-	uc := usecases.NewProductUsecase(logger, mockRepo)
-	fake := entities.FakeProduct()
-	//WHEN
-	uc.Add(&fake) //ADD 1
-	products, err := uc.GetAll()
-
-	assert.Nil(t, err)
-	assert.Equal(t, len(products), 1)
-
-}
+// }

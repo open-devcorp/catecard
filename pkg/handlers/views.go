@@ -54,3 +54,11 @@ func AddProductView(w http.ResponseWriter, r *http.Request) {
 func ProductsView(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "products.html", nil)
 }
+
+func SignUp(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "signup.html", nil)
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "login.html", nil)
+}

@@ -51,15 +51,18 @@ func StartWebServer(cfg *config.Config) error {
 	//REPOSITORIES
 
 	productRepo := repositories.NewProductRepository(logger, db) //DB REAL
+	authRepo := repositories.NewUserRepository(logger, db)
 
 	//USECASES
 	productUC := usecases.NewProductUsecase(logger, productRepo)
+	authUC := usecases.NewAuthUseCase(logger, authRepo)
 
 	//HANDLERS
 	productHandler := handlers.NewProductHandler(logger, productUC, tmplPath)
 
+	authHandler := handlers.NewAuthenticationHandler(logger, authUC, tmplPath)
 	//Router
-	r := setupRouter(productHandler)
+	r := setupRouter(authHandler, productHandler)
 	logger.Printf("Server running on port: %s", cfg.ServerPort)
 	logger.Printf("Database: %s", dbPath)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {

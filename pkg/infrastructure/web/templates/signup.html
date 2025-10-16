@@ -1,0 +1,32 @@
+{{ define "content" }}
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">Sign Up</h1>
+
+    <form action="/signup" method="POST" class="flex flex-col gap-4">
+      <label class="flex flex-col text-gray-700 font-medium">
+        Username
+        <input name="username" type="text" required 
+               class="mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </label>
+
+      <label class="flex flex-col text-gray-700 font-medium">
+        Password
+        <input name="password" type="password" required 
+               class="mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </label>
+
+      <label class="flex flex-col text-gray-700 font-medium">
+        Role
+        <input name="role" type="text" value="ADMIN" required
+               class="mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </label>
+
+      <button type="submit" 
+              class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+        Sign Up
+      </button>
+    </form>
+  </div>
+</div>
+{{ end }}

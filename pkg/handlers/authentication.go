@@ -15,7 +15,7 @@ type AuthHandler interface {
 	Login(w http.ResponseWriter, r *http.Request)
 	SignUp(w http.ResponseWriter, r *http.Request)
 	Logout(w http.ResponseWriter, r *http.Request)
-	CreateCatechist(User *entities.User, w http.ResponseWriter, r *http.Request)
+	CreateAccounts(User *entities.User, w http.ResponseWriter, r *http.Request)
 }
 
 type authHandler struct {
@@ -25,7 +25,7 @@ type authHandler struct {
 }
 
 // CreateCatechist implements AuthHandler.
-func (a *authHandler) CreateCatechist(User *entities.User, w http.ResponseWriter, r *http.Request) {
+func (a *authHandler) CreateAccounts(User *entities.User, w http.ResponseWriter, r *http.Request) {
 	if User == nil {
 		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
 		return
@@ -36,13 +36,27 @@ func (a *authHandler) CreateCatechist(User *entities.User, w http.ResponseWriter
 		return
 	}
 
+	if err := r.ParseForm(); err != nil {
+		a.log.Printf("Error parsing form: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid form data")
+		return
+	}
+
+	roleStr := r.FormValue("role")
+	roleInt, err := strconv.Atoi(roleStr)
+	if err != nil {
+		a.log.Printf("Invalid role value: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid role value")
+		return
+	}
+
 	signupData := usecases.SignupStruct{
 		Username: r.FormValue("username"),
 		Email:    r.FormValue("email"),
-		Role:     entities.CATECHIST,
+		Role:     entities.Role(roleInt),
 	}
 
-	user, err := a.uc.CreateCatechist(User, signupData)
+	user, err := a.uc.CreateAccounts(User, signupData)
 	if err != nil {
 		a.log.Printf("Registration failed: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Registration failed")

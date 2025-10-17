@@ -12,7 +12,7 @@ import (
 type AuthUseCase interface {
 	Login(input LoginStruct) (*entities.User, error)
 	SignUp(input SignupStruct) (*entities.User, error)
-	CreateCatechist(User *entities.User, input SignupStruct) (*entities.User, error)
+	CreateAccounts(User *entities.User, input SignupStruct) (*entities.User, error)
 }
 
 type authUseCase struct {
@@ -69,8 +69,8 @@ func (uc *authUseCase) Login(input LoginStruct) (*entities.User, error) {
 	return user, nil
 }
 
-// CreateCatechist implements AuthUseCase.
-func (uc *authUseCase) CreateCatechist(User *entities.User, input SignupStruct) (*entities.User, error) {
+// CreateAccounts implements AuthUseCase.
+func (uc *authUseCase) CreateAccounts(User *entities.User, input SignupStruct) (*entities.User, error) {
 
 	if User.Role != entities.ADMIN {
 		uc.log.Printf("only users with role Admin can create a new catechist")

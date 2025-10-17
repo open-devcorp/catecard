@@ -62,3 +62,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "login.html", nil)
 }
+
+func Home(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "home.html", nil)
+}

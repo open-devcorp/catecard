@@ -22,5 +22,8 @@ func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.Produ
 	r.HandleFunc("/signup", handlers.SignUp).Methods("GET")
 	r.HandleFunc("/login", handlers.Login).Methods("GET")
 
+	// HOME
+	r.HandleFunc("/home", handlers.Home).Methods("GET")
+
 	return r
 }

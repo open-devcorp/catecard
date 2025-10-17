@@ -8,7 +8,7 @@ import (
 func TestUser(t *testing.T) {
 
 	fakeUser := entities.FakeUser()
-	user := entities.NewUser(fakeUser.Username, fakeUser.Password, fakeUser.Role)
+	user := entities.NewUser(fakeUser.Username, fakeUser.Username, fakeUser.Password, fakeUser.Role)
 
 	if user.Username != fakeUser.Username {
 		t.Errorf("Expected Username was to be %s", fakeUser.Username)

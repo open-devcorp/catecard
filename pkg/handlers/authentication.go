@@ -41,6 +41,7 @@ func (a *authHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	signupData := usecases.SignupStruct{
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
+		Email:    r.FormValue("email"),
 		Role:     entities.Role(roleInt),
 	}
 

@@ -10,6 +10,7 @@ import (
 type AuthUseCase interface {
 	Login(input LoginStruct) (*entities.User, error)
 	SignUp(input SignupStruct) (*entities.User, error)
+	CreateCatechist(User *entities.User)
 }
 
 type authUseCase struct {
@@ -17,9 +18,15 @@ type authUseCase struct {
 	userRepo repositories.UserRepository
 }
 
+// CreateCatechist implements AuthUseCase.
+func (uc *authUseCase) CreateCatechist(User *entities.User) {
+
+}
+
 type SignupStruct struct {
 	// User info
 	Username string        `json:"username"`
+	Email    string        `json:"email"`
 	Password string        `json:"password"`
 	Role     entities.Role `json:"role"`
 }
@@ -41,7 +48,7 @@ func NewAuthUseCase(logger *log.Logger, r repositories.UserRepository) AuthUseCa
 // SignUp implements AuthUseCase.
 func (uc *authUseCase) SignUp(input SignupStruct) (*entities.User, error) {
 
-	user := entities.NewUser(input.Username, input.Password, input.Role)
+	user := entities.NewUser(input.Username, input.Email, input.Password, input.Role)
 
 	savedUser, err := uc.userRepo.SaveUser(&user)
 	if err != nil {

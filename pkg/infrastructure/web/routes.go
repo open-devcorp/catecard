@@ -22,6 +22,12 @@ func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.Produ
 	r.HandleFunc("/signup", handlers.SignUp).Methods("GET")
 	r.HandleFunc("/login", handlers.Login).Methods("GET")
 
+	//CATECHIST
+	r.HandleFunc("/add-catechist", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		authHandler.CreateCatechist(user, w, r)
+	}).Methods("POST")
+
 	// HOME
 	r.HandleFunc("/home", handlers.Home).Methods("GET")
 

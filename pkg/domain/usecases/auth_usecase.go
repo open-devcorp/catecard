@@ -3,24 +3,21 @@ package usecases
 import (
 	"catecard/pkg/domain/entities"
 	"catecard/pkg/infrastructure/repositories"
+	"crypto/rand"
 	"errors"
 	"log"
+	"math/big"
 )
 
 type AuthUseCase interface {
 	Login(input LoginStruct) (*entities.User, error)
 	SignUp(input SignupStruct) (*entities.User, error)
-	CreateCatechist(User *entities.User)
+	CreateCatechist(User *entities.User, input SignupStruct) (*entities.User, error)
 }
 
 type authUseCase struct {
 	log      *log.Logger
 	userRepo repositories.UserRepository
-}
-
-// CreateCatechist implements AuthUseCase.
-func (uc *authUseCase) CreateCatechist(User *entities.User) {
-
 }
 
 type SignupStruct struct {
@@ -70,4 +67,41 @@ func (uc *authUseCase) Login(input LoginStruct) (*entities.User, error) {
 
 	uc.log.Printf("User logged in successfully: %s", user.Username)
 	return user, nil
+}
+
+// CreateCatechist implements AuthUseCase.
+func (uc *authUseCase) CreateCatechist(User *entities.User, input SignupStruct) (*entities.User, error) {
+
+	if User.Role != entities.ADMIN {
+		uc.log.Printf("only users with role Admin can create a new catechist")
+		return nil, errors.New("only users with role Admin can create a new catechist")
+	}
+
+	// generate a secure random password
+	const passLen = 12
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_+=<>?"
+	b := make([]byte, passLen)
+	for i := range b {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			uc.log.Printf("Error generating password: %v", err)
+			return nil, err
+		}
+		b[i] = charset[n.Int64()]
+	}
+	randomPass := string(b)
+	input.Password = randomPass
+
+	user := entities.NewUser(input.Username, input.Email, input.Password, input.Role)
+
+	catechist, err := uc.userRepo.SaveUser(&user)
+	if err != nil {
+		uc.log.Printf("Error saving user: %v", err)
+		return nil, err
+	}
+
+	uc.log.Printf("Generated password for user %s: %s", user.Username, randomPass)
+
+	return catechist, nil
+
 }

@@ -41,6 +41,9 @@ func StartWebServer(cfg *config.Config) error {
 		logger.Fatalf("Failed to apply migrations: %v", err)
 	}
 
+	// Inicializar el store de sesiones para que use la misma BD
+	handlers.InitSessionStore(db)
+
 	// rutas templates
 
 	tmplPath := "./pkg/infrastructure/web/templates"

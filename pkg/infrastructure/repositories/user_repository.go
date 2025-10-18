@@ -101,6 +101,19 @@ func (r *userRepository) SaveUser(user *entities.User) (*entities.User, error) {
 	return user, nil
 }
 
+func (r *userRepository) DeleteUserById(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `DELETE FROM users WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		r.log.Println("Error deleting user:", err)
+		return err
+	}
+
+	return nil
+}
 func NewUserRepository(log *log.Logger, database *sql.DB) UserRepository {
 	return &userRepository{log, database}
 }

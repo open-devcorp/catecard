@@ -251,6 +251,8 @@
 
                         document.getElementById('closeAfterCreate').addEventListener('click', function(){ close(); });
                         document.getElementById('createAnother').addEventListener('click', function(){ restoreForm(); });
+                        // refresh catechists list after creating a user
+                        if(typeof fetchCatechists === 'function') fetchCatechists();
                     }
 
                     function restoreForm(){
@@ -442,6 +444,8 @@
                                                 // close the creation modal and open the created modal
                                                 close();
                                                 openCreated();
+                                                // refresh groups list so new group appears without reload
+                                                if(typeof fetchGroups === 'function') fetchGroups();
                                                 return;
                                             }
                                             feedback.textContent = data && data.message ? data.message : 'Error creando grupo';
@@ -495,7 +499,7 @@
                             right.className = 'flex gap-2';
                             right.innerHTML = `
                                 <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-credentials" data-id="${u.id}">Ver Credenciales</button>
-                                <button class="text-red-600">Eliminar</button>
+                                <button class="text-red-600 delete-user" data-id="${u.id}">Eliminar</button>
                             `;
                             el.appendChild(left);
                             el.appendChild(right);
@@ -524,7 +528,7 @@
                                 </div>
                                 <div class="flex gap-2">
                                     <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-credentials" data-id="${s.id}">Ver Credenciales</button>
-                                    <button class="text-red-600">Eliminar</button>
+                                    <button class="text-red-600 delete-user" data-id="${s.id}">Eliminar</button>
                                 </div>
                             `;
                             scannersList.appendChild(el);
@@ -695,19 +699,56 @@
                         }
                     }
 
-                    // Delegate click for dynamically created buttons
+                    // Delegate click for dynamically created buttons (use closest() so clicks on inner elements work)
                     document.addEventListener('click', function(ev){
-                        const target = ev.target;
-                        if(!target || !target.classList) return;
-                        if(target.classList.contains('view-credentials')){
+                        // view-credentials
+                        const btnView = ev.target.closest && ev.target.closest('.view-credentials');
+                        if(btnView){
                             ev.preventDefault();
-                            const id = target.getAttribute('data-id');
+                            const id = btnView.getAttribute('data-id');
                             if(id) fetchUserById(id);
                             return;
                         }
-                        if(target.classList.contains('view-group')){
+
+                        // delete-user
+                        const btnDelete = ev.target.closest && ev.target.closest('.delete-user');
+                        if(btnDelete){
                             ev.preventDefault();
-                            const id = target.getAttribute('data-id');
+                            const id = btnDelete.getAttribute('data-id');
+                            if(!id) { alert('Id de usuario inválido'); return; }
+                            if(!confirm('¿Eliminar usuario? Esta acción no se puede deshacer.')) return;
+
+                            const url = '/delete-user/'+id;
+                            console.log('Deleting user', id, '->', url);
+
+                            // call DELETE
+                            (async function(){
+                                try{
+                                    const resp = await fetch(url, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                                    if(!resp.ok){
+                                        const txt = await resp.text().catch(()=>resp.statusText||'Error');
+                                        console.error('Delete returned', resp.status, txt);
+                                        alert('Error al eliminar: '+resp.status+' '+txt+'\nRevisa que el servidor esté corriendo y que la ruta exista.');
+                                        return;
+                                    }
+                                    const data = await resp.json().catch(()=>null);
+                                    console.log('Delete OK', data);
+                                    // refresh lists: catechists and scanners
+                                    if(typeof fetchCatechists === 'function') fetchCatechists();
+                                    if(typeof fetchScanners === 'function') fetchScanners();
+                                }catch(err){
+                                    console.error('delete user error', err);
+                                    alert('Error de red al eliminar usuario: '+err.message);
+                                }
+                            })();
+                            return;
+                        }
+
+                        // view-group
+                        const btnViewGroup = ev.target.closest && ev.target.closest('.view-group');
+                        if(btnViewGroup){
+                            ev.preventDefault();
+                            const id = btnViewGroup.getAttribute('data-id');
                             if(id) fetchGroupById(id);
                             return;
                         }

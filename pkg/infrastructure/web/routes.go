@@ -59,6 +59,16 @@ func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.Produ
 		groupHandler.GetGroupById(user, id, w, r)
 	}).Methods("GET")
 
+	// GET DELETE USER BY ID
+	r.HandleFunc("/delete-user/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		vars := mux.Vars(r)
+		idStr := vars["id"]
+		id, _ := strconv.Atoi(idStr)
+
+		authHandler.DeleteUserById(user, id, w, r)
+	}).Methods("DELETE")
+
 	///////////////////////////////
 	//CATECHIST
 	r.HandleFunc("/add-catechist", func(w http.ResponseWriter, r *http.Request) {

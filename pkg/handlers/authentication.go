@@ -19,6 +19,7 @@ type AuthHandler interface {
 	GetAllCatechists(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetAllScanners(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
+	DeleteUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type authHandler struct {
@@ -242,6 +243,34 @@ func (a *authHandler) GetUserById(User *entities.User, id int, w http.ResponseWr
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(user)
+
+}
+
+func (a *authHandler) DeleteUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+	if User.Role != entities.ADMIN {
+		log.Printf("ROLE WAS: %v", User)
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return
+	}
+
+	err := a.uc.DeleteUserById(User, id)
+	if err != nil {
+		a.log.Printf("Error deleting user: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error deleting user")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "ok",
+		"message": "User deleted successfully",
+	})
 
 }
 

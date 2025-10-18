@@ -15,6 +15,7 @@ type AuthUseCase interface {
 	CreateAccounts(User *entities.User, input SignupStruct) (*entities.User, error)
 	GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*entities.User, error)
 	GetUserById(User *entities.User, id int) (*entities.User, error)
+	DeleteUserById(User *entities.User, id int) error
 }
 
 type authUseCase struct {
@@ -153,4 +154,22 @@ func (uc *authUseCase) GetUserById(User *entities.User, id int) (*entities.User,
 	uc.log.Printf("User with ID %d not found", id)
 	return nil, errors.New("user not found")
 
+}
+
+func (uc *authUseCase) DeleteUserById(User *entities.User, id int) error {
+
+	if User.Role != entities.ADMIN {
+		uc.log.Printf("only users with role Admin can delete user accounts")
+		return errors.New("only users with role Admin can delete user accounts")
+	}
+
+	err := uc.userRepo.DeleteUserById(id)
+	if err != nil {
+		uc.log.Printf("Error deleting user with ID %d: %v", id, err)
+
+		return err
+	}
+
+	uc.log.Printf("User with ID %d deleted successfully", id)
+	return nil
 }

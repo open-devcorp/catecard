@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"catecard/pkg/domain/entities"
@@ -39,15 +40,19 @@ func CreateSession(w http.ResponseWriter, user *entities.User) (string, error) {
 	}
 
 	// si no hay DB, fallback a cookie sin persistencia (comportamiento previo)
+	// If sessionsDB is nil (fallback), still set cookie; allow disabling Secure for local/dev via env
 	if sessionsDB == nil {
 		cookie := &http.Cookie{
 			Name:     sessionCookieName,
 			Value:    token,
 			Path:     "/",
 			HttpOnly: true,
-			Secure:   true,
+			Secure:   cookieSecure(),
 			SameSite: http.SameSiteLaxMode,
 			Expires:  time.Now().Add(24 * time.Hour),
+		}
+		if d := cookieDomain(); d != "" {
+			cookie.Domain = d
 		}
 		http.SetCookie(w, cookie)
 		return token, nil
@@ -69,9 +74,12 @@ func CreateSession(w http.ResponseWriter, user *entities.User) (string, error) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   cookieSecure(),
 		SameSite: http.SameSiteLaxMode,
 		Expires:  expires,
+	}
+	if d := cookieDomain(); d != "" {
+		cookie.Domain = d
 	}
 	http.SetCookie(w, cookie)
 	return token, nil
@@ -90,10 +98,25 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   cookieSecure(),
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 	}
+	if d := cookieDomain(); d != "" {
+		expired.Domain = d
+	}
 	http.SetCookie(w, expired)
+}
+
+// cookieSecure returns whether session cookies should use Secure flag.
+// For local HTTP development you can disable it by setting DEV_DISABLE_SECURE_COOKIE=1
+func cookieSecure() bool {
+	return os.Getenv("DEV_DISABLE_SECURE_COOKIE") != "1"
+}
+
+// cookieDomain returns the domain attribute for the session cookie if set via env
+func cookieDomain() string {
+	return os.Getenv("COOKIE_DOMAIN")
 }
 
 // GetUserFromRequest devuelve el usuario asociado a la cookie (o nil).

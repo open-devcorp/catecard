@@ -109,7 +109,60 @@ func (g *groupHandler) GetGroupById(User *entities.User, id int, w http.Response
 
 // EditGroup implements GroupHandler.
 func (g *groupHandler) EditGroup(User *entities.User, w http.ResponseWriter, r *http.Request) {
-	// Implementation for editing a group
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+	if User.Role != entities.ADMIN {
+		log.Printf("ROLE WAS: %v", User)
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		g.log.Printf("Error parsing form: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid form data")
+		return
+	}
+
+	idStr := r.FormValue("id")
+	name := r.FormValue("name")
+	catechistIdStr := r.FormValue("catechist_id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		g.log.Printf("Error parsing group ID: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid group ID value")
+		return
+	}
+	catechistId, err := strconv.Atoi(catechistIdStr)
+	if err != nil {
+		g.log.Printf("Error parsing catechist ID: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid catechist ID value")
+		return
+	}
+
+	group := &entities.Group{
+		ID:          id,
+		Name:        name,
+		CatechistId: catechistId,
+	}
+
+	updatedGroup, err := g.uc.Update(User, group)
+	if err != nil {
+		g.log.Printf("Error updating group: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error updating group")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	resp := map[string]interface{}{
+		"status":  "ok",
+		"message": "Group updated",
+		"group":   updatedGroup,
+	}
+
+	json.NewEncoder(w).Encode(resp)
 }
 
 // GetAllGroups implements GroupHandler.

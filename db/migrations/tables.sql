@@ -22,9 +22,20 @@ CREATE TABLE IF NOT EXISTS products (
     WHERE NOT EXISTS (
         SELECT 1 FROM users WHERE username = 'admin' OR email = 'admin'
     );
+        INSERT INTO users (username, email, password, role)
+    SELECT 'cate', 'cate', 'cate', '1'
+    WHERE NOT EXISTS (
+        SELECT 2 FROM users WHERE username = 'cate' OR email = 'cate'
+    );
 
     CREATE TABLE IF NOT EXISTS sessions (
         token TEXT PRIMARY KEY,
         user_json TEXT NOT NULL,
         expires_at TIMESTAMP NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS qrs (
+        id SERIAL PRIMARY KEY,
+        forum INT NOT NULL,
+        group_id INT NOT NULL
     );

@@ -11,6 +11,17 @@ type groupRepository struct {
 	db  *sql.DB
 }
 
+// Update implements GroupRepository.
+func (g *groupRepository) Update(group *entities.Group) (*entities.Group, error) {
+	query := `UPDATE groups SET name = ?, catechist_id = ? WHERE id = ?`
+	_, err := g.db.Exec(query, group.Name, group.CatechistId, group.ID)
+	if err != nil {
+		g.log.Printf("Error updating group: %v", err)
+		return nil, err
+	}
+	return group, nil
+}
+
 // DeleteById implements GroupRepository.
 func (g *groupRepository) DeleteById(id int) error {
 	query := `DELETE FROM groups WHERE id = ?`

@@ -9,10 +9,10 @@ import (
 
 type GroupUseCase interface {
 	Add(group *entities.Group) error
-	Edit(group *entities.Group) error
 	GetAll(User *entities.User) ([]*entities.Group, error)
 	GetById(User *entities.User, id int) (*entities.Group, error)
 	DeleteById(User *entities.User, id int) error
+	Update(User *entities.User, group *entities.Group) (*entities.Group, error)
 }
 
 func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {
@@ -22,6 +22,25 @@ func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUs
 type groupUseCase struct {
 	logger    *log.Logger
 	groupRepo repositories.GroupRepository
+}
+
+// Update implements GroupUseCase.
+func (g *groupUseCase) Update(User *entities.User, group *entities.Group) (*entities.Group, error) {
+	if User == nil {
+		return nil, fmt.Errorf("unauthorized: no user in session")
+	}
+	if User.Role != entities.ADMIN {
+		return nil, fmt.Errorf("forbidden: user does not have admin role")
+	}
+
+	if group.Name == "" {
+		return nil, fmt.Errorf("Group name cannot be empty")
+	}
+	if group.CatechistId == 0 {
+		return nil, fmt.Errorf("Catechist ID cannot be 0")
+	}
+
+	return g.groupRepo.Update(group)
 }
 
 // DeleteById implements GroupUseCase.
@@ -47,11 +66,6 @@ func (g *groupUseCase) GetById(User *entities.User, id int) (*entities.Group, er
 	}
 	return g.groupRepo.GetById(id)
 
-}
-
-// Edit implements GroupUseCase.
-func (g *groupUseCase) Edit(group *entities.Group) error {
-	panic("unimplemented")
 }
 
 // GetAll implements GroupUseCase.

@@ -66,3 +66,22 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Home(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "home.html", nil)
 }
+
+func Catechist(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "catechist.html", nil)
+}
+func Denied(w http.ResponseWriter, r *http.Request) {
+	// read optional message/data from query params and pass to template
+	msg := r.URL.Query().Get("message")
+	data := r.URL.Query().Get("data")
+	payload := map[string]string{"Message": msg, "Data": data}
+	RenderTemplate(w, "denied.html", payload)
+}
+
+func Success(w http.ResponseWriter, r *http.Request) {
+	// read optional message/data from query params and pass to template
+	msg := r.URL.Query().Get("message")
+	data := r.URL.Query().Get("data")
+	payload := map[string]string{"Message": msg, "Data": data}
+	RenderTemplate(w, "success.html", payload)
+}

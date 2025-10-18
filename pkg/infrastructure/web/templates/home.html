@@ -221,6 +221,34 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal: Edit Group -->
+                <div id="editGroupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+                    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                        <header class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium">Editar grupo</h3>
+                            <button id="closeEditGroupModal" class="text-gray-500">✕</button>
+                        </header>
+                        <div id="editGroupBody">
+                            <form id="editGroupForm" class="space-y-3">
+                                <input type="hidden" name="id" id="editGroupId">
+                                <div>
+                                    <label class="block text-sm text-gray-700">Nombre</label>
+                                    <input name="name" id="editGroupName" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="Nombre del grupo">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-700">Catequista ID</label>
+                                    <input name="catechist_id" id="editGroupCatechist" type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="ID del catequista">
+                                </div>
+                                <div class="flex justify-end gap-2 mt-2">
+                                    <button type="button" id="cancelEditGroup" class="px-3 py-2 rounded-md border">Cancelar</button>
+                                    <button type="submit" id="submitEditGroup" class="px-3 py-2 rounded-md bg-yellow-400 text-white">Guardar</button>
+                                </div>
+                                <div id="editGroupFeedback" class="text-sm mt-2 text-red-600"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <script>
                 (function(){
                     const openBtn = document.getElementById('openNewUserModal');
@@ -578,6 +606,7 @@
                                 </div>
                                 <div class="flex gap-2">
                                     <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-group" data-id="${g.id}">Ver</button>
+                                    <button class="bg-yellow-100 border border-yellow-400 rounded-md text-yellow-800 font-medium py-1 px-2 edit-group" data-id="${g.id}" data-name="${g.name}" data-catechist="${g.catechist_id ?? g.CatechistId ?? ''}">Editar</button>
                                     <button class="text-red-600 delete-group" data-id="${g.id}">Eliminar</button>
                                 </div>
                             `;
@@ -622,6 +651,43 @@
                     fetchCatechists();
                     fetchGroups();
                     fetchScanners();
+
+                    // Edit group form handling
+                    const editGroupModal = document.getElementById('editGroupModal');
+                    const editGroupForm = document.getElementById('editGroupForm');
+                    const closeEditGroup = document.getElementById('closeEditGroupModal');
+                    const cancelEditGroup = document.getElementById('cancelEditGroup');
+                    const editFeedback = document.getElementById('editGroupFeedback');
+
+                    closeEditGroup && closeEditGroup.addEventListener('click', function(e){ e.preventDefault(); if(editGroupModal){ editGroupModal.classList.remove('flex'); editGroupModal.classList.add('hidden'); } });
+                    cancelEditGroup && cancelEditGroup.addEventListener('click', function(e){ e.preventDefault(); if(editGroupModal){ editGroupModal.classList.remove('flex'); editGroupModal.classList.add('hidden'); } });
+
+                    editGroupForm && editGroupForm.addEventListener('submit', async function(e){
+                        e.preventDefault();
+                        const btn = document.getElementById('submitEditGroup');
+                        btn && (btn.disabled = true);
+                        editFeedback && (editFeedback.textContent = 'Guardando...');
+                        const fd = new FormData(editGroupForm);
+                        const id = fd.get('id');
+                        try{
+                            const resp = await fetch('/edit-group/'+id, { method: 'PUT', credentials: 'same-origin', body: new URLSearchParams(Array.from(fd.entries())), headers: { 'Accept': 'application/json' } });
+                            const data = await resp.json().catch(()=>null);
+                            if(!resp.ok){
+                                const msg = data && data.message ? data.message : resp.statusText || 'Error';
+                                editFeedback && (editFeedback.textContent = msg);
+                                btn && (btn.disabled = false);
+                                return;
+                            }
+                            // success
+                            editFeedback && (editFeedback.textContent = 'Guardado');
+                            if(typeof fetchGroups === 'function') fetchGroups();
+                            // close modal
+                            if(editGroupModal){ editGroupModal.classList.remove('flex'); editGroupModal.classList.add('hidden'); }
+                        }catch(err){
+                            console.error('edit group error', err);
+                            editFeedback && (editFeedback.textContent = 'Error de red');
+                        }finally{ btn && (btn.disabled = false); }
+                    });
 
                     // User details modal handling
                     const userDetailsModal = document.getElementById('userDetailsModal');
@@ -750,6 +816,25 @@
                             ev.preventDefault();
                             const id = btnViewGroup.getAttribute('data-id');
                             if(id) fetchGroupById(id);
+                            return;
+                        }
+
+                        // edit-group
+                        const btnEditGroup = ev.target.closest && ev.target.closest('.edit-group');
+                        if(btnEditGroup){
+                            ev.preventDefault();
+                            const id = btnEditGroup.getAttribute('data-id');
+                            const name = btnEditGroup.getAttribute('data-name') || '';
+                            const catechist = btnEditGroup.getAttribute('data-catechist') || '';
+                            // fill modal
+                            const modal = document.getElementById('editGroupModal');
+                            const inputId = document.getElementById('editGroupId');
+                            const inputName = document.getElementById('editGroupName');
+                            const inputCate = document.getElementById('editGroupCatechist');
+                            inputId && (inputId.value = id);
+                            inputName && (inputName.value = name);
+                            inputCate && (inputCate.value = catechist);
+                            if(modal){ modal.classList.remove('hidden'); modal.classList.add('flex'); }
                             return;
                         }
 

@@ -14,7 +14,7 @@
             </div>
 
             <div class="mt-12">
-                <p class="text-4xl">4</p>
+                <p id="totalGroupsCount" class="text-4xl">4</p>
                 <p class="text-sm text-slate-600">Grupos</p>
             </div>
         </article>
@@ -29,7 +29,7 @@
             </div>
 
             <div class="mt-12">
-                <p class="text-4xl">4</p>
+                <p id="totalCatechistsCount" class="text-4xl">4</p>
                 <p class="text-sm text-slate-600">Catequistas registrados</p>
             </div>
         </article>
@@ -44,17 +44,17 @@
             </div>
 
             <div class="mt-12">
-                <p class="text-4xl">4</p>
+                <p id="totalCatecumenosCount" class="text-4xl">4</p>
                 <p class="text-sm text-slate-600">Catecúmenos inscritos</p>
             </div>
         </article>
     </section>
 
     <section class="my-8">
-        <div class="rounded-full bg-slate-200 py-1 px-2 flex gap-3 w-fit">
-            <p class="text-slate-700 font-medium">Grupos</p>
-            <p class="text-slate-700 font-medium">Usuarios</p>
-            <p class="text-slate-700 font-medium">Base de Datos</p>
+        <div class="rounded-full bg-slate-200 py-1 px-2 flex gap-3 w-fit" role="tablist" aria-label="Secciones">
+            <button id="tabGroups" class="px-3 py-1 rounded-full text-slate-700 font-medium" role="tab" aria-selected="false">Grupos</button>
+            <button id="tabUsers" class="px-3 py-1 rounded-full text-slate-700 font-medium" role="tab" aria-selected="false">Usuarios</button>
+            <button id="tabDB" class="px-3 py-1 rounded-full text-slate-700 font-medium" role="tab" aria-selected="false">Base de Datos</button>
         </div>
     </section>
 
@@ -75,43 +75,47 @@
 
                 <p>Nuevo Usuario</p>
             </button>
-                <button id="openNewGroupModal" class="ml-2 bg-green-600 p-2 text-white rounded-md flex items-center gap-1">
-                    <p>Nuevo Grupo</p>
-                </button>
+                
             </div>
         </div>
 
-        <article class="mt-8">
-            <p>Catequistas (3)</p>
+    <div id="usersSection">
+    <article class="mt-8">
+            <div class="flex items-center justify-between">
+                <p class="font-medium">Catequistas <span id="catechistsHeaderCount" class="text-sm text-slate-600">(0)</span></p>
+                <button id="refreshCatechists" class="text-sm text-blue-700">Actualizar</button>
+            </div>
 
-            <div class="flex items-center justify-between rounded-lg border border-gray-300 my-2 p-4">
-                <div class="flex gap-2 items-center">
-                    <div class="bg-blue-400 text-blue-800 aspect-square rounded-xl size-10">
+            <div id="catechistsList" class="mt-4 space-y-3">
+                <!-- catechists rendered here -->
+            </div>
+    </article>
 
-                    </div>
-                    <div>
-                        <p>María García</p>
-                        <p class="mt-1 text-slate-500 font-medium text-xs">maria@catequesis.com · <span
-                                class="p-1 rounded-md text-slate-700 bg-slate-300">Grupo 1 - Iniciación</span></p>
-                    </div>
-                </div>
+    </div>
 
-                <div class="flex gap-2">
-                    <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2">
-                        Ver Credenciales
-                    </button>
-
-                    <button class="text-red-600">
-                        <!-- trash icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-4">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                    </button>
+    <!-- Lista de Grupos -->
+    <div id="groupsSection" class="hidden">
+    <article class="mt-8">
+            <div class="flex items-center justify-between">
+                <p class="font-medium">Grupos <span id="groupsHeaderCount" class="text-sm text-slate-600">(0)</span></p>
+                <div class="flex items-center gap-2">
+                    <button id="openNewGroupModal" class="bg-green-600 p-2 text-white rounded-md flex items-center gap-2 text-sm">Nuevo Grupo</button>
+                    <button id="refreshGroups" class="text-sm text-blue-700">Actualizar</button>
                 </div>
             </div>
+            <div id="groupsList" class="mt-4 space-y-3">
+                <!-- groups rendered here -->
+            </div>
         </article>
+        </div>
+
+        <div id="dbSection" class="hidden">
+            <article class="mt-8">
+                <p class="font-medium">Base de Datos</p>
+                <p class="text-sm text-slate-500 mt-2">Herramientas y estado de la base de datos</p>
+                <!-- placeholder: aquí puedes mostrar migraciones, backups, etc. -->
+            </article>
+        </div>
 
                 <!-- Modal: Create New Group -->
                 <div id="newGroupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
@@ -142,34 +146,17 @@
 
 
         <article class="mt-4">
-            <p>Cuentas de Escáner (1)</p>
-
-            <div class="flex items-center justify-between rounded-lg border border-gray-300 my-2 p-4">
+            <div class="flex items-center justify-between">
+                <p class="font-medium">Cuentas de Escáner</p>
                 <div class="flex gap-2 items-center">
-                    <div class="bg-blue-400 text-blue-800 aspect-square rounded-xl size-10">
-
-                    </div>
-                    <div>
-                        <p>María García</p>
-                        <p class="mt-1 text-slate-500 font-medium text-xs">maria@catequesis.com · <span
-                                class="p-1 rounded-md text-slate-700 bg-slate-300">Grupo 1 - Iniciación</span></p>
-                    </div>
+                    <button id="refreshScanners" class="px-3 py-1 rounded-md bg-blue-600 text-white text-sm">Actualizar</button>
+                    <span id="scannersStatus" class="text-sm text-gray-600"></span>
                 </div>
+            </div>
 
-                <div class="flex gap-2">
-                    <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2">
-                        Ver Credenciales
-                    </button>
-
-                    <button class="text-red-600">
-                        <!-- trash icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-4">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                    </button>
-                </div>
+            <div id="scannersList" class="mt-2">
+                <!-- Se llenará dinámicamente por fetchScanners() -->
+                <div class="text-sm text-gray-500">Cargando escáneres...</div>
             </div>
         </article>
     </section>
@@ -205,6 +192,19 @@
                                 </div>
                                 <div id="newUserFeedback" class="text-sm mt-2 text-red-600"></div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal: User Details (Ver Credenciales) -->
+                <div id="userDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+                    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                        <header class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium">Credenciales del usuario</h3>
+                            <button id="closeUserDetailsModal" class="text-gray-500">✕</button>
+                        </header>
+                        <div id="userDetailsBody">
+                            <!-- contenido rellenado por JS -->
                         </div>
                     </div>
                 </div>
@@ -438,6 +438,263 @@
                                     });
                                 })();
                                 </script>
+
+                <script>
+                (function(){
+                    const catechistsUrl = '/all-catechists';
+                    const groupsUrl = '/all-groups';
+                    const scannersUrl = '/all-scanners';
+
+                    const catechistsList = document.getElementById('catechistsList');
+                    const groupsList = document.getElementById('groupsList');
+                    const scannersList = document.getElementById('scannersList');
+                    const scannersStatus = document.getElementById('scannersStatus');
+                    const totalGroupsCount = document.getElementById('totalGroupsCount');
+                    const totalCatechistsCount = document.getElementById('totalCatechistsCount');
+                    const catechistsHeaderCount = document.getElementById('catechistsHeaderCount');
+                    const groupsHeaderCount = document.getElementById('groupsHeaderCount');
+                    const refreshCatechists = document.getElementById('refreshCatechists');
+                    const refreshGroups = document.getElementById('refreshGroups');
+                    const refreshScanners = document.getElementById('refreshScanners');
+                    function renderCatechists(items){
+                        catechistsList.innerHTML = '';
+                        if(!items || items.length === 0){
+                            catechistsList.innerHTML = '<p class="text-sm text-slate-500">No hay catequistas registrados</p>';
+                            catechistsHeaderCount.textContent = '(0)';
+                            totalCatechistsCount.textContent = '0';
+                            return;
+                        }
+                        catechistsHeaderCount.textContent = `(${items.length})`;
+                        totalCatechistsCount.textContent = String(items.length);
+                        items.forEach(function(u){
+                            const el = document.createElement('div');
+                            el.className = 'flex items-center justify-between rounded-lg border border-gray-300 my-2 p-4';
+                            const left = document.createElement('div');
+                            left.className = 'flex gap-2 items-center';
+                            left.innerHTML = `
+                                <div class="bg-blue-400 text-blue-800 aspect-square rounded-xl size-10"></div>
+                                <div>
+                                    <p>${u.username || u.email || 'Usuario'}</p>
+                                    <p class="mt-1 text-slate-500 font-medium text-xs">${u.email || ''} · <span class="p-1 rounded-md text-slate-700 bg-slate-300">${u.group_name || u.group || ''}</span></p>
+                                </div>
+                            `;
+                            const right = document.createElement('div');
+                            right.className = 'flex gap-2';
+                            right.innerHTML = `
+                                <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-credentials" data-id="${u.id}">Ver Credenciales</button>
+                                <button class="text-red-600">Eliminar</button>
+                            `;
+                            el.appendChild(left);
+                            el.appendChild(right);
+                            catechistsList.appendChild(el);
+                        });
+                    }
+
+                    function renderScanners(items){
+                        scannersList.innerHTML = '';
+                        if(!items || items.length === 0){
+                            scannersList.innerHTML = '<p class="text-sm text-slate-500">No hay cuentas de escáner</p>';
+                            scannersStatus.textContent = '(0)';
+                            return;
+                        }
+                        scannersStatus.textContent = `(${items.length})`;
+                        items.forEach(function(s){
+                            const el = document.createElement('div');
+                            el.className = 'flex items-center justify-between rounded-lg border border-gray-300 my-2 p-4';
+                            el.innerHTML = `
+                                <div class="flex gap-2 items-center">
+                                    <div class="bg-blue-400 text-blue-800 aspect-square rounded-xl size-10"></div>
+                                    <div>
+                                        <p>${s.name || s.username || s.email || 'Escáner'}</p>
+                                        <p class="mt-1 text-slate-500 font-medium text-xs">${s.email || ''} · <span class="p-1 rounded-md text-slate-700 bg-slate-300">${s.group_name || s.group || ''}</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-credentials" data-id="${s.id}">Ver Credenciales</button>
+                                    <button class="text-red-600">Eliminar</button>
+                                </div>
+                            `;
+                            scannersList.appendChild(el);
+                        });
+                    }
+
+                    async function fetchScanners(){
+                        if(scannersStatus) scannersStatus.textContent = 'Cargando...';
+                        try{
+                            const resp = await fetch(scannersUrl, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                            if(!resp.ok){
+                                if(scannersStatus) scannersStatus.textContent = 'Error '+resp.status;
+                                return renderScanners([]);
+                            }
+                            const data = await resp.json().catch(()=>null);
+                            if(!data){ if(scannersStatus) scannersStatus.textContent = 'Respuesta inválida'; return renderScanners([]); }
+                            const items = Array.isArray(data) ? data : (data.scanners || data);
+                            if(scannersStatus) scannersStatus.textContent = '';
+                            renderScanners(items || []);
+                        }catch(err){
+                            console.error('fetch scanners error', err);
+                            if(scannersStatus) scannersStatus.textContent = 'Error de red';
+                            renderScanners([]);
+                        }
+                    }
+
+                    function renderGroups(items){
+                        groupsList.innerHTML = '';
+                        if(!items || items.length === 0){
+                            groupsList.innerHTML = '<p class="text-sm text-slate-500">No hay grupos</p>';
+                            groupsHeaderCount.textContent = '(0)';
+                            totalGroupsCount.textContent = '0';
+                            return;
+                        }
+                        groupsHeaderCount.textContent = `(${items.length})`;
+                        totalGroupsCount.textContent = String(items.length);
+                        items.forEach(function(g){
+                            const el = document.createElement('div');
+                            el.className = 'flex items-center justify-between rounded-lg border border-gray-300 my-2 p-4';
+                            el.innerHTML = `
+                                <div class="flex gap-2 items-center">
+                                    <div class="bg-green-200 text-green-800 aspect-square rounded-xl size-10"></div>
+                                    <div>
+                                        <p>${g.name || 'Grupo'}</p>
+                                        <p class="mt-1 text-slate-500 font-medium text-xs">ID: ${g.id || ''} · Catequista ID: ${g.catechist_id ?? g.CatechistId ?? ''}</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2">Ver</button>
+                                    <button class="text-red-600">Eliminar</button>
+                                </div>
+                            `;
+                            groupsList.appendChild(el);
+                        });
+                    }
+
+                    async function fetchCatechists(){
+                        try{
+                            const resp = await fetch(catechistsUrl, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                            if(!resp.ok) return renderCatechists([]);
+                            const data = await resp.json().catch(()=>null);
+                            if(!data) return renderCatechists([]);
+                            // if server returns array directly or {status, users}
+                            const items = Array.isArray(data) ? data : (data.users || data.catechists || data);
+                            renderCatechists(items || []);
+                        }catch(err){
+                            console.error('fetch catechists error', err);
+                            renderCatechists([]);
+                        }
+                    }
+
+                    async function fetchGroups(){
+                        try{
+                            const resp = await fetch(groupsUrl, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                            if(!resp.ok) return renderGroups([]);
+                            const data = await resp.json().catch(()=>null);
+                            if(!data) return renderGroups([]);
+                            const items = Array.isArray(data) ? data : (data.groups || data);
+                            renderGroups(items || []);
+                        }catch(err){
+                            console.error('fetch groups error', err);
+                            renderGroups([]);
+                        }
+                    }
+
+                    refreshCatechists && refreshCatechists.addEventListener('click', function(e){ e.preventDefault(); fetchCatechists(); });
+                    refreshGroups && refreshGroups.addEventListener('click', function(e){ e.preventDefault(); fetchGroups(); });
+                    refreshScanners && refreshScanners.addEventListener('click', function(e){ e.preventDefault(); fetchScanners(); });
+
+                    // initial load
+                    fetchCatechists();
+                    fetchGroups();
+                    fetchScanners();
+
+                    // User details modal handling
+                    const userDetailsModal = document.getElementById('userDetailsModal');
+                    const userDetailsBody = document.getElementById('userDetailsBody');
+                    const closeUserDetails = document.getElementById('closeUserDetailsModal');
+
+                    function openUserDetails(){ if(userDetailsModal) { userDetailsModal.classList.remove('hidden'); userDetailsModal.classList.add('flex'); } }
+                    function closeUserDetailsModal(){ if(userDetailsModal) { userDetailsModal.classList.remove('flex'); userDetailsModal.classList.add('hidden'); userDetailsBody.innerHTML = ''; } }
+                    closeUserDetails && closeUserDetails.addEventListener('click', function(e){ e.preventDefault(); closeUserDetailsModal(); });
+
+                    async function fetchUserById(id){
+                        try{
+                            const resp = await fetch('/user/'+id, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                            if(!resp.ok){
+                                const txt = await resp.text().catch(()=>resp.statusText||'Error');
+                                userDetailsBody.innerHTML = `<p class="text-sm text-red-600">Error: ${resp.status} ${txt}</p>`;
+                                openUserDetails();
+                                return;
+                            }
+                            const data = await resp.json().catch(()=>null);
+                            if(!data){ userDetailsBody.innerHTML = '<p class="text-sm text-red-600">Respuesta inválida</p>'; openUserDetails(); return; }
+
+                            // Expecting the handler to return a user object
+                            const u = data;
+                            userDetailsBody.innerHTML = `
+                                <div>
+                                    <p class="text-sm">ID: <strong>${u.id ?? ''}</strong></p>
+                                    <p class="text-sm">Usuario: <strong>${u.username ?? u.email ?? ''}</strong></p>
+                                    <p class="text-sm">Email: <strong>${u.email ?? ''}</strong></p>
+                                    <p class="text-sm">Role: <strong>${u.role ?? ''}</strong></p>
+                                    <p class="text-sm">Password (si está): <strong>${u.password ?? ''}</strong></p>
+                                </div>
+                            `;
+                            openUserDetails();
+                        }catch(err){
+                            console.error('fetch user by id error', err);
+                            userDetailsBody.innerHTML = '<p class="text-sm text-red-600">Error de red</p>'; openUserDetails();
+                        }
+                    }
+
+                    // Delegate click for dynamically created buttons
+                    document.addEventListener('click', function(ev){
+                        const target = ev.target;
+                        if(target && target.classList && target.classList.contains('view-credentials')){
+                            ev.preventDefault();
+                            const id = target.getAttribute('data-id');
+                            if(id) fetchUserById(id);
+                        }
+                    });
+                })();
+                </script>
+
+                <script>
+                (function(){
+                    const tabGroups = document.getElementById('tabGroups');
+                    const tabUsers = document.getElementById('tabUsers');
+                    const tabDB = document.getElementById('tabDB');
+                    const groupsSection = document.getElementById('groupsSection');
+                    const usersSection = document.getElementById('usersSection');
+                    const dbSection = document.getElementById('dbSection');
+
+                    function activate(tab){
+                        // clear all
+                        [tabGroups, tabUsers, tabDB].forEach(t=>{ if(t) t.classList.remove('bg-white','shadow','-translate-y-0.5'); t && t.setAttribute('aria-selected','false'); });
+                        [groupsSection, usersSection, dbSection].forEach(s=>{ if(s) s.classList.add('hidden'); });
+
+                        if(tab === 'groups'){
+                            tabGroups && tabGroups.classList.add('bg-white','shadow'); tabGroups && tabGroups.setAttribute('aria-selected','true');
+                            groupsSection && groupsSection.classList.remove('hidden');
+                            // refresh groups
+                            if(typeof fetchGroups === 'function') fetchGroups();
+                        } else if(tab === 'users'){
+                            tabUsers && tabUsers.classList.add('bg-white','shadow'); tabUsers && tabUsers.setAttribute('aria-selected','true');
+                            usersSection && usersSection.classList.remove('hidden');
+                            if(typeof fetchCatechists === 'function') fetchCatechists();
+                            if(typeof fetchScanners === 'function') fetchScanners();
+                        } else {
+                            tabDB && tabDB.classList.add('bg-white','shadow'); tabDB && tabDB.setAttribute('aria-selected','true');
+                            dbSection && dbSection.classList.remove('hidden');
+                        }
+                    }
+
+                    tabGroups && tabGroups.addEventListener('click', function(e){ e.preventDefault(); activate('groups'); });
+                    tabUsers && tabUsers.addEventListener('click', function(e){ e.preventDefault(); activate('users'); });
+                    tabDB && tabDB.addEventListener('click', function(e){ e.preventDefault(); activate('db'); });
+
+                    // default open groups
+                    activate('groups');
+                })();
+                </script>
 
 </main>
 {{ end }}

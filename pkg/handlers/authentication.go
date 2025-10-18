@@ -16,6 +16,9 @@ type AuthHandler interface {
 	SignUp(w http.ResponseWriter, r *http.Request)
 	Logout(w http.ResponseWriter, r *http.Request)
 	CreateAccounts(User *entities.User, w http.ResponseWriter, r *http.Request)
+	GetAllCatechists(User *entities.User, w http.ResponseWriter, r *http.Request)
+	GetAllScanners(User *entities.User, w http.ResponseWriter, r *http.Request)
+	GetUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type authHandler struct {
@@ -164,6 +167,82 @@ func writeJSONError(w http.ResponseWriter, code int, message string) {
 		"status":  "error",
 		"message": message,
 	})
+}
+
+func (a *authHandler) GetAllCatechists(User *entities.User, w http.ResponseWriter, r *http.Request) {
+
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+	if User.Role != entities.ADMIN {
+		log.Printf("ROLE WAS: %v", User)
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return
+	}
+
+	catechists, err := a.uc.GetAllAccountsByRole(User, entities.CATECHIST)
+	if err != nil {
+		a.log.Printf("Error retrieving catechists: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving catechists")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(catechists)
+
+}
+
+// GetAllScanners implements AuthHandler.
+func (a *authHandler) GetAllScanners(User *entities.User, w http.ResponseWriter, r *http.Request) {
+
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+	if User.Role != entities.ADMIN {
+		log.Printf("ROLE WAS: %v", User)
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return
+	}
+
+	scanners, err := a.uc.GetAllAccountsByRole(User, entities.SCANNER)
+	if err != nil {
+		a.log.Printf("Error retrieving scanners: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving scanners")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(scanners)
+
+}
+
+func (a *authHandler) GetUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+	if User.Role != entities.ADMIN {
+		log.Printf("ROLE WAS: %v", User)
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return
+	}
+
+	user, err := a.uc.GetUserById(User, id)
+	if err != nil {
+		a.log.Printf("Error retrieving user: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving user")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
+
 }
 
 func NewAuthenticationHandler(logger *log.Logger, uc usecases.AuthUseCase, tmpl string) AuthHandler {

@@ -18,7 +18,7 @@ func (r *userRepository) GetAll() ([]*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := `SELECT id, username,email, password, role FROM users ORDER BY created_at DESC`
+	query := `SELECT id, username,email, password, role FROM users`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		r.log.Println("Error querying users:", err)
@@ -29,9 +29,8 @@ func (r *userRepository) GetAll() ([]*entities.User, error) {
 	var users []*entities.User
 	for rows.Next() {
 		user := &entities.User{}
-		var createdAt, updatedAt time.Time
 
-		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role, &createdAt, &updatedAt)
+		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
 		if err != nil {
 			r.log.Println("Error scanning user:", err)
 			return nil, err
@@ -82,7 +81,7 @@ func (r *userRepository) SaveUser(user *entities.User) (*entities.User, error) {
 	defer tx.Rollback()
 
 	// SQLite query with correct syntax
-	query := `INSERT INTO users (username, password,email, role) VALUES (?, ?,?, ?) RETURNING id`
+	query := `INSERT INTO users (username,email,password, role) VALUES (?, ?,?, ?) RETURNING id`
 
 	err = tx.QueryRowContext(ctx, query, user.Username, user.Email, user.Password, user.Role).Scan(&user.ID)
 	if err != nil {

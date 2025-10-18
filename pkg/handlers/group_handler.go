@@ -82,5 +82,26 @@ func (g *groupHandler) EditGroup(User *entities.User, w http.ResponseWriter, r *
 
 // GetAllGroups implements GroupHandler.
 func (g *groupHandler) GetAllGroups(User *entities.User, w http.ResponseWriter, r *http.Request) {
-	// Implementation for retrieving all groups
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+
+	groups, err := g.uc.GetAll(User)
+	if err != nil {
+		g.log.Printf("Error getting groups: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving groups")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	resp := map[string]interface{}{
+		"status": "ok",
+		"groups": groups,
+	}
+
+	json.NewEncoder(w).Encode(resp)
+
 }

@@ -13,6 +13,8 @@ type AuthUseCase interface {
 	Login(input LoginStruct) (*entities.User, error)
 	SignUp(input SignupStruct) (*entities.User, error)
 	CreateAccounts(User *entities.User, input SignupStruct) (*entities.User, error)
+	GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*entities.User, error)
+	GetUserById(User *entities.User, id int) (*entities.User, error)
 }
 
 type authUseCase struct {
@@ -103,5 +105,52 @@ func (uc *authUseCase) CreateAccounts(User *entities.User, input SignupStruct) (
 	uc.log.Printf("Generated password for user %s: %s", user.Username, randomPass)
 
 	return catechist, nil
+
+}
+
+func (uc *authUseCase) GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*entities.User, error) {
+	if User.Role != entities.ADMIN {
+		uc.log.Printf("only users with role Admin can view catechists")
+		return nil, errors.New("only users with role Admin can view catechists")
+	}
+
+	allUsers, err := uc.userRepo.GetAll()
+	if err != nil {
+		uc.log.Printf("Error retrieving users: %v", err)
+		return nil, err
+	}
+
+	var filteredUsers []*entities.User
+	for _, u := range allUsers {
+		if u.Role == role {
+			filteredUsers = append(filteredUsers, u)
+		}
+	}
+
+	return filteredUsers, nil
+
+}
+
+func (uc *authUseCase) GetUserById(User *entities.User, id int) (*entities.User, error) {
+
+	if User.Role != entities.ADMIN {
+		uc.log.Printf("only users with role Admin can view user details")
+		return nil, errors.New("only users with role Admin can view user details")
+	}
+
+	allUsers, err := uc.userRepo.GetAll()
+	if err != nil {
+		uc.log.Printf("Error retrieving users: %v", err)
+		return nil, err
+	}
+
+	for _, u := range allUsers {
+		if u.ID == id {
+			return u, nil
+		}
+	}
+
+	uc.log.Printf("User with ID %d not found", id)
+	return nil, errors.New("user not found")
 
 }

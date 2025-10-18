@@ -41,5 +41,30 @@ func (g *groupRepository) Edit(group *entities.Group) error {
 
 // GetAll implements GroupRepository.
 func (g *groupRepository) GetAll() ([]*entities.Group, error) {
-	panic("unimplemented")
+	query := `SELECT id, name, catechist_id FROM groups`
+	rows, err := g.db.Query(query)
+	if err != nil {
+		g.log.Printf("Error querying groups: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []*entities.Group
+	for rows.Next() {
+		group := &entities.Group{}
+		err := rows.Scan(&group.ID, &group.Name, &group.CatechistId)
+		if err != nil {
+			g.log.Printf("Error scanning group: %v", err)
+			return nil, err
+		}
+		groups = append(groups, group)
+	}
+
+	if err := rows.Err(); err != nil {
+		g.log.Printf("Error iterating over group rows: %v", err)
+		return nil, err
+	}
+
+	return groups, nil
+
 }

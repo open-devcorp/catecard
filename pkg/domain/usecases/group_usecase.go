@@ -10,7 +10,7 @@ import (
 type GroupUseCase interface {
 	Add(group *entities.Group) error
 	Edit(group *entities.Group) error
-	GetAll() ([]*entities.Group, error)
+	GetAll(User *entities.User) ([]*entities.Group, error)
 }
 
 func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {
@@ -28,8 +28,11 @@ func (g *groupUseCase) Edit(group *entities.Group) error {
 }
 
 // GetAll implements GroupUseCase.
-func (g *groupUseCase) GetAll() ([]*entities.Group, error) {
-	panic("unimplemented")
+func (g *groupUseCase) GetAll(User *entities.User) ([]*entities.Group, error) {
+	if g.groupRepo == nil {
+		return nil, fmt.Errorf("Group repository is not initialized")
+	}
+	return g.groupRepo.GetAll()
 }
 
 // Add implements GroupUseCase.

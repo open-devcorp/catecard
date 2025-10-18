@@ -11,6 +11,17 @@ type groupRepository struct {
 	db  *sql.DB
 }
 
+// DeleteById implements GroupRepository.
+func (g *groupRepository) DeleteById(id int) error {
+	query := `DELETE FROM groups WHERE id = ?`
+	_, err := g.db.Exec(query, id)
+	if err != nil {
+		g.log.Printf("Error deleting group by ID: %v", err)
+		return err
+	}
+	return nil
+}
+
 func NewGroupRepository(logger *log.Logger, db *sql.DB) GroupRepository {
 	return &groupRepository{logger, db}
 }

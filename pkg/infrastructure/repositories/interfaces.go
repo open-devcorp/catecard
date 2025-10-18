@@ -18,4 +18,5 @@ type GroupRepository interface {
 	Edit(group *entities.Group) error
 	GetAll() ([]*entities.Group, error)
 	GetById(id int) (*entities.Group, error)
+	DeleteById(id int) error
 }

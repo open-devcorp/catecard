@@ -578,7 +578,7 @@
                                 </div>
                                 <div class="flex gap-2">
                                     <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-group" data-id="${g.id}">Ver</button>
-                                    <button class="text-red-600">Eliminar</button>
+                                    <button class="text-red-600 delete-group" data-id="${g.id}">Eliminar</button>
                                 </div>
                             `;
                             groupsList.appendChild(el);
@@ -750,6 +750,36 @@
                             ev.preventDefault();
                             const id = btnViewGroup.getAttribute('data-id');
                             if(id) fetchGroupById(id);
+                            return;
+                        }
+
+                        // delete-group
+                        const btnDeleteGroup = ev.target.closest && ev.target.closest('.delete-group');
+                        if(btnDeleteGroup){
+                            ev.preventDefault();
+                            const id = btnDeleteGroup.getAttribute('data-id');
+                            if(!id) { alert('Id de grupo inválido'); return; }
+                            if(!confirm('¿Eliminar grupo? Esta acción no se puede deshacer.')) return;
+
+                            const url = '/delete-group/'+id;
+                            console.log('Deleting group', id, '->', url);
+                            (async function(){
+                                try{
+                                    const resp = await fetch(url, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                                    if(!resp.ok){
+                                        const txt = await resp.text().catch(()=>resp.statusText||'Error');
+                                        console.error('Delete group returned', resp.status, txt);
+                                        alert('Error al eliminar grupo: '+resp.status+' '+txt+'\nRevisa que el servidor esté corriendo y que la ruta exista.');
+                                        return;
+                                    }
+                                    const data = await resp.json().catch(()=>null);
+                                    console.log('Delete group OK', data);
+                                    if(typeof fetchGroups === 'function') fetchGroups();
+                                }catch(err){
+                                    console.error('delete group error', err);
+                                    alert('Error de red al eliminar grupo: '+err.message);
+                                }
+                            })();
                             return;
                         }
                     });

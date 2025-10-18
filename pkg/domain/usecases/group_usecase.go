@@ -12,6 +12,7 @@ type GroupUseCase interface {
 	Edit(group *entities.Group) error
 	GetAll(User *entities.User) ([]*entities.Group, error)
 	GetById(User *entities.User, id int) (*entities.Group, error)
+	DeleteById(User *entities.User, id int) error
 }
 
 func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {
@@ -21,6 +22,18 @@ func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUs
 type groupUseCase struct {
 	logger    *log.Logger
 	groupRepo repositories.GroupRepository
+}
+
+// DeleteById implements GroupUseCase.
+func (g *groupUseCase) DeleteById(User *entities.User, id int) error {
+	if User == nil {
+		return fmt.Errorf("unauthorized: no user in session")
+	}
+	if User.Role != entities.ADMIN {
+		return fmt.Errorf("forbidden: user does not have admin role")
+	}
+
+	return g.groupRepo.DeleteById(id)
 }
 
 // GetById implements GroupUseCase.

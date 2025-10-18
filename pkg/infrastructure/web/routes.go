@@ -82,6 +82,16 @@ func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.Produ
 		groupHandler.AddGroup(user, w, r)
 	}).Methods("POST")
 
+	// DELETE GROUP
+	r.HandleFunc("/delete-group/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		vars := mux.Vars(r)
+		idStr := vars["id"]
+		id, _ := strconv.Atoi(idStr)
+
+		groupHandler.DeleteGroupById(user, id, w, r)
+	}).Methods("DELETE")
+
 	// HOME
 	r.HandleFunc("/home", handlers.Home).Methods("GET")
 

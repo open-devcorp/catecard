@@ -14,6 +14,7 @@ type GroupHandler interface {
 	EditGroup(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetAllGroups(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
+	DeleteGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type groupHandler struct {
@@ -135,4 +136,30 @@ func (g *groupHandler) GetAllGroups(User *entities.User, w http.ResponseWriter, 
 
 	json.NewEncoder(w).Encode(resp)
 
+}
+
+func (g *groupHandler) DeleteGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+	if User.Role != entities.ADMIN {
+		log.Printf("ROLE WAS: %v", User)
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return
+	}
+
+	err := g.uc.DeleteById(User, id)
+	if err != nil {
+		g.log.Printf("Error deleting group: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error deleting group")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "ok",
+		"message": "Group deleted",
+	})
 }

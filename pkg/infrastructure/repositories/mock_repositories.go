@@ -33,6 +33,11 @@ type MockUserRepository struct {
 	Users []*entities.User
 }
 
+// DeleteUserById implements UserRepository.
+func (m *MockUserRepository) DeleteUserById(id int) error {
+	panic("unimplemented")
+}
+
 func NewMockUserRepository() *MockUserRepository {
 	return &MockUserRepository{Users: make([]*entities.User, 0)}
 }

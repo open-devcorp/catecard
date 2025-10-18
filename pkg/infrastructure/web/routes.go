@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.ProductHandler) *mux.Router {
+func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.ProductHandler, groupHandler handlers.GroupHandler) *mux.Router {
 	r := mux.NewRouter()
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
 
@@ -26,6 +26,12 @@ func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.Produ
 	r.HandleFunc("/add-catechist", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		authHandler.CreateAccounts(user, w, r)
+	}).Methods("POST")
+
+	//GROUPS
+	r.HandleFunc("/add-group", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		groupHandler.AddGroup(user, w, r)
 	}).Methods("POST")
 
 	// HOME

@@ -65,6 +65,7 @@
                 <p class="text-slate-700 text-xs">Crea y administra cuenta de catequistas y escáneres</p>
             </h3>
 
+            <div class="flex items-center gap-2">
             <button id="openNewUserModal" class="bg-blue-900 p-2 text-white rounded-md flex items-center gap-1">
                 <!-- plus icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -74,6 +75,10 @@
 
                 <p>Nuevo Usuario</p>
             </button>
+                <button id="openNewGroupModal" class="ml-2 bg-green-600 p-2 text-white rounded-md flex items-center gap-1">
+                    <p>Nuevo Grupo</p>
+                </button>
+            </div>
         </div>
 
         <article class="mt-8">
@@ -107,6 +112,33 @@
                 </div>
             </div>
         </article>
+
+                <!-- Modal: Create New Group -->
+                <div id="newGroupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+                    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                        <header class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium">Crear grupo</h3>
+                            <button id="closeNewGroupModal" class="text-gray-500">✕</button>
+                        </header>
+                        <div id="groupModalBody">
+                            <form id="newGroupForm" class="space-y-3">
+                                <div>
+                                    <label class="block text-sm text-gray-700">Nombre del grupo</label>
+                                    <input name="name" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="Grupo 1 - Iniciación">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-700">Catequista</label>
+                                    <input name="catechist_id" type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="Descripción corta">
+                                </div>
+                                <div class="flex justify-end gap-2 mt-2">
+                                    <button type="button" id="cancelNewGroup" class="px-3 py-2 rounded-md border">Cancelar</button>
+                                    <button type="submit" id="submitNewGroup" class="px-3 py-2 rounded-md bg-green-600 text-white">Crear</button>
+                                </div>
+                                <div id="newGroupFeedback" class="text-sm mt-2 text-gray-700"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
 
         <article class="mt-4">
@@ -176,7 +208,6 @@
                         </div>
                     </div>
                 </div>
-
                 <script>
                 (function(){
                     const openBtn = document.getElementById('openNewUserModal');
@@ -308,6 +339,105 @@
                     form && form.addEventListener('submit', submitHandler);
                 })();
                 </script>
+
+                                <script>
+                                (function(){
+                                    const openGroupBtn = document.getElementById('openNewGroupModal');
+                                    const modal = document.getElementById('newGroupModal');
+                                    const closeBtn = document.getElementById('closeNewGroupModal');
+                                    const cancelBtn = document.getElementById('cancelNewGroup');
+                                    const form = document.getElementById('newGroupForm');
+                                    const feedback = document.getElementById('newGroupFeedback');
+
+                                    // Modal that will show the created group's info
+                                    const createdModalHtml = `
+                                        <div id="groupCreatedModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+                                            <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                                                <header class="flex items-center justify-between mb-4">
+                                                    <h3 class="text-lg font-medium">Grupo creado</h3>
+                                                    <button id="closeGroupCreatedModal" class="text-gray-500">✕</button>
+                                                </header>
+                                                <div id="groupCreatedBody">
+                                                    <!-- contenido rellenado por JS -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+
+                                    // Insert created modal into DOM (once)
+                                    if (!document.getElementById('groupCreatedModal')){
+                                        const wrapper = document.createElement('div');
+                                        wrapper.innerHTML = createdModalHtml;
+                                        document.body.appendChild(wrapper.firstElementChild);
+                                    }
+
+                                    const createdModal = document.getElementById('groupCreatedModal');
+                                    const createdBody = document.getElementById('groupCreatedBody');
+                                    const closeCreatedBtn = () => document.getElementById('closeGroupCreatedModal');
+
+                                    function open(){ modal.classList.remove('hidden'); modal.classList.add('flex'); }
+                                    function close(){ modal.classList.remove('flex'); modal.classList.add('hidden'); feedback.textContent = ''; form && form.reset(); }
+
+                                    function openCreated(){ createdModal.classList.remove('hidden'); createdModal.classList.add('flex'); }
+                                    function closeCreated(){ createdModal.classList.remove('flex'); createdModal.classList.add('hidden'); createdBody.innerHTML = ''; }
+
+                                    openGroupBtn && openGroupBtn.addEventListener('click', function(e){ e.preventDefault(); open(); });
+                                    closeBtn && closeBtn.addEventListener('click', function(e){ e.preventDefault(); close(); });
+                                    cancelBtn && cancelBtn.addEventListener('click', function(e){ e.preventDefault(); close(); });
+
+                                    // bind close button for created modal (delegated in case it's not present immediately)
+                                    document.addEventListener('click', function(ev){
+                                        if(ev.target && ev.target.id === 'closeGroupCreatedModal'){
+                                            ev.preventDefault(); closeCreated();
+                                        }
+                                        if(ev.target && ev.target.id === 'createAnotherGroup'){
+                                            ev.preventDefault(); closeCreated(); open();
+                                        }
+                                    });
+
+                                    form && form.addEventListener('submit', async function(e){
+                                        e.preventDefault();
+                                        const btn = document.getElementById('submitNewGroup');
+                                        const fd = new FormData(form);
+                                        btn.disabled = true;
+                                        feedback.textContent = 'Creando grupo...';
+                                        try{
+                                            const resp = await fetch('/add-group', {
+                                                method: 'POST',
+                                                body: new URLSearchParams(Array.from(fd.entries())),
+                                                credentials: 'same-origin',
+                                                headers: { 'Accept': 'application/json' }
+                                            });
+                                            const data = await resp.json().catch(()=>null);
+                                            if(resp.ok && data){
+                                                // show created modal with returned group info
+                                                const grp = data.group || {};
+                                                const msg = data.message || 'Grupo creado';
+                                                createdBody.innerHTML = `
+                                                    <div class="py-2">
+                                                        <h4 class="text-lg font-medium mb-2">${msg}</h4>
+                                                        <p class="text-sm">ID: <strong>${grp.id ?? ''}</strong></p>
+                                                        <p class="text-sm">Nombre: <strong>${grp.name ?? ''}</strong></p>
+                                                        <p class="text-sm">Catequista ID: <strong>${grp.catechist_id ?? grp.CatechistId ?? ''}</strong></p>
+                                                    </div>
+                                                    <div class="flex justify-end gap-2 mt-4">
+                                                        <button id="closeCreatedOnly" class="px-3 py-2 rounded-md border">Cerrar</button>
+                                                        <button id="createAnotherGroup" class="px-3 py-2 rounded-md bg-green-600 text-white">Crear otro</button>
+                                                    </div>
+                                                `;
+
+                                                // close the creation modal and open the created modal
+                                                close();
+                                                openCreated();
+                                                return;
+                                            }
+                                            feedback.textContent = data && data.message ? data.message : 'Error creando grupo';
+                                        }catch(err){
+                                            feedback.textContent = 'Error de red';
+                                        }finally{ btn.disabled = false; }
+                                    });
+                                })();
+                                </script>
 
 </main>
 {{ end }}

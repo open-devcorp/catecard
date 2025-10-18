@@ -11,6 +11,11 @@ CREATE TABLE IF NOT EXISTS products (
         password VARCHAR(255) NOT NULL,
         role VARCHAR(20) NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS groups (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        catechist_id INT NOT NULL
+    );
 
     INSERT INTO users (username, email, password, role)
     SELECT 'admin', 'admin', 'admin', '0'

@@ -11,6 +11,7 @@ type GroupUseCase interface {
 	Add(group *entities.Group) error
 	Edit(group *entities.Group) error
 	GetAll(User *entities.User) ([]*entities.Group, error)
+	GetById(User *entities.User, id int) (*entities.Group, error)
 }
 
 func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {
@@ -20,6 +21,19 @@ func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUs
 type groupUseCase struct {
 	logger    *log.Logger
 	groupRepo repositories.GroupRepository
+}
+
+// GetById implements GroupUseCase.
+func (g *groupUseCase) GetById(User *entities.User, id int) (*entities.Group, error) {
+
+	if User == nil {
+		return nil, fmt.Errorf("unauthorized: no user in session")
+	}
+	if g.groupRepo == nil {
+		return nil, fmt.Errorf("Group repository is not initialized")
+	}
+	return g.groupRepo.GetById(id)
+
 }
 
 // Edit implements GroupUseCase.

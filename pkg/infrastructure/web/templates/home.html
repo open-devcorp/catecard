@@ -208,6 +208,19 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal: Group Details (Ver) -->
+                <div id="groupDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+                    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                        <header class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium">Detalles del grupo</h3>
+                            <button id="closeGroupDetailsModal" class="text-gray-500">✕</button>
+                        </header>
+                        <div id="groupDetailsBody">
+                            <!-- contenido rellenado por JS -->
+                        </div>
+                    </div>
+                </div>
                 <script>
                 (function(){
                     const openBtn = document.getElementById('openNewUserModal');
@@ -560,7 +573,7 @@
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2">Ver</button>
+                                    <button class="bg-gray-100 border border-gray-400 rounded-md text-gray-700 font-medium py-1 px-2 view-group" data-id="${g.id}">Ver</button>
                                     <button class="text-red-600">Eliminar</button>
                                 </div>
                             `;
@@ -645,13 +658,58 @@
                         }
                     }
 
+                    // Group details modal handling
+                    const groupDetailsModal = document.getElementById('groupDetailsModal');
+                    const groupDetailsBody = document.getElementById('groupDetailsBody');
+                    const closeGroupDetails = document.getElementById('closeGroupDetailsModal');
+
+                    function openGroupDetails(){ if(groupDetailsModal) { groupDetailsModal.classList.remove('hidden'); groupDetailsModal.classList.add('flex'); } }
+                    function closeGroupDetailsModal(){ if(groupDetailsModal) { groupDetailsModal.classList.remove('flex'); groupDetailsModal.classList.add('hidden'); groupDetailsBody.innerHTML = ''; } }
+                    closeGroupDetails && closeGroupDetails.addEventListener('click', function(e){ e.preventDefault(); closeGroupDetailsModal(); });
+
+                    async function fetchGroupById(id){
+                        try{
+                            const resp = await fetch('/group/'+id, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                            if(!resp.ok){
+                                const txt = await resp.text().catch(()=>resp.statusText||'Error');
+                                groupDetailsBody.innerHTML = `<p class="text-sm text-red-600">Error: ${resp.status} ${txt}</p>`;
+                                openGroupDetails();
+                                return;
+                            }
+                            const data = await resp.json().catch(()=>null);
+                            if(!data){ groupDetailsBody.innerHTML = '<p class="text-sm text-red-600">Respuesta inválida</p>'; openGroupDetails(); return; }
+
+                            // Expecting { status: 'ok', group: { ... } }
+                            const grp = data.group || data;
+                            groupDetailsBody.innerHTML = `
+                                <div>
+                                    <p class="text-sm">ID: <strong>${grp.id ?? ''}</strong></p>
+                                    <p class="text-sm">Nombre: <strong>${grp.name ?? ''}</strong></p>
+                                    <p class="text-sm">Catequista ID: <strong>${grp.catechist_id ?? grp.CatechistId ?? ''}</strong></p>
+                                </div>
+                            `;
+                            openGroupDetails();
+                        }catch(err){
+                            console.error('fetch group by id error', err);
+                            groupDetailsBody.innerHTML = '<p class="text-sm text-red-600">Error de red</p>'; openGroupDetails();
+                        }
+                    }
+
                     // Delegate click for dynamically created buttons
                     document.addEventListener('click', function(ev){
                         const target = ev.target;
-                        if(target && target.classList && target.classList.contains('view-credentials')){
+                        if(!target || !target.classList) return;
+                        if(target.classList.contains('view-credentials')){
                             ev.preventDefault();
                             const id = target.getAttribute('data-id');
                             if(id) fetchUserById(id);
+                            return;
+                        }
+                        if(target.classList.contains('view-group')){
+                            ev.preventDefault();
+                            const id = target.getAttribute('data-id');
+                            if(id) fetchGroupById(id);
+                            return;
                         }
                     });
                 })();

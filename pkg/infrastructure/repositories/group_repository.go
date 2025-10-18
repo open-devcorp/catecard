@@ -68,3 +68,20 @@ func (g *groupRepository) GetAll() ([]*entities.Group, error) {
 	return groups, nil
 
 }
+
+func (g *groupRepository) GetById(id int) (*entities.Group, error) {
+	query := `SELECT id, name, catechist_id FROM groups WHERE id = ?`
+	row := g.db.QueryRow(query, id)
+
+	group := &entities.Group{}
+	err := row.Scan(&group.ID, &group.Name, &group.CatechistId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // No group found with the given ID
+		}
+		g.log.Printf("Error getting group by ID: %v", err)
+		return nil, err
+	}
+
+	return group, nil
+}

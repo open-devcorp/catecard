@@ -16,4 +16,5 @@ type GroupRepository interface {
 	Add(group *entities.Group) error
 	Edit(group *entities.Group) error
 	GetAll() ([]*entities.Group, error)
+	GetById(id int) (*entities.Group, error)
 }

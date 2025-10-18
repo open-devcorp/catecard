@@ -49,6 +49,16 @@ func setupRouter(authHandler handlers.AuthHandler, productHandler handlers.Produ
 		authHandler.GetUserById(user, id, w, r)
 	}).Methods("GET")
 
+	//GET GROUP BY ID
+	r.HandleFunc("/group/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		vars := mux.Vars(r)
+		idStr := vars["id"]
+		id, _ := strconv.Atoi(idStr)
+
+		groupHandler.GetGroupById(user, id, w, r)
+	}).Methods("GET")
+
 	///////////////////////////////
 	//CATECHIST
 	r.HandleFunc("/add-catechist", func(w http.ResponseWriter, r *http.Request) {

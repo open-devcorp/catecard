@@ -13,6 +13,7 @@ type GroupHandler interface {
 	AddGroup(User *entities.User, w http.ResponseWriter, r *http.Request)
 	EditGroup(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetAllGroups(User *entities.User, w http.ResponseWriter, r *http.Request)
+	GetGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type groupHandler struct {
@@ -69,6 +70,36 @@ func (g *groupHandler) AddGroup(User *entities.User, w http.ResponseWriter, r *h
 		"status":  "ok",
 		"message": "Group created",
 		"group":   group,
+	}
+
+	json.NewEncoder(w).Encode(resp)
+
+}
+
+// GetGroupById implements GroupHandler.
+func (g *groupHandler) GetGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+
+	group, err := g.uc.GetById(User, id)
+	if err != nil {
+		g.log.Printf("Error getting group by ID: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving group")
+		return
+	}
+	if group == nil {
+		writeJSONError(w, http.StatusNotFound, "Group not found")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	resp := map[string]interface{}{
+		"status": "ok",
+		"group":  group,
 	}
 
 	json.NewEncoder(w).Encode(resp)

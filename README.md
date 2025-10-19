@@ -7,3 +7,10 @@ go run ./cmd/server
 ```
  npx @tailwindcss/cli -i ./public/src/input.css -o ./public/src/output.css --watch
  ```
+
+### RUN MODE DEV / MOBILE
+
+```
+export DEV_DISABLE_SECURE_COOKIE=1
+
+```

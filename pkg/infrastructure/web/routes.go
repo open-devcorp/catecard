@@ -9,13 +9,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func setupRouter(qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, productHandler handlers.ProductHandler, groupHandler handlers.GroupHandler) *mux.Router {
+func setupRouter(qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, groupHandler handlers.GroupHandler) *mux.Router {
 	r := mux.NewRouter()
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
 
 	//////////////////////////VIEWS//////////////////////////
-	r.HandleFunc("/add-product", handlers.AddProductView).Methods("GET")
-	r.HandleFunc("/products", productHandler.GetAllProducts).Methods("GET")
 
 	////// HOME REDIRECTION //////
 	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {

@@ -52,20 +52,16 @@ func StartWebServer(cfg *config.Config) error {
 	}
 
 	//REPOSITORIES
-
-	productRepo := repositories.NewProductRepository(logger, db) //DB REAL
 	authRepo := repositories.NewUserRepository(logger, db)
 	groupRepo := repositories.NewGroupRepository(logger, db)
 	qrRepo := repositories.NewQrRepository(logger, db)
 
 	//USECASES
-	productUC := usecases.NewProductUsecase(logger, productRepo)
 	authUC := usecases.NewAuthUseCase(logger, authRepo)
 	groupUC := usecases.NewGroupUsecase(logger, groupRepo)
 	qrUC := usecases.NewQrUsecase(logger, qrRepo)
 
 	//HANDLERS
-	productHandler := handlers.NewProductHandler(logger, productUC, tmplPath)
 
 	authHandler := handlers.NewAuthenticationHandler(logger, authUC, tmplPath)
 
@@ -73,7 +69,7 @@ func StartWebServer(cfg *config.Config) error {
 	qrHandler := handlers.NewQrHandler(logger, qrUC, tmplPath)
 
 	//Router
-	r := setupRouter(qrHandler, authHandler, productHandler, groupHandler)
+	r := setupRouter(qrHandler, authHandler, groupHandler)
 	logger.Printf("Server running on port: %s", cfg.ServerPort)
 	logger.Printf("Database: %s", dbPath)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {

@@ -8,10 +8,6 @@ type UserRepository interface {
 	SaveUser(user *entities.User) (*entities.User, error)
 	DeleteUserById(id int) error
 }
-type ProductRepository interface {
-	Add(product *entities.Product) error
-	GetAll() ([]*entities.Product, error)
-}
 
 type GroupRepository interface {
 	Add(group *entities.Group) error

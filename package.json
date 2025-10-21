@@ -1,6 +1,18 @@
 {
   "dependencies": {
     "@tailwindcss/cli": "^4.1.14",
+    "@tailwindcss/postcss": "^4.1.15",
+    "apexcharts": "^5.3.5",
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.25.11",
+    "esbuild-plugin-vue3": "^0.5.0"
+  },
+  "devDependencies": {
     "tailwindcss": "^4.1.14"
+  },
+  "scripts": {
+    "watch-js": "bun bun.config.js --watch",
+    "build": "bun bun.config.js",
+    "dev": "concurrently \"bun watch-js\""
   }
 }

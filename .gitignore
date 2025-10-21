@@ -1,1 +1,5 @@
 node_modules/
+
+public/js/*
+package-lock.json
+meta.json

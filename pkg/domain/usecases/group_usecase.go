@@ -15,13 +15,13 @@ type GroupUseCase interface {
 	Update(User *entities.User, group *entities.Group) (*entities.Group, error)
 }
 
-func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {
-	return &groupUseCase{logger, r}
-}
-
 type groupUseCase struct {
 	logger    *log.Logger
 	groupRepo repositories.GroupRepository
+}
+
+func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {
+	return &groupUseCase{logger, r}
 }
 
 // Update implements GroupUseCase.

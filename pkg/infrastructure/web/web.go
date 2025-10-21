@@ -55,21 +55,25 @@ func StartWebServer(cfg *config.Config) error {
 	authRepo := repositories.NewUserRepository(logger, db)
 	groupRepo := repositories.NewGroupRepository(logger, db)
 	qrRepo := repositories.NewQrRepository(logger, db)
+	catechumenRepo := repositories.NewMockCatechumenRepository()
 
 	//USECASES
 	authUC := usecases.NewAuthUseCase(logger, authRepo)
 	groupUC := usecases.NewGroupUsecase(logger, groupRepo)
 	qrUC := usecases.NewQrUsecase(logger, qrRepo)
+	catechumenUC := usecases.NewCatechumenUsecase(logger, catechumenRepo, qrRepo)
 
 	//HANDLERS
 
 	authHandler := handlers.NewAuthenticationHandler(logger, authUC, tmplPath)
 
 	groupHandler := handlers.NewGroupHandler(logger, groupUC, tmplPath)
+
+	catechumenHandler := handlers.NewCatechumenHandler(logger, catechumenUC, tmplPath)
 	qrHandler := handlers.NewQrHandler(logger, qrUC, tmplPath)
 
 	//Router
-	r := setupRouter(qrHandler, authHandler, groupHandler)
+	r := setupRouter(qrHandler, authHandler, groupHandler, catechumenHandler)
 	logger.Printf("Server running on port: %s", cfg.ServerPort)
 	logger.Printf("Database: %s", dbPath)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {

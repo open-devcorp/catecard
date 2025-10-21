@@ -24,3 +24,10 @@ type QrRepository interface {
 	DeleteById(id int) error
 	Update(qr *entities.Qr) error
 }
+
+type CatechumenRepository interface {
+	Add(catechumen *entities.Catechumen) (int, error)
+	Update(catechumen *entities.Catechumen) (*entities.Catechumen, error)
+	GetAll() ([]*entities.Catechumen, error)
+	GetById(id int) (*entities.Catechumen, error)
+}

@@ -3,19 +3,120 @@ package web
 import (
 	"catecard/pkg/domain/entities"
 	"catecard/pkg/handlers"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
-func setupRouter(qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, productHandler handlers.ProductHandler, groupHandler handlers.GroupHandler) *mux.Router {
+// In-memory request log buffer (dev)
+type RequestLog struct {
+	Time    time.Time `json:"time"`
+	Method  string    `json:"method"`
+	Path    string    `json:"path"`
+	Status  int       `json:"status"`
+	Latency int64     `json:"latency_ms"`
+}
+
+var (
+	logsMu  sync.Mutex
+	logsBuf []RequestLog
+	maxLogs = 200
+)
+
+func pushLog(entry RequestLog) {
+	logsMu.Lock()
+	defer logsMu.Unlock()
+	logsBuf = append([]RequestLog{entry}, logsBuf...)
+	if len(logsBuf) > maxLogs {
+		logsBuf = logsBuf[:maxLogs]
+	}
+}
+
+func logsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	logsMu.Lock()
+	copyLogs := make([]RequestLog, len(logsBuf))
+	copy(copyLogs, logsBuf)
+	logsMu.Unlock()
+	enc := json.NewEncoder(w)
+	_ = enc.Encode(copyLogs)
+}
+
+func LoggingMiddleware(logger *log.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+			next.ServeHTTP(sw, r)
+			dur := time.Since(start)
+
+			sc := statusColor(sw.status)
+			mc := methodColor(r.Method)
+
+			logger.Printf(
+				"%s %s %s %s %s",
+				c("[HTTP]", colorWhite),
+				c(fmt.Sprintf("%3d", sw.status), sc),
+				c(r.Method, mc),
+				c(r.URL.Path, colorWhite),
+				c(fmt.Sprintf("%v", dur), colorCyan),
+			)
+			// push to in-memory buffer when DEV enabled
+			dev := os.Getenv("DEV")
+			if dev == "1" || dev == "true" || dev == "TRUE" {
+				pushLog(RequestLog{
+					Time:    start,
+					Method:  r.Method,
+					Path:    r.URL.Path,
+					Status:  sw.status,
+					Latency: int64(dur / time.Millisecond),
+				})
+			}
+		})
+	}
+}
+
+type statusWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *statusWriter) WriteHeader(code int) {
+	w.status = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, productHandler handlers.ProductHandler, groupHandler handlers.GroupHandler) *mux.Router {
 	r := mux.NewRouter()
+	// Simple middleware: print only status code and endpoint path
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+			next.ServeHTTP(sw, req)
+			// Print minimal info: colored status, colored method and endpoint
+			logger.Printf("%s %s %s",
+				c(fmt.Sprintf("%3d", sw.status), statusColor(sw.status)),
+				c(req.Method, methodColor(req.Method)),
+				req.URL.Path,
+			)
+		})
+	})
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
+
+	// Expose logs endpoint for dev UI
+	r.HandleFunc("/__logs", func(w http.ResponseWriter, r *http.Request) {
+		logsHandler(w, r)
+	}).Methods("GET")
 
 	//////////////////////////VIEWS//////////////////////////
 	r.HandleFunc("/add-product", handlers.AddProductView).Methods("GET")
-	r.HandleFunc("/products", productHandler.GetAllProducts).Methods("GET")
 
 	////// HOME REDIRECTION //////
 	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +142,7 @@ func setupRouter(qrHandler handlers.QrHandler, authHandler handlers.AuthHandler,
 	//AUTH
 	r.HandleFunc("/signup", authHandler.SignUp).Methods("POST")
 	r.HandleFunc("/login", authHandler.Login).Methods("POST")
+	r.HandleFunc("/logout", handlers.DeleteSession).Methods("POST")
 
 	//////////// ADMIN /////////////
 	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {

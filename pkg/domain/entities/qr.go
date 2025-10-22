@@ -6,8 +6,8 @@ type Qr struct {
 	GroupId int `json:"group_id"`
 }
 
-func NewQr(forum int, groupId int) Qr {
-	return Qr{
+func NewQr(forum int, groupId int) *Qr {
+	return &Qr{
 		Forum:   forum,
 		GroupId: groupId,
 	}

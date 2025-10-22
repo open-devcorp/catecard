@@ -93,7 +93,7 @@ func (w *statusWriter) WriteHeader(code int) {
 	w.ResponseWriter.WriteHeader(code)
 }
 
-func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, productHandler handlers.ProductHandler, groupHandler handlers.GroupHandler) *mux.Router {
+func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, groupHandler handlers.GroupHandler, catechumenHandler handlers.CatechumenHandler) *mux.Router {
 	r := mux.NewRouter()
 	// Simple middleware: print only status code and endpoint path
 	r.Use(func(next http.Handler) http.Handler {
@@ -116,7 +116,6 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 	}).Methods("GET")
 
 	//////////////////////////VIEWS//////////////////////////
-	r.HandleFunc("/add-product", handlers.AddProductView).Methods("GET")
 
 	////// HOME REDIRECTION //////
 	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
@@ -230,9 +229,11 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 	r.HandleFunc("/add-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.AddQr(w, r)
 	}).Methods("POST")
+
 	r.HandleFunc("/all-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.GetAllQrs(w, r)
 	}).Methods("GET")
+
 	r.HandleFunc("/qr/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		idStr := vars["id"]
@@ -248,6 +249,26 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 
 		qrHandler.ClaimQr(id, w, r)
 	}).Methods("POST")
+
+	r.HandleFunc("/add-catechumen", func(w http.ResponseWriter, r *http.Request) {
+		catechumenHandler.AddCatechumen(w, r)
+	}).Methods("POST")
+
+	r.HandleFunc("/catechumens", func(w http.ResponseWriter, r *http.Request) {
+		catechumenHandler.GetAllCatechumens(w, r)
+	}).Methods("GET")
+
+	r.HandleFunc("/catechumen/{id}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		idStr := vars["id"]
+		id, _ := strconv.Atoi(idStr)
+
+		catechumenHandler.GetCatechumenById(id, w, r)
+	}).Methods("GET")
+
+	r.HandleFunc("/catechumen/{id}", func(w http.ResponseWriter, r *http.Request) {
+		catechumenHandler.UpdateCatechumen(w, r)
+	}).Methods("PUT")
 
 	return r
 }

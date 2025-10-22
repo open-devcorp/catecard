@@ -104,28 +104,28 @@ func StartWebServer(cfg *config.Config) error {
 	}
 
 	//REPOSITORIES
-
-	productRepo := repositories.NewProductRepository(logger, db) //DB REAL
 	authRepo := repositories.NewUserRepository(logger, db)
 	groupRepo := repositories.NewGroupRepository(logger, db)
 	qrRepo := repositories.NewQrRepository(logger, db)
+	catechumenRepo := repositories.NewMockCatechumenRepository()
 
 	//USECASES
-	productUC := usecases.NewProductUsecase(logger, productRepo)
 	authUC := usecases.NewAuthUseCase(logger, authRepo)
 	groupUC := usecases.NewGroupUsecase(logger, groupRepo)
 	qrUC := usecases.NewQrUsecase(logger, qrRepo)
+	catechumenUC := usecases.NewCatechumenUsecase(logger, catechumenRepo, qrRepo)
 
 	//HANDLERS
-	productHandler := handlers.NewProductHandler(logger, productUC, tmplPath)
 
 	authHandler := handlers.NewAuthenticationHandler(logger, authUC, tmplPath)
 
 	groupHandler := handlers.NewGroupHandler(logger, groupUC, tmplPath)
+
+	catechumenHandler := handlers.NewCatechumenHandler(logger, catechumenUC, tmplPath)
 	qrHandler := handlers.NewQrHandler(logger, qrUC, tmplPath)
 
 	//Router
-	r := setupRouter(logger, qrHandler, authHandler, productHandler, groupHandler)
+	r := setupRouter(logger, qrHandler, authHandler, groupHandler, catechumenHandler)
 	logger.Printf("Server running on port: %s", cfg.ServerPort)
 	logger.Printf("Database: %s", dbPath)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {

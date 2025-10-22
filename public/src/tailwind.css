@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@layer components {
+  .form-label {
+    @apply block text-sm font-medium mb-1;
+  }
+
+  .form-input {
+    @apply  bg-gray-100 rounded-lg px-4 py-2 w-full placeholder:text-sm placeholder:text-gray-500;
+  }
+
+}

@@ -47,13 +47,6 @@ func RenderTemplate(w http.ResponseWriter, name string, data interface{}) {
 	}
 
 }
-func AddProductView(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "add_product.html", nil)
-}
-
-func ProductsView(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "products.html", nil)
-}
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "signup.html", nil)

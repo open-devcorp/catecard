@@ -78,3 +78,7 @@ func Success(w http.ResponseWriter, r *http.Request) {
 	payload := map[string]string{"Message": msg, "Data": data}
 	RenderTemplate(w, "success.html", payload)
 }
+
+func Scanner(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "scanner.html", nil)
+}

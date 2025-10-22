@@ -135,6 +135,7 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 	//AUTH
 	r.HandleFunc("/signup", handlers.SignUp).Methods("GET")
 	r.HandleFunc("/login", handlers.Login).Methods("GET")
+	r.HandleFunc("/scanner", handlers.Scanner).Methods("GET")
 
 	//////////////////////////APIS//////////////////////////////
 

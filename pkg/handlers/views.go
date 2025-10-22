@@ -82,3 +82,7 @@ func Success(w http.ResponseWriter, r *http.Request) {
 func Scanner(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "scanner.html", nil)
 }
+
+func QrList(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "qr.html", nil)
+}

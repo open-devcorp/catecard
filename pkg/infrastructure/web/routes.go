@@ -226,10 +226,14 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 		authHandler.GetAllScanners(user, w, r)
 	}).Methods("GET")
 
+	r.HandleFunc("/all-qr-list", handlers.QrList)
+
 	//CATECHIST
 	r.HandleFunc("/add-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.AddQr(w, r)
 	}).Methods("POST")
+
+	r.HandleFunc("/dene", handlers.Denied)
 
 	r.HandleFunc("/all-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.GetAllQrs(w, r)

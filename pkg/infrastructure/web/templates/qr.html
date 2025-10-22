@@ -1,0 +1,84 @@
+{{ define "content" }}
+
+<main class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6 text-center">Lista de QRs</h1>
+  <ul id="qrList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></ul>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+<script>
+  async function loadQrs() {
+    try {
+      const res = await fetch('/all-qr');
+      if (!res.ok) throw new Error('Error al obtener datos');
+
+      const data = await res.json(); // espera [{ id, forum, group_id }, ...]
+      const container = document.getElementById('qrList');
+      container.innerHTML = '';
+
+      for (const item of data) {
+        const li = document.createElement('li');
+        li.className = "bg-white rounded-xl shadow p-4 flex flex-col items-center transition hover:shadow-lg";
+        li.innerHTML = `
+          <p class="font-semibold text-gray-800 mb-1">ID: ${item.id}</p>
+          <p class="text-sm text-gray-500 mb-1">Forum: ${item.forum}</p>
+          <p class="text-sm text-gray-500 mb-3">Group: ${item.group_id}</p>
+          <div id="qr-img-${item.id}" class="mb-3"></div>
+          <button 
+            onclick="claim(${item.id})" 
+            class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1 text-sm">
+            Registrar Asistencia
+          </button>
+        `;
+        container.appendChild(li);
+
+        // Generate QR in client: payload is the claim path the scanner expects
+        try {
+          const payload = `/qr/${item.id}/claim`;
+          const el = document.getElementById(`qr-img-${item.id}`);
+          // generate DataURL (PNG)
+          if (window.QRCode) {
+            // qrcode library provides toDataURL
+            QRCode.toDataURL(payload, { width: 256 })
+              .then(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `QR ${item.id}`;
+                img.className = 'w-40 h-40 object-contain mb-3 border rounded-lg p-2';
+                el.appendChild(img);
+              })
+              .catch(err => console.error('QR gen error', err));
+          } else {
+            // fallback: show payload text
+            el.textContent = payload;
+          }
+        } catch (err) {
+          console.error('Error generating QR on client:', err);
+        }
+      }
+
+    } catch (err) {
+      console.error('Error cargando QRs:', err);
+      alert('❌ No se pudieron cargar los QRs');
+    }
+  }
+
+  async function claim(id) {
+    try {
+      const res = await fetch(`/qr/${id}/claim`, { method: 'POST' });
+      if (res.ok) {
+        alert(`✅ Asistencia registrada para ID ${id}`);
+      } else {
+        alert(`⚠️ Error al registrar asistencia (ID ${id})`);
+      }
+    } catch {
+      alert('❌ Error de conexión con el servidor');
+    }
+  }
+
+  // Cargar la lista cuando cargue la página
+  document.addEventListener('DOMContentLoaded', loadQrs);
+</script>
+
+{{ end }}

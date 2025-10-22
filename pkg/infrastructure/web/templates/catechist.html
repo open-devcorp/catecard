@@ -1,29 +1,20 @@
 {{ define "content" }}
-<main class="max-w-screen-lg mx-auto p-4">
+<main class="max-w-screen-xl mx-auto px-4 xl:px-0">
 	<div class="flex items-center justify-between mb-4">
-		<h2 class="text-2xl font-semibold">Hola, Catequista</h2>
-		<button 
-			id="openModalBtn"
-			class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
-			+ Agregar Catecúmeno
+		<h1 class="text-2xl font-medium">Hola, Nombre del Catequista</h1>
+	</div>
+
+	<div class="flex justify-end">
+		<button id="openModalBtn" class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-2" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+			Agregar Catecúmeno
 		</button>
 	</div>
 
-	<div class="overflow-x-auto bg-white rounded-lg border p-4">
-		<table class="min-w-full divide-y divide-gray-200">
-			<thead class="bg-gray-50">
-				<tr>
-					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">ID</th>
-					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Nombre</th>
-					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Edad</th>
-					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Grupo</th>
-					<th class="px-4 py-2 text-right text-xs font-medium text-gray-500">Acciones</th>
-				</tr>
-			</thead>
-			<tbody id="catechumensTable" class="bg-white divide-y divide-gray-200">
-				<!-- Los datos se cargarán dinámicamente -->
-			</tbody>
-		</table>
+	<div class="space-y-3 mt-6">
+		<div id="catechumensList" class="space-y-3">
+			<!-- Los datos se cargarán dinámicamente -->
+		</div>
 	</div>
 
 	<!-- Modal Agregar -->
@@ -313,21 +304,33 @@
 			const data = await response.json();
 
 			if (response.ok && data.catechumens) {
-				const tbody = document.getElementById('catechumensTable');
-				tbody.innerHTML = data.catechumens.map(cat => `
-					<tr class="hover:bg-gray-50">
-						<td class="px-4 py-2 text-sm text-gray-900">${cat.id}</td>
-						<td class="px-4 py-2 text-sm text-gray-900">${cat.name}</td>
-						<td class="px-4 py-2 text-sm text-gray-900">${cat.age}</td>
-						<td class="px-4 py-2 text-sm text-gray-900">${cat.group_id}</td>
-						<td class="px-4 py-2 text-sm text-right">
+				const container = document.getElementById('catechumensList');
+				container.innerHTML = data.catechumens.map(cat => `
+					<div class="bg-white p-5 rounded-xl border-1 border-gray-200 hover:shadow-md transition-all">
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-4">
+								<div class="w-12 h-12 rounded-xl bg-[#1A388B]/10 flex items-center justify-center flex-shrink-0">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-[#1A388B]">
+										<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+										<circle cx="12" cy="7" r="4"></circle>
+									</svg>
+								</div>
+								<div class="flex flex-col gap-1">
+									<p class="font-normal">${cat.name}</p>
+									<div class="flex flex-row items-center gap-3">
+										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">Nombre de Grupo</p>
+										<p class="text-[13px] text-gray-500">${cat.age} años</p>
+										<p class="text-[13px] text-gray-500">• 2/4 escaneos</p>
+									</div>
+								</div>
+							</div>
 							<button 
 								onclick='openEditModal(${JSON.stringify(cat).replace(/'/g, "&#39;")})'
-								class="text-blue-600 hover:text-blue-800 mr-2">
+								class="px-4 py-2 text-[#1A388B] bg-[#1A388B]/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
 								Editar
 							</button>
-						</td>
-					</tr>
+						</div>
+					</div>
 				`).join('');
 			}
 		} catch (error) {

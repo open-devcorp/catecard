@@ -13,9 +13,11 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.15"
   },
-  "scripts": {
-    "watch-js": "bun bun.config.js --watch",
-    "build": "bun bun.config.js",
-    "dev": "concurrently \"bun watch-js\""
-  }
+"scripts": {
+  "watch-js": "bun bun.config.js --watch",
+  "watch-css": "bunx tailwindcss -i ./public/src/tailwind.css -o ./public/src/output.css --watch",
+  "serve": "bun run server.ts",
+  "dev": "concurrently -k -n js,css -c auto \"bun run watch-js\" \"bun run watch-css\""
+}
+
 }

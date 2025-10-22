@@ -1,49 +1,42 @@
 {{ define "content" }}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    
-    <test-component></test-component>
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Iniciar sesión</h2>
-            <p class="mt-2 text-center text-sm text-gray-600">Ingresa tus credenciales para continuar</p>
+<main class="min-h-screen flex items-center justify-center bg-gray-50">
+
+    <div class="max-w-md w-full">
+        <!-- Name application -->
+         <div>
+            <p class="text-center mb-7 text-5xl text-[#1A388B] font-bold">Catecard</p>
         </div>
-        <form class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow" method="POST" action="/login">
-            <input type="hidden" name="remember" value="true">
-            <div class="rounded-md shadow-sm -space-y-px">
+
+        <div>
+            <h2 class="text-center text-2xl font-medium">Iniciar sesión</h2>
+            <p class="text-center mt-2 text-gray-600">Ingresa tus credenciales para continuar</p>
+        </div>
+
+        <form class="mt-8 space-y-6 p-8" method="POST" action="/login">
+            <div>                
                 <div class="mb-4">
-                    <label for="username" class="sr-only">Usuario</label>
+                    <label for="username" class="form-label">Usuario</label>
                     <input id="username" name="username" type="text" autocomplete="username" required
-                        class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Usuario">
+                        class="form-input"
+                        placeholder="Ingresa tu usuario">
+                        <p class="text-[13px] text-gray-500 mt-2">Ingresa el correo que te proporcionó el administrador</p>
                 </div>
                 <div>
-                    <label for="password" class="sr-only">Contraseña</label>
+                    <label for="password" class="form-label">Contraseña</label>
                     <input id="password" name="password" type="password" autocomplete="current-password" required
-                        class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Contraseña">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <input id="remember_me" name="remember_me" type="checkbox"
-                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="remember_me" class="ml-2 block text-sm text-gray-900">Recuérdame</label>
-                </div>
-
-                <div class="text-sm">
-                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">¿Olvidaste tu contraseña?</a>
+                        class="form-input"
+                        placeholder="Ingresa tu contraseña">
                 </div>
             </div>
 
             <div>
                 <button type="submit"
-                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#1A388B] hover:opacity-80 cursor-pointer">
                     Entrar
                 </button>
             </div>
         </form>
-        <p class="mt-2 text-center text-sm text-gray-600">¿No tienes cuenta? <a href="/signup" class="font-medium text-indigo-600 hover:text-indigo-500">Regístrate</a></p>
+       
     </div>
-</div>
+</main>
 {{ end }}

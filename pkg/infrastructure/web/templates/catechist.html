@@ -1,11 +1,12 @@
 {{ define "content" }}
 <main class="max-w-screen-lg mx-auto p-4">
 	<div class="flex items-center justify-between mb-4">
-		<h2 class="text-2xl font-semibold">Catequistas</h2>
-		<div class="flex gap-2">
-			<button id="openGlobalNewQr" class="px-3 py-1 bg-blue-600 text-white rounded-md">Agregar QR global</button>
-			<button id="openScannerBtn" class="px-3 py-1 bg-gray-700 text-white rounded-md">Abrir Scanner</button>
-		</div>
+		<h2 class="text-2xl font-semibold">Hola, Catequista</h2>
+		<button 
+			id="openModalBtn"
+			class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+			+ Agregar Catecúmeno
+		</button>
 	</div>
 
 	<div class="overflow-x-auto bg-white rounded-lg border p-4">
@@ -14,472 +15,327 @@
 				<tr>
 					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">ID</th>
 					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Nombre</th>
-					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Email</th>
-					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Veces reclamado</th>
+					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Edad</th>
+					<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Grupo</th>
 					<th class="px-4 py-2 text-right text-xs font-medium text-gray-500">Acciones</th>
 				</tr>
 			</thead>
-			<tbody id="catechistTableBody" class="bg-white divide-y divide-gray-100">
-				<tr><td colspan="5" class="p-4 text-sm text-gray-500">Cargando...</td></tr>
+			<tbody id="catechumensTable" class="bg-white divide-y divide-gray-200">
+				<!-- Los datos se cargarán dinámicamente -->
 			</tbody>
 		</table>
 	</div>
 
-	<!-- Modal: New QR (per catechist/group) -->
-	<div id="newQrModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
-		<div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
-			<header class="flex items-center justify-between mb-4">
-				<h3 class="text-lg font-medium">Crear QR</h3>
-				<button id="closeNewQrModal" class="text-gray-500">✕</button>
-			</header>
-			<div id="newQrBody">
-				<form id="newQrForm" class="space-y-3">
-					<input type="hidden" name="group_id" id="newQrGroupId">
-					<div>
-						<label class="block text-sm text-gray-700">Foro (numero)</label>
-						<input name="forum" id="newQrForum" required type="number" min="1" max="99" class="mt-1 block w-full rounded-md border-gray-300 p-2" value="1">
-					</div>
-					<div class="flex justify-end gap-2 mt-2">
-						<button type="button" id="cancelNewQr" class="px-3 py-2 rounded-md border">Cancelar</button>
-						<button type="submit" id="submitNewQr" class="px-3 py-2 rounded-md bg-blue-600 text-white">Crear QR</button>
-					</div>
-					<div id="newQrFeedback" class="text-sm mt-2 text-gray-700"></div>
-				</form>
+	<!-- Modal Agregar -->
+	<div id="modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+		<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+			<div class="flex justify-between items-center mb-4">
+				<h3 class="text-lg font-semibold">Agregar Catecúmeno</h3>
+				<button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+					</svg>
+				</button>
 			</div>
-		</div>
-	</div>
 
-	<!-- Modal: QR Details -->
-	<div id="qrDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
-		<div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
-			<header class="flex items-center justify-between mb-4">
-				<h3 class="text-lg font-medium">Detalle QR</h3>
-				<button id="closeQrDetailsModal" class="text-gray-500">✕</button>
-			</header>
-			<div id="qrDetailsBody" class="space-y-3">
-				<!-- contenido llenado por JS -->
-			</div>
-		</div>
-	</div>
-
-	<!-- Modal: Scanner -->
-	<div id="qrScannerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
-		<div class="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 p-4">
-			<header class="flex items-center justify-between mb-2">
-				<h3 class="text-lg font-medium">Escáner QR (webcam)</h3>
-				<div class="flex items-center gap-2">
-					<button id="closeQrScannerModal" class="text-gray-500">✕</button>
-				</div>
-			</header>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="relative">
-					<div class="relative">
-						<video id="qrVideo" class="w-full bg-black rounded" autoplay muted playsinline style="height:320px; object-fit:cover"></video>
-						<canvas id="qrCanvas" class="hidden"></canvas>
-						<!-- Scanning animation overlay (pulse ring) -->
-						<div id="scanAnimation" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-							<div class="flex flex-col items-center gap-2">
-								<div class="w-36 h-36 rounded-full border-4 border-blue-400/30 animate-pulse"></div>
-								<div class="text-white text-sm font-medium bg-black/30 px-3 py-1 rounded">Escaneando...</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="relative">
-					<!-- overlay that shows big success / error feedback -->
-					<div id="scannerOverlay" class="hidden absolute inset-0 z-50 items-center justify-center bg-black/60 p-4 rounded">
-						<div id="scannerOverlayContent" class="bg-white rounded-lg p-4 flex flex-col items-center gap-3 max-w-xs w-full text-center">
-							<!-- icon placeholder -->
-							<div id="scannerOverlayIcon" class="w-16 h-16 rounded-full flex items-center justify-center bg-green-100 text-green-700">
-								✓
-							</div>
-							<div id="scannerOverlayMessage" class="text-sm font-medium">Marcando QR...</div>
-							<div class="flex gap-2 w-full mt-2">
-								<button id="scanAgainBtn" class="flex-1 px-3 py-2 bg-blue-600 text-white rounded">Volver a escanear</button>
-								<button id="closeOverlayBtn" class="flex-1 px-3 py-2 bg-gray-200 rounded">Cerrar</button>
-							</div>
-						</div>
-					</div>
-					<div id="scannerResult" class="min-h-[120px] p-2 border rounded text-sm"></div>
-					<div class="mt-3 flex gap-2">
-						<!-- previously had a Stop button; removed to keep scanner focused -->
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Container for QR list per catechist (reusable) -->
-	<div id="qrListModalWrapper"></div>
-
-	<!-- Include QR libs -->
-	<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-
-	<script>
-	(function(){
-		const catechistsUrl = '/all-catechists';
-		const allQrsUrl = '/all-qr';
-		const addQrUrl = '/add-qr';
-		const claimBase = '/qr/'; // will append {id}/claim
-
-		const tableBody = document.getElementById('catechistTableBody');
-		const openGlobalNewQr = document.getElementById('openGlobalNewQr');
-		const openScannerBtn = document.getElementById('openScannerBtn');
-
-		// Modals
-		const newQrModal = document.getElementById('newQrModal');
-		const newQrForm = document.getElementById('newQrForm');
-		const newQrGroupId = document.getElementById('newQrGroupId');
-		const newQrForum = document.getElementById('newQrForum');
-		const newQrFeedback = document.getElementById('newQrFeedback');
-		const closeNewQrModal = document.getElementById('closeNewQrModal');
-		const cancelNewQr = document.getElementById('cancelNewQr');
-
-		const qrDetailsModal = document.getElementById('qrDetailsModal');
-		const qrDetailsBody = document.getElementById('qrDetailsBody');
-		const closeQrDetailsModal = document.getElementById('closeQrDetailsModal');
-
-		const qrScannerModal = document.getElementById('qrScannerModal');
-		const qrVideo = document.getElementById('qrVideo');
-		const qrCanvas = document.getElementById('qrCanvas');
-	const scannerResult = document.getElementById('scannerResult');
-		const closeQrScannerModal = document.getElementById('closeQrScannerModal');
-
-		let videoStream = null;
-		let scanRunning = false;
-
-		function openModal(modal){ modal && modal.classList.remove('hidden'); modal && modal.classList.add('flex'); }
-		function closeModal(modal){ modal && modal.classList.remove('flex'); modal && modal.classList.add('hidden'); }
-
-		closeNewQrModal && closeNewQrModal.addEventListener('click', (e)=>{ e.preventDefault(); closeModal(newQrModal); });
-		cancelNewQr && cancelNewQr.addEventListener('click', (e)=>{ e.preventDefault(); closeModal(newQrModal); });
-		closeQrDetailsModal && closeQrDetailsModal.addEventListener('click', (e)=>{ e.preventDefault(); qrDetailsBody.innerHTML = ''; closeModal(qrDetailsModal); });
-		closeQrScannerModal && closeQrScannerModal.addEventListener('click', (e)=>{ e.preventDefault(); stopScanner(); closeModal(qrScannerModal); });
-
-		openGlobalNewQr && openGlobalNewQr.addEventListener('click', function(e){ e.preventDefault(); newQrGroupId.value = '1'; newQrForum.value = '1'; newQrFeedback.textContent = ''; openModal(newQrModal); });
-		openScannerBtn && openScannerBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(qrScannerModal); startScanner(); });
-
-			// Fetch QRs and render table
-			async function fetchQrsAndRender(){
-				try{
-					const all = await fetchQrs();
-					renderTable(all || []);
-				}catch(err){ console.error('fetch qrs and render error', err); tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-sm text-red-600">Error cargando QRs</td></tr>'; }
-			}
-
-			function renderTable(items){
-				tableBody.innerHTML = '';
-				if(!items || items.length === 0){ tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-sm text-gray-500">No hay QRs</td></tr>'; return; }
-				items.forEach(function(q){
-					const tr = document.createElement('tr');
-					tr.innerHTML = `
-						<td class="px-4 py-2 text-sm">${q.id ?? ''}</td>
-						<td class="px-4 py-2 text-sm">${q.forum ?? q.Forum ?? ''}</td>
-						<td class="px-4 py-2 text-sm">${q.group_id ?? q.GroupId ?? ''}</td>
-						<td class="px-4 py-2 text-sm">${ (typeof q.forum === 'number') ? q.forum : '' }</td>
-						<td class="px-4 py-2 text-sm text-right">
-							<div class="inline-flex gap-2 items-center">
-								<img class="w-10 h-10 object-contain bg-white p-1 rounded border" src="" data-qr-id="${q.id}" />
-								<button class="px-2 py-1 bg-gray-100 rounded btn-view-qr" data-id="${q.id}">Detalle</button>
-								<button class="px-2 py-1 bg-red-600 text-white rounded btn-claim-qr" data-id="${q.id}">Claim</button>
-							</div>
-						</td>
-					`;
-					tableBody.appendChild(tr);
-					// generate QR image for the img element
-					const imgEl = tr.querySelector('img[data-qr-id]');
-					if(imgEl){ QRCode.toDataURL(String(q.id)).then(url=>{ imgEl.src = url; }).catch(err=>{ console.error('qrcode gen',err); }); }
-				});
-			}
-
-		// Fetch all QRs
-		async function fetchQrs(){
-			try{
-				const resp = await fetch(allQrsUrl, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
-				if(!resp.ok) return [];
-				const data = await resp.json().catch(()=>null);
-				return Array.isArray(data) ? data : (data || []);
-			}catch(err){ console.error('fetch qrs error', err); return []; }
-		}
-
-		// Render QRs for a given catechist/group -- opens a transient modal in #qrListModalWrapper
-		async function openQrsFor(entityId){
-			const all = await fetchQrs();
-			// filter by group or by forum? We'll show all and mark those matching entityId in id/group
-			const filtered = all.filter(q => String(q.group_id) === String(entityId) || String(q.GroupId) === String(entityId));
-			const wrapper = document.getElementById('qrListModalWrapper');
-			const modalId = 'qrListModal_'+entityId;
-			// build modal
-			const modal = document.createElement('div');
-			modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/40';
-			modal.innerHTML = `
-				<div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 p-4">
-					<header class="flex items-center justify-between mb-2">
-						<h4 class="font-medium">QRs para ID ${entityId}</h4>
-						<div class="flex items-center gap-2">
-							<button id="close_${modalId}" class="text-gray-500">✕</button>
-						</div>
-					</header>
-					<div class="space-y-3" id="${modalId}_body">
-						${filtered.length === 0 ? '<p class="text-sm text-gray-500">No hay QRs para este catequista/grupo</p>' : ''}
-					</div>
-				</div>
-			`;
-			wrapper.appendChild(modal);
-
-			const body = document.getElementById(modalId+'_body');
-			filtered.forEach(function(q){
-				const row = document.createElement('div');
-				row.className = 'flex items-center justify-between border rounded p-2';
-				const left = document.createElement('div');
-				left.innerHTML = `<div class="text-sm">ID: <strong>${q.id}</strong> · Foro: <strong>${q.forum ?? q.Forum ?? ''}</strong></div>`;
-				const right = document.createElement('div');
-				right.className = 'flex gap-2 items-center';
-				const img = document.createElement('img');
-				img.className = 'w-20 h-20 object-contain bg-white p-1 rounded border';
-				// generate QR with content = id
-				QRCode.toDataURL(String(q.id)).then(url=>{ img.src = url; }).catch(err=>{ console.error('qrcode gen',err); });
-				const viewBtn = document.createElement('button');
-				viewBtn.className = 'px-2 py-1 bg-gray-100 rounded';
-				viewBtn.textContent = 'Detalle';
-				viewBtn.addEventListener('click', function(){ openQrDetail(q); });
-				const claimBtn = document.createElement('button');
-				claimBtn.className = 'px-2 py-1 bg-red-600 text-white rounded';
-				claimBtn.textContent = 'Marcar/Claim';
-				claimBtn.addEventListener('click', async function(){ await claimQr(q.id); body.innerHTML = '<p class="text-sm text-gray-500">Recalculando lista...</p>'; setTimeout(()=>{ openQrsFor(entityId); modal.remove(); }, 600); });
-				right.appendChild(img);
-				right.appendChild(viewBtn);
-				right.appendChild(claimBtn);
-				row.appendChild(left);
-				row.appendChild(right);
-				body.appendChild(row);
-			});
-
-			document.getElementById('close_'+modalId).addEventListener('click', function(e){ e.preventDefault(); modal.remove(); });
-		}
-
-		function openQrDetail(q){
-			qrDetailsBody.innerHTML = `
+			<form id="catechumenForm" class="space-y-4">
 				<div>
-					<p class="text-sm">ID: <strong>${q.id}</strong></p>
-					<p class="text-sm">Foro: <strong>${q.forum ?? q.Forum ?? ''}</strong></p>
-					<p class="text-sm">Group ID: <strong>${q.group_id ?? q.GroupId ?? ''}</strong></p>
-					<div class="mt-3"><img id="qrImageDetail" class="w-48 h-48 object-contain bg-white p-2 rounded border" alt="QR image"></div>
-					<div class="mt-3"><button id="claimFromDetail" class="px-3 py-1 bg-red-600 text-white rounded">Marcar/Claim</button></div>
+					<label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+					<input 
+						type="text" 
+						id="name" 
+						name="name" 
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
 				</div>
-			`;
-			const img = document.getElementById('qrImageDetail');
-			QRCode.toDataURL(String(q.id)).then(url=>{ img.src = url; }).catch(err=>{ console.error('qrcode gen',err); });
-			document.getElementById('claimFromDetail').addEventListener('click', async function(){ await claimQr(q.id); closeModal(qrDetailsModal); });
-			openModal(qrDetailsModal);
-		}
 
-		async function claimQr(id){
-			// Submit a POST form so the browser navigates to the server-rendered view (success/denied)
-			try{
-				const form = document.createElement('form');
-				form.method = 'POST';
-				form.action = `/qr/${id}/claim`;
-				// append and submit
-				document.body.appendChild(form);
-				form.submit();
-				}catch(err){
-					console.error('claim error (manual)', err);
-					// fallback to AJAX-based flow: try to claim and then reload to reflect state
-					try{
-						const data = await claimQrSilent(id);
-						// show overlay with message and then reload
-						showOverlay((data && data.message) ? data.message : ('QR ' + id + ' marcado'), true);
-						setTimeout(()=>{ window.location.reload(); }, 800);
-					}catch(e){
-						const msg = (e && e.message) ? e.message : 'Error marcando QR';
-						showOverlay(msg, false);
-					}
-			}
-		}
+				<div>
+					<label for="age" class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+					<input 
+						type="text" 
+						id="age" 
+						name="age" 
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+				</div>
 
-		// silent claim: returns parsed json or throws
-		async function claimQrSilent(id){
-			const resp = await fetch(`/qr/${id}/claim`, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
-			if(!resp.ok){ const txt = await resp.text().catch(()=>resp.statusText||'Error'); throw new Error('Error al claim: '+resp.status+' '+txt); }
-			return await resp.json().catch(()=>null);
-		}
+				<div>
+					<label for="group_id" class="block text-sm font-medium text-gray-700 mb-1">ID del Grupo</label>
+					<input 
+						type="number" 
+						id="group_id" 
+						name="group_id" 
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+				</div>
 
-		function showOverlay(message, success=true){
-			const overlay = document.getElementById('scannerOverlay');
-			const msg = document.getElementById('scannerOverlayMessage');
-			const icon = document.getElementById('scannerOverlayIcon');
-			if(!overlay || !msg || !icon) return;
-			msg.textContent = message || (success ? 'OK' : 'Error');
-			icon.style.backgroundColor = success ? '#ECFDF5' : '#FEF2F2';
-			icon.style.color = success ? '#065F46' : '#991B1B';
-			// hide scanning animation when showing result
-			const anim = document.getElementById('scanAnimation'); if(anim) anim.style.display = 'none';
-			overlay.classList.remove('hidden');
-		}
+				<div id="responseMessage" class="hidden p-3 rounded-md text-sm"></div>
 
-		function hideOverlay(){
-			const overlay = document.getElementById('scannerOverlay');
-			if(!overlay) return; overlay.classList.add('hidden');
-			// restore scanning animation visibility
-			const anim = document.getElementById('scanAnimation'); if(anim) anim.style.display = '';
-		}
+				<div class="flex justify-end space-x-2">
+					<button 
+						type="button" 
+						id="cancelBtn"
+						class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+						Cancelar
+					</button>
+					<button 
+						type="submit"
+						class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+						Guardar
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 
-		document.addEventListener('click', function(e){
-			if(e.target && e.target.id === 'scanAgainBtn'){
-				e.preventDefault(); hideOverlay(); // restart scanner
-				// show scanning animation again
-				const anim = document.getElementById('scanAnimation'); if(anim) anim.style.display = '';
-				scannerResult.textContent = 'Escaneando...';
-				scanRunning = true; requestAnimationFrame(tick); try{ qrVideo.play(); }catch(e){}
-			}
-			if(e.target && e.target.id === 'closeOverlayBtn'){
-				e.preventDefault(); hideOverlay(); closeModal(qrScannerModal);
-			}
-		});
+	<!-- Modal Editar -->
+	<div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+		<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+			<div class="flex justify-between items-center mb-4">
+				<h3 class="text-lg font-semibold">Editar Catecúmeno</h3>
+				<button id="closeEditModalBtn" class="text-gray-400 hover:text-gray-600">
+					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+					</svg>
+				</button>
+			</div>
 
-		// Add QR form submit
-		newQrForm && newQrForm.addEventListener('submit', async function(e){
-			e.preventDefault();
-			const btn = document.getElementById('submitNewQr');
-			btn.disabled = true; newQrFeedback.textContent = 'Creando...';
-			const fd = new FormData(newQrForm);
-			try{
-				// Attempt to POST; handler redirects to /home but we'll refresh via /all-qr after
-				await fetch(addQrUrl, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(Array.from(fd.entries())) });
-				newQrFeedback.textContent = 'Creado';
-				setTimeout(()=>{ newQrFeedback.textContent = ''; closeModal(newQrModal); }, 300);
-			}catch(err){ console.error('add qr error', err); newQrFeedback.textContent = 'Error de red'; }
-			finally{ btn.disabled = false; }
-		});
+			<form id="editCatechumenForm" class="space-y-4">
+				<input type="hidden" id="edit_id" name="id">
+				
+				<div>
+					<label for="edit_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+					<input 
+						type="text" 
+						id="edit_name" 
+						name="name" 
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+				</div>
 
-			// Delegated clicks for View/Claim buttons in table
-			document.addEventListener('click', function(ev){
-				const viewBtn = ev.target.closest && ev.target.closest('.btn-view-qr');
-				if(viewBtn){ ev.preventDefault(); const id = viewBtn.getAttribute('data-id'); if(id) { openQrDetail({ id: id, forum: null, group_id: null }); } return; }
-				const claimBtn = ev.target.closest && ev.target.closest('.btn-claim-qr');
-				if(claimBtn){ ev.preventDefault(); const id = claimBtn.getAttribute('data-id'); if(!id) return; if(!confirm('Marcar/Claim este QR?')) return; claimQr(id).then(()=>{ fetchQrsAndRender(); }); return; }
-				const addBtn = ev.target.closest && ev.target.closest('.btn-add-qr');
-				if(addBtn){ ev.preventDefault(); const gid = addBtn.getAttribute('data-group') || addBtn.getAttribute('data-id'); newQrGroupId.value = gid || '1'; newQrForum.value = '1'; openModal(newQrModal); return; }
-			});
+				<div>
+					<label for="edit_age" class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+					<input 
+						type="text" 
+						id="edit_age" 
+						name="age" 
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+				</div>
 
-		// Scanner functions
-			// startScanner: support modern getUserMedia and legacy webkitGetUserMedia (Safari older)
-			async function startScanner(){
-				const hasModern = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
-				const hasWebkit = !!navigator.webkitGetUserMedia;
-				if(!hasModern && !hasWebkit){
-					scannerResult.textContent = 'No hay soporte de cámara en este navegador.';
-					return;
-				}
-				try{
-					if(hasModern){
-						// try to prefer a rear camera by enumerating devices
-						try{
-							const devices = await navigator.mediaDevices.enumerateDevices();
-							const videoInputs = devices.filter(d=>d.kind === 'videoinput');
-							// try to find a device with 'back' or 'rear' in the label (best-effort)
-							let rear = videoInputs.find(d => /back|rear|environment/i.test(d.label));
-							// if not found, prefer last device (often rear camera on mobiles)
-							if(!rear && videoInputs.length > 1) rear = videoInputs[videoInputs.length - 1];
-							if(rear){
-								videoStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: rear.deviceId } } });
-							} else {
-								// fallback to facingMode
-								videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-							}
-						}catch(en){
-							// device enumeration or constrained request failed; fallback to simple facingMode
-							console.warn('enumerateDevices/fallback error', en);
-							videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-						}
-					} else {
-						// legacy callback style
-						videoStream = await new Promise((resolve, reject) => {
-							navigator.webkitGetUserMedia({ video: { facingMode: 'environment' } }, stream => resolve(stream), err => reject(err));
-						});
-					}
-					qrVideo.srcObject = videoStream;
-					scanRunning = true;
-					// ensure video plays on iOS
-					try { await qrVideo.play(); } catch(e) {}
-					requestAnimationFrame(tick);
-					scannerResult.textContent = 'Escaneando...';
-				}catch(err){
-					console.error('getUserMedia error', err);
-					// show friendly message (no upload fallback) — user needs a camera-enabled browser
-					scannerResult.textContent = 'No se pudo acceder a la cámara: ' + (err && err.message ? err.message : 'permiso denegado o no disponible');
-					// hide scanning animation
-					const anim = document.getElementById('scanAnimation'); if(anim) anim.style.display = 'none';
-				}
-			}
+				<div>
+					<label for="edit_group_id" class="block text-sm font-medium text-gray-700 mb-1">ID del Grupo</label>
+					<input 
+						type="number" 
+						id="edit_group_id" 
+						name="group_id" 
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+				</div>
 
-		function stopScanner(){
-			scanRunning = false;
-			if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream = null; }
-			qrVideo.srcObject = null;
-		}
+				<div id="editResponseMessage" class="hidden p-3 rounded-md text-sm"></div>
 
-			let lastClaimedId = null;
-			function tick(){
-				if(!scanRunning) return;
-				if(qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA){
-					const canvas = qrCanvas;
-					const ctx = canvas.getContext('2d');
-					canvas.width = qrVideo.videoWidth || 640;
-					canvas.height = qrVideo.videoHeight || 480;
-					try { ctx.drawImage(qrVideo, 0, 0, canvas.width, canvas.height); } catch(e) { requestAnimationFrame(tick); return; }
-					const imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
-					const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
-					if(code){
-						const dataStr = String(code.data || '');
-						scannerResult.innerHTML = `<div class="text-sm"><strong>Leído:</strong> ${dataStr}</div>`;
-						const id = parseInt(dataStr, 10);
-						if(!isNaN(id) && id !== lastClaimedId){
-							lastClaimedId = id;
-							// stop live scanning immediately to avoid duplicate reads
-							scanRunning = false;
-							stopScanner();
-							// show overlay while we mark silently
-							showOverlay('Marcando QR...', true);
-							try{
-								// create a form POST so browser navigates to server-rendered result page
-								const form = document.createElement('form');
-								form.method = 'POST';
-								form.action = `/qr/${id}/claim`;
-								document.body.appendChild(form);
-								form.submit();
-								lastClaimedId = null;
-							}catch(err){
-								console.error('scanner claim navigation failed, fallback to ajax', err);
-								claimQrSilent(id).then((data)=>{
-									const msg = (data && data.message) ? data.message : ('QR ' + id + ' marcado');
-									showOverlay(msg, true);
-									setTimeout(()=>{ window.location.reload(); }, 800);
-									lastClaimedId = null;
-								}).catch(err2=>{
-									const msg = (err2 && err2.message) ? err2.message : 'Error marcando QR';
-									showOverlay(msg, false);
-									lastClaimedId = null;
-								});
-							}
-							return;
-						}
-					}
-				}
-				requestAnimationFrame(tick);
-			}
-
-	// stop button removed to keep single-flow scanner UI
-
-			// image upload fallback removed — scanner only UI
-
-		// initial load: show QRs
-		fetchQrsAndRender();
-
-	})();
-	</script>
+				<div class="flex justify-end space-x-2">
+					<button 
+						type="button" 
+						id="cancelEditBtn"
+						class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+						Cancelar
+					</button>
+					<button 
+						type="submit"
+						class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+						Actualizar
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 
 </main>
+
+<script>
+	const modal = document.getElementById('modal');
+	const editModal = document.getElementById('editModal');
+	const openModalBtn = document.getElementById('openModalBtn');
+	const closeModalBtn = document.getElementById('closeModalBtn');
+	const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+	const cancelBtn = document.getElementById('cancelBtn');
+	const cancelEditBtn = document.getElementById('cancelEditBtn');
+	const catechumenForm = document.getElementById('catechumenForm');
+	const editCatechumenForm = document.getElementById('editCatechumenForm');
+	const responseMessage = document.getElementById('responseMessage');
+	const editResponseMessage = document.getElementById('editResponseMessage');
+
+	// Abrir modal de agregar
+	openModalBtn.addEventListener('click', () => {
+		modal.classList.remove('hidden');
+		catechumenForm.reset();
+		responseMessage.classList.add('hidden');
+	});
+
+	// Cerrar modal de agregar
+	const closeModal = () => {
+		modal.classList.add('hidden');
+	};
+
+	closeModalBtn.addEventListener('click', closeModal);
+	cancelBtn.addEventListener('click', closeModal);
+
+	// Cerrar modal de editar
+	const closeEditModal = () => {
+		editModal.classList.add('hidden');
+	};
+
+	closeEditModalBtn.addEventListener('click', closeEditModal);
+	cancelEditBtn.addEventListener('click', closeEditModal);
+
+	// Cerrar modales al hacer clic fuera
+	modal.addEventListener('click', (e) => {
+		if (e.target === modal) {
+			closeModal();
+		}
+	});
+
+	editModal.addEventListener('click', (e) => {
+		if (e.target === editModal) {
+			closeEditModal();
+		}
+	});
+
+	// Enviar formulario de agregar
+	catechumenForm.addEventListener('submit', async (e) => {
+		e.preventDefault();
+
+		const formData = new FormData(catechumenForm);
+		const urlParams = new URLSearchParams(formData);
+		
+		console.log('Datos a enviar:', Object.fromEntries(urlParams));
+
+		try {
+			const response = await fetch('/add-catechumen', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: urlParams
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				responseMessage.className = 'p-3 rounded-md text-sm bg-green-100 text-green-700';
+				responseMessage.textContent = data.message || 'Catecúmeno creado exitosamente';
+				responseMessage.classList.remove('hidden');
+
+				catechumenForm.reset();
+
+				setTimeout(() => {
+					closeModal();
+					loadCatechumens();
+				}, 2000);
+
+				console.log('Catecúmeno creado:', data.catechumen);
+				console.log('QR generado:', data.qr);
+			} else {
+				responseMessage.className = 'p-3 rounded-md text-sm bg-red-100 text-red-700';
+				responseMessage.textContent = data.message || 'Error al crear el catecúmeno';
+				responseMessage.classList.remove('hidden');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			responseMessage.className = 'p-3 rounded-md text-sm bg-red-100 text-red-700';
+			responseMessage.textContent = 'Error de conexión al servidor';
+			responseMessage.classList.remove('hidden');
+		}
+	});
+
+	// Enviar formulario de editar
+	editCatechumenForm.addEventListener('submit', async (e) => {
+		e.preventDefault();
+
+		const formData = new FormData(editCatechumenForm);
+		const urlParams = new URLSearchParams(formData);
+		const id = document.getElementById('edit_id').value;
+		
+		console.log('Datos a actualizar:', Object.fromEntries(urlParams));
+
+		try {
+			const response = await fetch(`/catechumen/${id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: urlParams
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				editResponseMessage.className = 'p-3 rounded-md text-sm bg-green-100 text-green-700';
+				editResponseMessage.textContent = data.message || 'Catecúmeno actualizado exitosamente';
+				editResponseMessage.classList.remove('hidden');
+
+				setTimeout(() => {
+					closeEditModal();
+					loadCatechumens();
+				}, 2000);
+
+				console.log('Catecúmeno actualizado:', data.catechumen);
+			} else {
+				editResponseMessage.className = 'p-3 rounded-md text-sm bg-red-100 text-red-700';
+				editResponseMessage.textContent = data.message || 'Error al actualizar el catecúmeno';
+				editResponseMessage.classList.remove('hidden');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			editResponseMessage.className = 'p-3 rounded-md text-sm bg-red-100 text-red-700';
+			editResponseMessage.textContent = 'Error de conexión al servidor';
+			editResponseMessage.classList.remove('hidden');
+		}
+	});
+
+	// Función para abrir el modal de edición
+	function openEditModal(catechumen) {
+		document.getElementById('edit_id').value = catechumen.id;
+		document.getElementById('edit_name').value = catechumen.name;
+		document.getElementById('edit_age').value = catechumen.age;
+		document.getElementById('edit_group_id').value = catechumen.group_id;
+		
+		editResponseMessage.classList.add('hidden');
+		editModal.classList.remove('hidden');
+	}
+
+	// Función para cargar catecúmenos
+	async function loadCatechumens() {
+		try {
+			const response = await fetch('/catechumens');
+			const data = await response.json();
+
+			if (response.ok && data.catechumens) {
+				const tbody = document.getElementById('catechumensTable');
+				tbody.innerHTML = data.catechumens.map(cat => `
+					<tr class="hover:bg-gray-50">
+						<td class="px-4 py-2 text-sm text-gray-900">${cat.id}</td>
+						<td class="px-4 py-2 text-sm text-gray-900">${cat.name}</td>
+						<td class="px-4 py-2 text-sm text-gray-900">${cat.age}</td>
+						<td class="px-4 py-2 text-sm text-gray-900">${cat.group_id}</td>
+						<td class="px-4 py-2 text-sm text-right">
+							<button 
+								onclick='openEditModal(${JSON.stringify(cat).replace(/'/g, "&#39;")})'
+								class="text-blue-600 hover:text-blue-800 mr-2">
+								Editar
+							</button>
+						</td>
+					</tr>
+				`).join('');
+			}
+		} catch (error) {
+			console.error('Error cargando catecúmenos:', error);
+		}
+	}
+
+	// Cargar catecúmenos al inicio
+	loadCatechumens();
+</script>
 {{ end }}

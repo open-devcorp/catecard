@@ -1,0 +1,27 @@
+# Configuración para Air (https://github.com/cosmtrek/air)
+# Recarga automática para el servidor Go en ./cmd/server
+
+[build]
+  # Comando para compilar el binario (aquí lo dejamos en ./tmp/main para ser compatible con la ejecución observada)
+  cmd = "go build -o ./tmp/main ./cmd/server"
+  # Tiempo de espera entre builds when file changes (ms)
+  delay = 100
+  # Extensiones a observar para disparar rebuild
+  include_ext = ["go", "tpl", "tmpl", "html"]
+
+[log]
+  time = true
+
+[color]
+  main = "auto"
+
+[run]
+  # Ejecuta el binario generado
+  cmd = "./tmp/main"
+  # Args si fueran necesarios
+  args = []
+
+# Rutas y patrones a ignorar (evita que los assets estáticos o la base de datos disparen rebuilds)
+exclude_dirs = ["public", "tmp", "node_modules", "vendor", "db/migrations"]
+
+# Si quieres observar rutas adicionales o personalizar, edita este archivo

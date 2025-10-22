@@ -2,7 +2,7 @@
 import { initVue } from './vue.ts';
 
 // TailwindCSS Styles
-import "../css/tailwind.css";
+import "../src/tailwind.css";
 
 // Custom font
 // import "./fonts.css";

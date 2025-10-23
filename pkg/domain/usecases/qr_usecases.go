@@ -31,6 +31,7 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	}
 	if qr.Forum != 0 {
 		qr.Forum -= 1
+		qr.Count += 1
 	}
 	err = q.qrRepo.Update(qr)
 	if err != nil {

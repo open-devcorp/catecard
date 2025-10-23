@@ -1,10 +1,11 @@
 package entities
 
 type Qr struct {
-	ID      int `json:"id"`
-	Forum   int `json:"forum"`
-	GroupId int `json:"group_id"`
-	Count   int `json:"count"`
+	ID         int         `json:"id"`
+	Forum      int         `json:"forum"`
+	GroupId    int         `json:"group_id"`
+	Count      int         `json:"count"`
+	Catechumen *Catechumen `json:"catechumen,omitempty"`
 }
 
 func NewQr(forum int, groupId int) *Qr {

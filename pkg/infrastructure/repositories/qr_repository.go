@@ -3,7 +3,6 @@ package repositories
 import (
 	"catecard/pkg/domain/entities"
 	"database/sql"
-	"errors"
 	"log"
 )
 
@@ -77,18 +76,38 @@ func (q *qrRepository) GetById(id int) (*entities.Qr, error) {
 	return &qr, nil
 }
 
-func (q *qrRepository) Update(qr *entities.Qr) error {
-	if qr.Forum <= 0 {
-		return errors.New("Se alcanzó el límite máximo de participantes para este QR")
+// ClaimAtomic realiza la actualización de cupo de forma segura:
+// Solo decrementa forum e incrementa count si forum > 0.
+// Protege contra carreras cuando dos escaneos llegan "al mismo tiempo".
+func (q *qrRepository) ClaimAtomic(id int) (bool, error) {
+	res, err := q.db.Exec(`
+		UPDATE qrs
+		SET forum = forum - 1,
+		    count = count + 1
+		WHERE id = ? AND forum > 0
+	`, id)
+	if err != nil {
+		q.log.Printf("Error in ClaimAtomic UPDATE: %v", err)
+		return false, err
 	}
+	aff, err := res.RowsAffected()
+	if err != nil {
+		q.log.Printf("Error getting RowsAffected in ClaimAtomic: %v", err)
+		return false, err
+	}
+	// aff == 0 => no había cupo (forum <= 0)
+	return aff > 0, nil
+}
 
+// Update: mantenla si te sirve para cambios administrativos (no para consumir cupos).
+// Ya NO valida forum aquí; la validación de cupo se hace en ClaimAtomic.
+func (q *qrRepository) Update(qr *entities.Qr) error {
 	query := `UPDATE qrs SET group_id = ?, forum = ?, count = ? WHERE id = ?`
 	_, err := q.db.Exec(query, qr.GroupId, qr.Forum, qr.Count, qr.ID)
 	if err != nil {
 		q.log.Printf("Error updating QR: %v", err)
 		return err
 	}
-
 	return nil
 }
 

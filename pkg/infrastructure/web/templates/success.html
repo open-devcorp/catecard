@@ -1,4 +1,6 @@
 {{ define "content" }}
+<!-- <pre class="text-xs text-gray-600 bg-gray-50 p-3 rounded">{{ .qrJSON }}</pre> -->
+
 <main class="container mx-auto px-4 py-8 max-w-2xl">
   <div class="text-center mb-8">
     <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-100 mb-4 mx-auto">
@@ -14,7 +16,7 @@
       ¡Asistencia Registrada!
     </h1>
     <p class="text-gray-500 text-sm sm:text-base mt-1">
-      El registro se ha guardado correctamente
+      {{ .message }}
     </p>
   </div>
 
@@ -24,31 +26,43 @@
       <!-- Información del catecúmeno -->
       <div>
         <p class="text-xs sm:text-sm text-gray-500 mb-1">Catecúmeno</p>
-        <h2 class="text-base sm:text-lg font-medium">{{ .qr.ID }}</h2>
+        <h2 class="text-base sm:text-lg font-medium">
+          {{ with .qr.Catechumen }}
+            {{ .FullName }}
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
+        </h2>
       </div>
 
-      <!-- Datos de grupo y catequista -->
+      <!-- Datos de grupo -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p class="text-xs sm:text-sm text-gray-500 mb-1">Grupo</p>
-          <span class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] sm:text-xs bg-gray-200 text-gray-800">
-            {{ .qr.GroupId }}
-          </span>
+          {{ with .qr.Catechumen.Group }}
+            <p class="text-[13px] sm:text-[15px]">{{ .Name }}</p>
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
         </div>
         <div>
           <p class="text-xs sm:text-sm text-gray-500 mb-1">Catequista</p>
-          <p class="text-[13px] sm:text-[15px]">{{ .qr.Forum }}</p>
+          {{ with .qr.Catechumen.User }}
+            <p class="text-[13px] sm:text-[15px]">{{ .Username }}</p>
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
         </div>
       </div>
 
-      <!-- Sección de estadísticas -->
+      <!-- Stats -->
       <div class="pt-4 border-t border-gray-300">
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
           <div class="text-center">
-            <p class="text-xs sm:text-sm text-gray-500 mb-1">Invitados permitidos</p>
+            <p class="text-xs sm:text-sm text-gray-500 mb-1">Invitados restantes</p>
             <span class="inline-flex items-center justify-center rounded-md border font-medium text-[13px] sm:text-[15px] px-3 py-1">
-				{{ .qr.Forum }}
-			</span>
+              {{ .qr.Forum }}
+            </span>
           </div>
           <div class="text-center">
             <p class="text-xs sm:text-sm text-gray-500 mb-1">Escaneos realizados</p>
@@ -58,29 +72,26 @@
           </div>
         </div>
 
-        <!-- Aviso -->
+        {{ if ge .qr.Count .qr.Forum }}
         <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200">
           <p class="text-[13px] text-amber-800 text-center">
             ⚠️ Este QR alcanzó su límite de escaneos
           </p>
         </div>
+        {{ end }}
       </div>
 
-      <!-- Botón -->
-      <button
-        class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-gray-100 text-gray-800 hover:bg-gray-50 h-9 sm:h-10 px-4 py-2 w-full mt-6 border-gray-300"
-      >
+      <a href="https://0a0c60b80016.ngrok-free.app/scanner"
+        class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-gray-100 text-gray-800 hover:bg-gray-50 h-9 sm:h-10 px-4 py-2 w-full mt-6 border-gray-300">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
           class="w-4 h-4 sm:w-5 sm:h-5 mr-2" aria-hidden="true">
-          <path d="m12 19-7-7 7-7"></path>
-          <path d="M19 12H5"></path>
+          <path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path>
         </svg>
         Escanear otro código
-      </button>
+      </a>
     </div>
   </div>
 </main>
-
 {{ end }}

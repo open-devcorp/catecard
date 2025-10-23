@@ -1,6 +1,6 @@
 {{ define "content" }}
-<main class="max-w-[90%] sm:max-w-3xl mx-auto mt-8 sm:mt-10 px-4">
-  <div class="text-center">
+<main class="max-w-[92%] sm:max-w-3xl mx-auto mt-8 sm:mt-10 px-4">
+  <div class="text-center mb-6">
     <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-100 mx-auto">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
         fill="none" stroke="currentColor" stroke-width="2"
@@ -12,56 +12,59 @@
       </svg>
     </div>
 
-    <h1 class="mt-2 text-red-600 text-base sm:text-lg md:text-xl font-semibold">
-      Error al Registrar
+    <h1 class="mt-3 text-red-600 text-base sm:text-lg md:text-xl font-semibold">
+      No se pudo registrar la asistencia
     </h1>
-    <p class="text-gray-500 text-sm sm:text-base">
-      No se pudo completar el registro de asistencia
+    <p class="text-gray-600 text-sm sm:text-base mt-1">
+      {{ .message }}
     </p>
   </div>
 
-  <section class="mt-6 sm:mt-8 bg-white border border-red-100 rounded-lg p-4 sm:p-6 md:p-8">
-    <div class="space-y-5 sm:space-y-6">
-
-      <!-- Alerta de límite alcanzado -->
-      <div class="p-3 sm:p-4 rounded-xl bg-red-50 border border-red-200">
-        <p class="text-[13px] sm:text-[15px] text-red-800 text-center sm:text-left">
-          Este QR ya alcanzó su límite de 6 escaneos permitidos
-        </p>
-      </div>
+  <section class="bg-white border border-red-100 rounded-xl p-5 sm:p-7">
+  <div class="bg-white text-gray-800 flex flex-col gap-6 rounded-xl border border-gray-200">
+    <div class="p-6 sm:p-8 space-y-6">
 
       <!-- Información del catecúmeno -->
       <div>
         <p class="text-xs sm:text-sm text-gray-500 mb-1">Catecúmeno</p>
-        <h3 class="text-base sm:text-lg md:text-xl font-medium">
-          {{ .qr.ID }}
-        </h3>
+        <h2 class="text-base sm:text-lg font-medium">
+          {{ with .qr.Catechumen }}
+            {{ .FullName }}
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
+        </h2>
       </div>
 
-      <!-- Datos de grupo y foro -->
+      <!-- Datos de grupo -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <p class="text-xs sm:text-sm text-gray-500 mb-1">Grupo ID</p>
-          <span class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] sm:text-xs bg-gray-100 text-gray-800">
-            {{ .qr.GroupId }}
-          </span>
+          <p class="text-xs sm:text-sm text-gray-500 mb-1">Grupo</p>
+          {{ with .qr.Catechumen.Group }}
+            <p class="text-[13px] sm:text-[15px]">{{ .Name }}</p>
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
         </div>
         <div>
           <p class="text-xs sm:text-sm text-gray-500 mb-1">Catequista</p>
-          <p class="text-[13px] sm:text-[15px]">{{ .qr.Forum }}</p>
+          {{ with .qr.Catechumen.User }}
+            <p class="text-[13px] sm:text-[15px]">{{ .Username }}</p>
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
         </div>
       </div>
 
-      <!-- Sección de estadísticas -->
-      <div class="pt-4 border-t">
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-3 sm:mb-4">
+      <!-- Stats -->
+      <div class="pt-4 border-t border-gray-300">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
           <div class="text-center">
-            <p class="text-xs sm:text-sm text-gray-500 mb-1">Invitados permitidos</p>
+            <p class="text-xs sm:text-sm text-gray-500 mb-1">Invitados restantes</p>
             <span class="inline-flex items-center justify-center rounded-md border font-medium text-[13px] sm:text-[15px] px-3 py-1">
               {{ .qr.Forum }}
             </span>
           </div>
-
           <div class="text-center">
             <p class="text-xs sm:text-sm text-gray-500 mb-1">Escaneos realizados</p>
             <span class="inline-flex items-center justify-center rounded-md font-medium bg-red-600 text-white text-[13px] sm:text-[15px] px-3 py-1">
@@ -70,29 +73,32 @@
           </div>
         </div>
 
-        <!-- Recomendaciones -->
-        <p class="text-xs sm:text-sm text-gray-500 mb-2">Recomendaciones:</p>
-        <ul class="space-y-1 text-[13px] sm:text-[14px] text-gray-600">
-          <li>• Verifica que el código QR sea válido</li>
-          <li>• Consulta con el catequista responsable</li>
-          <li>• Este QR no permite más ingresos</li>
-        </ul>
+        {{ if ge .qr.Count .qr.Forum }}
+        <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200">
+          <p class="text-[13px] text-amber-800 text-center">
+            ⚠️ Este QR alcanzó su límite de escaneos
+          </p>
+        </div>
+        {{ end }}
       </div>
 
-      <!-- Botón para intentar nuevamente -->
-      <button
-        class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-white text-gray-800 hover:bg-gray-100 h-9 sm:h-10 px-4 py-2 w-full mt-4"
-      >
+      <a href="https://0a0c60b80016.ngrok-free.app/scanner"
+        class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-gray-100 text-gray-800 hover:bg-gray-50 h-9 sm:h-10 px-4 py-2 w-full mt-6 border-gray-300">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
           class="w-4 h-4 sm:w-5 sm:h-5 mr-2" aria-hidden="true">
-          <path d="m12 19-7-7 7-7"></path>
-          <path d="M19 12H5"></path>
+          <path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path>
         </svg>
-        Intentar nuevamente
-      </button>
+        Escanear otro código
+      </a>
     </div>
+  </div>
   </section>
+
+  <!-- Para depuración: mostrar JSON si lo envías (descomenta) -->
+  <!--
+  <pre class="mt-6 text-xs text-gray-600 bg-gray-50 p-3 rounded overflow-auto">{{ .qrJSON }}</pre>
+  -->
 </main>
 {{ end }}

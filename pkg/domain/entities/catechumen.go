@@ -21,7 +21,8 @@ func FakeCatechumen() Catechumen {
 		ID:       1,
 		FullName: "Italo D'Alessandro Luna Capuñay",
 		Age:      "18",
-		GroupId:  1,
+		GroupId:  2,
 		User:     &User{},
+		Group:    &Group{},
 	}
 }

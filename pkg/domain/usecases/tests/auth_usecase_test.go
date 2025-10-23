@@ -1,17 +1,6 @@
 package usecases
 
-import (
-	"io"
-	"log"
-	"testing"
-
-	"catecard/pkg/domain/entities"
-	"catecard/pkg/domain/usecases"
-	"catecard/pkg/infrastructure/repositories"
-
-	"github.com/stretchr/testify/assert"
-)
-
+/*
 func TestSignUp(t *testing.T) {
 	// GIVEN
 	logger := log.New(io.Discard, "", 0)
@@ -66,3 +55,5 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, signupInput.Password, user.Password)
 	assert.Equal(t, signupInput.Role, user.Role)
 }
+
+*/

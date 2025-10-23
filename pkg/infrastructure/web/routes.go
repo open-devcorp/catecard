@@ -1,11 +1,13 @@
 package web
 
 import (
+	"bufio"
 	"catecard/pkg/domain/entities"
 	"catecard/pkg/handlers"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -49,6 +51,8 @@ func logsHandler(w http.ResponseWriter, r *http.Request) {
 	_ = enc.Encode(copyLogs)
 }
 
+// ---------- Logging middleware (único) ----------
+
 func LoggingMiddleware(logger *log.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -83,15 +87,54 @@ func LoggingMiddleware(logger *log.Logger) func(http.Handler) http.Handler {
 	}
 }
 
+// ---------- statusWriter blindado ----------
+
 type statusWriter struct {
 	http.ResponseWriter
 	status int
+	wrote  bool
 }
 
 func (w *statusWriter) WriteHeader(code int) {
+	if w.wrote {
+		// Evita segundo WriteHeader (causa del “superfluous...”)
+		return
+	}
 	w.status = code
+	w.wrote = true
 	w.ResponseWriter.WriteHeader(code)
 }
+
+func (w *statusWriter) Write(b []byte) (int, error) {
+	if !w.wrote {
+		// Fija 200 en el primer Write si nadie fijó status
+		w.WriteHeader(http.StatusOK)
+	}
+	return w.ResponseWriter.Write(b)
+}
+
+// Soporte opcional de interfaces comunes (SSE/WebSockets/HTTP2)
+func (w *statusWriter) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+func (w *statusWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if h, ok := w.ResponseWriter.(http.Hijacker); ok {
+		return h.Hijack()
+	}
+	return nil, nil, fmt.Errorf("hijacker not supported")
+}
+
+func (w *statusWriter) Push(target string, opts *http.PushOptions) error {
+	if p, ok := w.ResponseWriter.(http.Pusher); ok {
+		return p.Push(target, opts)
+	}
+	return http.ErrNotSupported
+}
+
+// ---------- Router setup ----------
 
 func setupRouter(
 	logger *log.Logger,
@@ -103,20 +146,8 @@ func setupRouter(
 
 	r := mux.NewRouter()
 
-	////////////////////////////////////////////////////////
-	// 🧩 Middleware: log simple (status, método, endpoint)
-	////////////////////////////////////////////////////////
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
-			next.ServeHTTP(sw, req)
-			logger.Printf("%s %s %s",
-				c(fmt.Sprintf("%3d", sw.status), statusColor(sw.status)),
-				c(req.Method, methodColor(req.Method)),
-				req.URL.Path,
-			)
-		})
-	})
+	// Usa SOLO el middleware de logging formal (evita duplicar)
+	r.Use(LoggingMiddleware(logger))
 
 	////////////////////////////////////////////////////////
 	// 📂 Archivos públicos y logs
@@ -220,9 +251,9 @@ func setupRouter(
 	////////////////////////////////////////////////////////
 	// 📱 QR / SCANNERS
 	////////////////////////////////////////////////////////
-	r.HandleFunc("/add-qr", func(w http.ResponseWriter, r *http.Request) {
-		qrHandler.AddQr(w, r)
-	}).Methods("POST")
+	// r.HandleFunc("/add-qr", func(w http.ResponseWriter, r *http.Request) {
+	// 	qrHandler.AddQr(w, r)
+	// }).Methods("POST")
 
 	r.HandleFunc("/all-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.GetAllQrs(w, r)

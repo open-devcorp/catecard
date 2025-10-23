@@ -13,6 +13,27 @@ type userRepository struct {
 	db  *sql.DB
 }
 
+// GetById implements UserRepository.
+func (r *userRepository) GetById(id int) (*entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	query := `SELECT id, username,email, password, role FROM users WHERE id = ?`
+	row := r.db.QueryRowContext(ctx, query, id)
+	user := &entities.User{}
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			r.log.Printf("User not found with ID: %d", id)
+			return nil, nil
+		}
+		r.log.Println("Error getting user by ID:", err)
+		return nil, err
+	}
+
+	return user, nil
+}
+
 // GetAll implements usecases.UserRepository.
 func (r *userRepository) GetAll() ([]*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

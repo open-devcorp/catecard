@@ -107,7 +107,7 @@ func StartWebServer(cfg *config.Config) error {
 	authRepo := repositories.NewUserRepository(logger, db)
 	groupRepo := repositories.NewGroupRepository(logger, db)
 	qrRepo := repositories.NewQrRepository(logger, db)
-	catechumenRepo := repositories.NewMockCatechumenRepository()
+	catechumenRepo := repositories.NewCatechumenRepository(logger, db)
 
 	//USECASES
 	authUC := usecases.NewAuthUseCase(logger, authRepo)

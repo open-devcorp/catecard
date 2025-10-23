@@ -34,3 +34,10 @@
         forum INT NOT NULL,
         group_id INT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS catechumens (
+        id SERIAL PRIMARY KEY,
+        full_name VARCHAR(100) NOT NULL,
+        age VARCHAR(3) NOT NULL,
+        group_id INT NOT NULL
+    );

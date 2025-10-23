@@ -10,10 +10,10 @@ import (
 )
 
 type CatechumenHandler interface {
-	AddCatechumen(w http.ResponseWriter, r *http.Request)
-	UpdateCatechumen(w http.ResponseWriter, r *http.Request)
-	GetAllCatechumens(w http.ResponseWriter, r *http.Request)
-	GetCatechumenById(id int, w http.ResponseWriter, r *http.Request)
+	AddCatechumen(User *entities.User, w http.ResponseWriter, r *http.Request)
+	UpdateCatechumen(User *entities.User, w http.ResponseWriter, r *http.Request)
+	GetAllCatechumens(User *entities.User, w http.ResponseWriter, r *http.Request)
+	GetCatechumenById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type catechumenHandler struct {
@@ -27,7 +27,7 @@ func NewCatechumenHandler(logger *log.Logger, uc usecases.CatechumenUseCase, tmp
 }
 
 // AddCatechumen implements CatechumenHandler.
-func (c *catechumenHandler) AddCatechumen(w http.ResponseWriter, r *http.Request) {
+func (c *catechumenHandler) AddCatechumen(User *entities.User, w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.log.Printf("Error parsing form: %v", err)
 		writeJSONError(w, http.StatusBadRequest, "Invalid form data")
@@ -36,26 +36,10 @@ func (c *catechumenHandler) AddCatechumen(w http.ResponseWriter, r *http.Request
 
 	fullName := r.FormValue("name")
 	age := r.FormValue("age")
-	groupIdStr := r.FormValue("group_id")
 
-	c.log.Printf("group_id: %s", groupIdStr)
+	catechumen := entities.NewCatechumen(fullName, age)
 
-	if groupIdStr == "" {
-		c.log.Printf("group_id is empty")
-		writeJSONError(w, http.StatusBadRequest, "group_id is required")
-		return
-	}
-
-	groupId, err := strconv.Atoi(groupIdStr)
-	if err != nil {
-		c.log.Printf("Error parsing group ID: %v", err)
-		writeJSONError(w, http.StatusBadRequest, "Invalid group ID value")
-		return
-	}
-
-	catechumen := entities.NewCatechumen(fullName, age, groupId)
-
-	addedCatechumen, qr, err := c.uc.Add(&catechumen)
+	addedCatechumen, qr, err := c.uc.Add(User, &catechumen)
 	if err != nil {
 		c.log.Printf("Error adding catechumen: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Error adding catechumen")
@@ -76,9 +60,9 @@ func (c *catechumenHandler) AddCatechumen(w http.ResponseWriter, r *http.Request
 }
 
 // GetAllCatechumens implements CatechumenHandler.
-func (c *catechumenHandler) GetAllCatechumens(w http.ResponseWriter, r *http.Request) {
+func (c *catechumenHandler) GetAllCatechumens(User *entities.User, w http.ResponseWriter, r *http.Request) {
 
-	catechumens, err := c.uc.GetAll()
+	catechumens, err := c.uc.GetAll(User)
 	if err != nil {
 		c.log.Printf("Error retrieving catechumens: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Error retrieving catechumens")
@@ -96,8 +80,8 @@ func (c *catechumenHandler) GetAllCatechumens(w http.ResponseWriter, r *http.Req
 }
 
 // GetCatechumenById implements CatechumenHandler.
-func (c *catechumenHandler) GetCatechumenById(id int, w http.ResponseWriter, r *http.Request) {
-	catechumen, err := c.uc.GetById(id)
+func (c *catechumenHandler) GetCatechumenById(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+	catechumen, err := c.uc.GetById(User, id)
 	if err != nil {
 		c.log.Printf("Error retrieving catechumen by ID: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Error retrieving catechumen")
@@ -120,7 +104,7 @@ func (c *catechumenHandler) GetCatechumenById(id int, w http.ResponseWriter, r *
 }
 
 // UpdateCatechumen implements CatechumenHandler.
-func (c *catechumenHandler) UpdateCatechumen(w http.ResponseWriter, r *http.Request) {
+func (c *catechumenHandler) UpdateCatechumen(User *entities.User, w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		c.log.Printf("Error parsing form: %v", err)
 		writeJSONError(w, http.StatusBadRequest, "Invalid form data")
@@ -153,7 +137,7 @@ func (c *catechumenHandler) UpdateCatechumen(w http.ResponseWriter, r *http.Requ
 		GroupId:  groupId,
 	}
 
-	updatedCatechumen, err := c.uc.Update(catechumen)
+	updatedCatechumen, err := c.uc.Update(User, catechumen)
 	if err != nil {
 		c.log.Printf("Error updating catechumen: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Error updating catechumen")

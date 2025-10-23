@@ -1,36 +1,97 @@
 {{ define "content" }}
-<div class="max-w-screen-lg mx-auto p-4">
-	<h2 class="text-2xl font-semibold">Éxito</h2>
-	<p class="mt-2 text-gray-600">La operación se completó con éxito.</p>
+<!-- <pre class="text-xs text-gray-600 bg-gray-50 p-3 rounded">{{ .qrJSON }}</pre> -->
 
-	{{/* Prefer map key "message", fall back to "Message" for compatibility */}}
-	{{ with index . "message" }}
-	<div class="mt-4 bg-green-50 border border-green-200 p-3 rounded">
-		<p class="font-medium text-green-800">Mensaje: {{ . }}</p>
-	</div>
-	{{ else }}
-	{{ with .Message }}
-	<div class="mt-4 bg-green-50 border border-green-200 p-3 rounded">
-		<p class="font-medium text-green-800">Mensaje: {{ . }}</p>
-	</div>
-	{{ end }}
-	{{ end }}
+<main class="container mx-auto px-4 py-8 max-w-2xl">
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-100 mb-4 mx-auto">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"
+        class="w-8 h-8 sm:w-10 sm:h-10 text-green-600" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <h1 class="text-green-600 text-lg sm:text-xl font-semibold">
+      ¡Asistencia Registrada!
+    </h1>
+    <p class="text-gray-500 text-sm sm:text-base mt-1">
+      {{ .message }}
+    </p>
+  </div>
 
-	{{/* If handler included a QR object under key 'qr', render its fields */}}
-	{{ with index . "qr" }}
-	<div class="mt-4 border p-3 rounded bg-white">
-		<h3 class="font-medium">Detalles del QR</h3>
-		<div class="text-sm mt-2">
-			<p>ID: <strong>{{ .ID }}</strong></p>
-			<p>Foro: <strong>{{ .Forum }}</strong></p>
-			<p>Group ID: <strong>{{ .GroupId }}</strong></p>
-		</div>
-	</div>
-	{{ end }}
+  <div class="bg-white text-gray-800 flex flex-col gap-6 rounded-xl border border-gray-200">
+    <div class="p-6 sm:p-8 space-y-6">
 
-	<div class="mt-6">
-		<button onclick="history.back()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Volver</button>
-	</div>
+      <!-- Información del catecúmeno -->
+      <div>
+        <p class="text-xs sm:text-sm text-gray-500 mb-1">Catecúmeno</p>
+        <h2 class="text-base sm:text-lg font-medium">
+          {{ with .qr.Catechumen }}
+            {{ .FullName }}
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
+        </h2>
+      </div>
 
-</div>
+      <!-- Datos de grupo -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <p class="text-xs sm:text-sm text-gray-500 mb-1">Grupo</p>
+          {{ with .qr.Catechumen.Group }}
+            <p class="text-[13px] sm:text-[15px]">{{ .Name }}</p>
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
+        </div>
+        <div>
+          <p class="text-xs sm:text-sm text-gray-500 mb-1">Catequista</p>
+          {{ with .qr.Catechumen.User }}
+            <p class="text-[13px] sm:text-[15px]">{{ .Username }}</p>
+          {{ else }}
+            <span class="text-gray-500">Sin asignar</span>
+          {{ end }}
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="pt-4 border-t border-gray-300">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+          <div class="text-center">
+            <p class="text-xs sm:text-sm text-gray-500 mb-1">Invitados restantes</p>
+            <span class="inline-flex items-center justify-center rounded-md border font-medium text-[13px] sm:text-[15px] px-3 py-1">
+              {{ .qr.Forum }}
+            </span>
+          </div>
+          <div class="text-center">
+            <p class="text-xs sm:text-sm text-gray-500 mb-1">Escaneos realizados</p>
+            <span class="inline-flex items-center justify-center rounded-md font-medium bg-red-600 text-white text-[13px] sm:text-[15px] px-3 py-1">
+              {{ .qr.Count }}
+            </span>
+          </div>
+        </div>
+
+        {{ if ge .qr.Count .qr.Forum }}
+        <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200">
+          <p class="text-[13px] text-amber-800 text-center">
+            ⚠️ Este QR alcanzó su límite de escaneos
+          </p>
+        </div>
+        {{ end }}
+      </div>
+
+      <a href="https://0a0c60b80016.ngrok-free.app/scanner"
+        class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-gray-100 text-gray-800 hover:bg-gray-50 h-9 sm:h-10 px-4 py-2 w-full mt-6 border-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="w-4 h-4 sm:w-5 sm:h-5 mr-2" aria-hidden="true">
+          <path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path>
+        </svg>
+        Escanear otro código
+      </a>
+    </div>
+  </div>
+</main>
 {{ end }}

@@ -2,7 +2,10 @@
 <main class="max-w-screen-xl mx-auto px-4 xl:px-0">
   <div class="flex items-center justify-between mb-4">
     <h1 class="text-2xl font-medium">Hola, Nombre del Catequista</h1>
+<<<<<<< HEAD
     <test-component></test-component>
+=======
+>>>>>>> 8633e79f6da7977b4396f39ca251e71c7e69e080
   </div>
 
   <div class="flex justify-end">
@@ -13,8 +16,8 @@
   </div>
 
   <div class="space-y-3 mt-6">
-    <div id="catechumensList" class="space-y-3">
-      <!-- Los datos se cargarán dinámicamente -->
+		<div id="catechumensList" class="space-y-3">
+			<!-- Los datos se cargarán dinámicamente -->
     </div>
   </div>
 
@@ -54,4 +57,57 @@
 		</form>
 	</modal-component>
 </main>
+
+<!-- Script para cargar catecúmenos -->
+<script>
+	window.addEventListener('load', function() {
+		const list = document.getElementById('catechumensList');
+		if (!list) return;
+		list.innerHTML = '<div class="text-gray-400">Cargando...</div>';
+		fetch('/catechumens')
+			.then(res => {
+				if (!res.ok) throw new Error('Error al obtener catecúmenos');
+				return res.json();
+			})
+			.then(data => {
+				const catechumens = Array.isArray(data.catechumens) ? data.catechumens : [];
+				if (catechumens.length === 0) {
+					list.innerHTML = '<div class="text-gray-400">No hay catecúmenos registrados.</div>';
+					return;
+				}
+				list.innerHTML = catechumens.map(cat => `
+					<div class="bg-white p-5 rounded-xl border-1 border-gray-200 hover:shadow-md transition-all">
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-4">
+								<div class="w-12 h-12 rounded-xl bg-[#1A388B]/10 flex items-center justify-center flex-shrink-0">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-[#1A388B]">
+										<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+										<circle cx="12" cy="7" r="4"></circle>
+									</svg>
+								</div>
+								<div class="flex flex-col gap-1">
+									<p class="font-normal">${cat.name}</p>
+									<div class="flex flex-row items-center gap-3">
+										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">${cat.group_name || 'Nombre de Grupo'}</p>
+										<p class="text-[13px] text-gray-500">${cat.age} años</p>
+										<p class="text-[13px] text-gray-500">• ${cat.scans || '0/3'} escaneos</p>
+									</div>
+								</div>
+							</div>
+							<button 
+								onclick='openEditModal(${JSON.stringify(cat).replace(/'/g, "&#39;")})'
+								class="px-4 py-2 text-[#1A388B] bg-[#1A388B]/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
+								Editar
+							</button>
+						</div>
+					</div>
+				`).join('');
+			})
+			.catch(() => {
+				list.innerHTML = '<div class="text-red-500">Error al cargar catecúmenos</div>';
+			});
+	});
+</script>
+
+
 {{ end }}

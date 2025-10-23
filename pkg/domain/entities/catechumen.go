@@ -5,13 +5,14 @@ type Catechumen struct {
 	FullName string `json:"name"`
 	Age      string `json:"age"`
 	GroupId  int    `json:"group_id"`
+	User     *User  `json:"user,omitempty"`
+	Group    *Group `json:"group,omitempty"`
 }
 
-func NewCatechumen(fullName string, age string, groupId int) Catechumen {
+func NewCatechumen(fullName string, age string) Catechumen {
 	return Catechumen{
 		FullName: fullName,
 		Age:      age,
-		GroupId:  groupId,
 	}
 }
 
@@ -20,6 +21,8 @@ func FakeCatechumen() Catechumen {
 		ID:       1,
 		FullName: "Italo D'Alessandro Luna Capuñay",
 		Age:      "18",
-		GroupId:  1,
+		GroupId:  2,
+		User:     &User{},
+		Group:    &Group{},
 	}
 }

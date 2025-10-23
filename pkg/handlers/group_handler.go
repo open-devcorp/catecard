@@ -58,7 +58,7 @@ func (g *groupHandler) AddGroup(User *entities.User, w http.ResponseWriter, r *h
 		CatechistId: catechistId,
 	}
 
-	err = g.uc.Add(&group)
+	err = g.uc.Add(User, &group)
 	if err != nil {
 		g.log.Printf("Error adding group: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Error adding group")

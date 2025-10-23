@@ -6,68 +6,62 @@
     <p class="text-gray-600 mt-1 text-sm sm:text-base">Escanea el código QR del catecúmeno para registrar su asistencia</p>
   </div>
 
-  <div class="flex flex-col items-center justify-center">
-    <div class="w-full bg-white rounded-2xl">
-      <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md flex flex-col items-center mx-auto">
-        
-        <div
-          id="preview"
-          class="w-40 h-40 sm:w-48 sm:h-48 rounded-3xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 ring-1 ring-blue-500/20 flex items-center justify-center mb-6 relative overflow-hidden cursor-pointer"
-          aria-label="Área de escaneo"
-        >
-          <div id="previewOverlay" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-scan w-16 h-16 sm:w-24 sm:h-24 text-[#1A388B]"
-              aria-hidden="true"
-            >
-              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-            </svg>
-          </div>
-        </div>
 
-        <button
-          id="scanButton"
-          type="button"
-          class="w-full inline-flex items-center justify-center gap-2 py-2 px-4 text-sm sm:text-base font-medium rounded-lg text-white bg-[#1A388B] hover:opacity-90 transition cursor-pointer disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:opacity-100"
-        >
-          <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="w-4 h-4 text-white"
-              aria-hidden="true"
-          >
-              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+<div class="flex flex-col items-center justify-center w-full">
+  <div class="w-full bg-white rounded-2xl">
+    <div class="bg-white rounded-lg px-6 w-full max-w-md flex flex-col items-center mx-auto min-h-[70vh] justify-center">
+      
+      <div
+        id="preview"
+        class="w-64 h-64 sm:w-56 sm:h-56 md:w-48 md:h-48 rounded-3xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 ring-1 ring-blue-500/20 flex items-center justify-center mb-8 relative overflow-hidden cursor-pointer transition-all duration-300"
+        aria-label="Área de escaneo"
+      >
+        <div id="previewOverlay" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round"
+               class="lucide lucide-scan w-24 h-24 sm:w-20 sm:h-20 md:w-16 md:h-16 text-[#1A388B]"
+               aria-hidden="true">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
           </svg>
-          Escanear QR
-        </button>
+        </div>
+      </div>
 
-        <p class="text-gray-500 mt-4 text-center text-sm sm:text-base">
-          Coloca el código QR dentro del recuadro
-        </p>
+      <button
+        id="scanButton"
+        type="button"
+        class="w-full inline-flex items-center justify-center gap-3 py-3 sm:py-2 px-6 text-lg sm:text-base font-medium rounded-xl text-white bg-[#1A388B] hover:opacity-90 transition cursor-pointer disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:opacity-100"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round"
+             class="w-6 h-6 sm:w-5 sm:h-5 text-white"
+             aria-hidden="true">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+          <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+        </svg>
+        Escanear QR
+      </button>
+
+          <p class="text-gray-500 mt-6 text-center text-base sm:text-sm leading-relaxed">
+            Coloca el código QR dentro del recuadro
+          </p>
+
+        </div>
       </div>
     </div>
+
+
   </div>
 </main>
 
-<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+<!-- Librería del escáner -->
+<script src="https://unpkg.com/html5-qrcode" defer></script>
 
 <script>
   const preview    = document.getElementById('preview');
@@ -76,16 +70,78 @@
 
   let html5QrCode = null;
   let scanning    = false;
+  let claimedOnce = false; 
+
+  document.addEventListener('visibilitychange', async () => {
+    if (document.hidden && html5QrCode) {
+      try { await html5QrCode.stop(); } catch {}
+      try { await html5QrCode.clear(); } catch {}
+      if (overlay) overlay.style.display = '';
+      scanning = false;
+      scanButton.disabled = false;
+    }
+  });
 
   async function startScanner() {
     if (scanning) return;
     scanning = true;
+    claimedOnce = false;
 
-    // UI
     if (overlay) overlay.style.display = 'none';
     scanButton.disabled = true;
     const originalText = scanButton.textContent;
     scanButton.textContent = "Escaneando...";
+
+    function resetUI() {
+      scanning = false;
+      scanButton.disabled = false;
+      scanButton.textContent = originalText;
+      if (overlay) overlay.style.display = '';
+      try { html5QrCode?.clear(); } catch {}
+    }
+
+    function extractId(text) {
+      if (/^\d+$/.test(text)) return parseInt(text, 10); 
+      const m  = text.match(/\/qr\/(\d+)(?:\/claim)?(?:[?#].*)?$/i);
+      if (m) return parseInt(m[1], 10);
+      const m2 = text.match(/qr\/(\d+)/i); 
+      if (m2) return parseInt(m2[1], 10);
+      return null;
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (claimedOnce) return; 
+
+      const id = extractId(decodedText);
+      if (!id) {
+        alert("Código QR no válido");
+        try { await html5QrCode.stop(); } catch {}
+        resetUI();
+        return;
+      }
+
+      claimedOnce = true;
+
+      try { await html5QrCode.stop(); } catch {}
+
+      if (navigator.vibrate) navigator.vibrate(50);
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/qr/${id}/claim`;
+
+      const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      if (csrf) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'csrf_token'; 
+        input.value = csrf;
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+      form.submit(); 
+    }
 
     try {
       if (!html5QrCode) {
@@ -96,7 +152,7 @@
 
       const config = {
         fps: 10,
-        qrbox: function(viewfinder) {
+        qrbox(viewfinder) {
           const side = Math.floor(Math.min(viewfinder.width, viewfinder.height) * 0.8);
           return { width: side, height: side };
         }
@@ -124,35 +180,7 @@
     } catch (err) {
       console.error("Error al abrir cámara:", err);
       alert("No se pudo acceder a la cámara 📷\n" + (err?.message || err));
-      resetUI();
-    }
-
-    function resetUI() {
-      scanning = false;
-      scanButton.disabled = false;
-      scanButton.textContent = originalText;
-      if (overlay) overlay.style.display = '';
-      try { html5QrCode?.clear(); } catch {}
-    }
-
-    async function onScanSuccess(decodedText) {
-      console.log("QR detectado:", decodedText);
-
-      const match = decodedText.match(/qr\/(\d+)\/claim/);
-      if (match) {
-        const id = match[1];
-        try {
-          const res = await fetch(`//qr/${id}/claim`, { method: 'POST' });
-          alert(res.ok ? "Asistencia registrada con éxito" : "Error al registrar asistencia");
-        } catch (err) {
-          console.error(err);
-          alert("Error de conexión con el servidor");
-        }
-      } else {
-        alert("Código QR no válido");
-      }
-
-      try { await html5QrCode.stop(); } catch {}
+      try { await html5QrCode?.stop(); } catch {}
       resetUI();
     }
   }

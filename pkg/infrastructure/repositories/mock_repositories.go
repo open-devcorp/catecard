@@ -77,6 +77,10 @@ func (m *MockCatechumenRepository) GetAll() ([]*entities.Catechumen, error) {
 }
 
 func (m *MockCatechumenRepository) GetById(id int) (*entities.Catechumen, error) {
+	if len(m.Catechumens) == 0 {
+		c := entities.FakeCatechumen()
+		m.Catechumens = append(m.Catechumens, &c)
+	}
 	for _, c := range m.Catechumens {
 		if c.ID == id {
 			return c, nil
@@ -105,11 +109,13 @@ func (m *MockQrRepository) GetAll() ([]*entities.Qr, error) {
 	if len(m.Qrs) == 0 {
 		q := entities.FakeQr()
 		m.Qrs = append(m.Qrs, &q)
+
 	}
 	return m.Qrs, nil
 }
 
 func (m *MockQrRepository) GetById(id int) (*entities.Qr, error) {
+
 	for _, q := range m.Qrs {
 		if q.ID == id {
 			return q, nil

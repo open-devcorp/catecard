@@ -113,7 +113,7 @@ func StartWebServer(cfg *config.Config) error {
 	authUC := usecases.NewAuthUseCase(logger, authRepo)
 	groupUC := usecases.NewGroupUsecase(logger, groupRepo)
 	qrUC := usecases.NewQrUsecase(logger, qrRepo)
-	catechumenUC := usecases.NewCatechumenUsecase(logger, catechumenRepo, qrRepo)
+	catechumenUC := usecases.NewCatechumenUsecase(logger, catechumenRepo, groupRepo, qrRepo)
 
 	//HANDLERS
 

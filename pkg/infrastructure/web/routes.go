@@ -93,14 +93,23 @@ func (w *statusWriter) WriteHeader(code int) {
 	w.ResponseWriter.WriteHeader(code)
 }
 
-func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler handlers.AuthHandler, groupHandler handlers.GroupHandler, catechumenHandler handlers.CatechumenHandler) *mux.Router {
+func setupRouter(
+	logger *log.Logger,
+	qrHandler handlers.QrHandler,
+	authHandler handlers.AuthHandler,
+	groupHandler handlers.GroupHandler,
+	catechumenHandler handlers.CatechumenHandler,
+) *mux.Router {
+
 	r := mux.NewRouter()
-	// Simple middleware: print only status code and endpoint path
+
+	////////////////////////////////////////////////////////
+	// 🧩 Middleware: log simple (status, método, endpoint)
+	////////////////////////////////////////////////////////
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
 			next.ServeHTTP(sw, req)
-			// Print minimal info: colored status, colored method and endpoint
 			logger.Printf("%s %s %s",
 				c(fmt.Sprintf("%3d", sw.status), statusColor(sw.status)),
 				c(req.Method, methodColor(req.Method)),
@@ -108,16 +117,20 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 			)
 		})
 	})
-	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
 
-	// Expose logs endpoint for dev UI
+	////////////////////////////////////////////////////////
+	// 📂 Archivos públicos y logs
+	////////////////////////////////////////////////////////
+	r.PathPrefix("/public/").
+		Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
+
 	r.HandleFunc("/__logs", func(w http.ResponseWriter, r *http.Request) {
 		logsHandler(w, r)
 	}).Methods("GET")
 
-	//////////////////////////VIEWS//////////////////////////
-
-	////// HOME REDIRECTION //////
+	////////////////////////////////////////////////////////
+	// 🌐 VISTAS (HTML)
+	////////////////////////////////////////////////////////
 	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		if user == nil {
@@ -129,150 +142,124 @@ func setupRouter(logger *log.Logger, qrHandler handlers.QrHandler, authHandler h
 			return
 		}
 		handlers.Home(w, r)
-
 	}).Methods("GET")
 
-	//AUTH
 	r.HandleFunc("/signup", handlers.SignUp).Methods("GET")
 	r.HandleFunc("/login", handlers.Login).Methods("GET")
 	r.HandleFunc("/scanner", handlers.Scanner).Methods("GET")
+	r.HandleFunc("/dene", handlers.Denied)
+	r.HandleFunc("/all-qr-list", handlers.QrList)
 
-	//////////////////////////APIS//////////////////////////////
-
-	//AUTH
+	////////////////////////////////////////////////////////
+	// 🔐 AUTENTICACIÓN
+	////////////////////////////////////////////////////////
 	r.HandleFunc("/signup", authHandler.SignUp).Methods("POST")
 	r.HandleFunc("/login", authHandler.Login).Methods("POST")
 	r.HandleFunc("/logout", handlers.DeleteSession).Methods("POST")
 
-	//////////// ADMIN /////////////
+	////////////////////////////////////////////////////////
+	// 👤 USUARIOS / ADMIN
+	////////////////////////////////////////////////////////
 	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
 		authHandler.GetUserById(user, id, w, r)
 	}).Methods("GET")
-	//Catechists
+
 	r.HandleFunc("/all-catechists", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		authHandler.GetAllCatechists(user, w, r)
 	}).Methods("GET")
 
-	/////Groups
-	r.HandleFunc("/all-groups", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromRequest(r)
-		groupHandler.GetAllGroups(user, w, r)
-	}).Methods("GET")
-	r.HandleFunc("/group/{id}", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromRequest(r)
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
-		groupHandler.GetGroupById(user, id, w, r)
-	}).Methods("GET")
-
 	r.HandleFunc("/delete-user/{id}", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
 		authHandler.DeleteUserById(user, id, w, r)
 	}).Methods("DELETE")
-	////////////////////////////////////////////////////////////
-	//Scanners
-	r.HandleFunc("/all-scanners", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromRequest(r)
-		authHandler.GetAllScanners(user, w, r)
-	}).Methods("GET")
 
-	//CATECHIST
 	r.HandleFunc("/add-catechist", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		authHandler.CreateAccounts(user, w, r)
 	}).Methods("POST")
 
-	///////////////////////////////GROUPS//////////////////////////////////////////////////
-	r.HandleFunc("/add-group", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromRequest(r)
-		groupHandler.AddGroup(user, w, r)
-	}).Methods("POST")
-
-	// DELETE GROUP
-	r.HandleFunc("/delete-group/{id}", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromRequest(r)
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
-		groupHandler.DeleteGroupById(user, id, w, r)
-	}).Methods("DELETE")
-
-	// EDIT GROUP
-	r.HandleFunc("/edit-group/{id}", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromRequest(r)
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		_, _ = strconv.Atoi(idStr)
-
-		groupHandler.EditGroup(user, w, r)
-	}).Methods("PUT")
-
-	////////SCARNER///////////
 	r.HandleFunc("/all-scanners", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		authHandler.GetAllScanners(user, w, r)
 	}).Methods("GET")
 
-	r.HandleFunc("/all-qr-list", handlers.QrList)
+	////////////////////////////////////////////////////////
+	// 👥 GRUPOS
+	////////////////////////////////////////////////////////
+	r.HandleFunc("/all-groups", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		groupHandler.GetAllGroups(user, w, r)
+	}).Methods("GET")
 
-	//CATECHIST
+	r.HandleFunc("/group/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
+		groupHandler.GetGroupById(user, id, w, r)
+	}).Methods("GET")
+
+	r.HandleFunc("/add-group", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		groupHandler.AddGroup(user, w, r)
+	}).Methods("POST")
+
+	r.HandleFunc("/edit-group/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		groupHandler.EditGroup(user, w, r)
+	}).Methods("PUT")
+
+	r.HandleFunc("/delete-group/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
+		groupHandler.DeleteGroupById(user, id, w, r)
+	}).Methods("DELETE")
+
+	////////////////////////////////////////////////////////
+	// 📱 QR / SCANNERS
+	////////////////////////////////////////////////////////
 	r.HandleFunc("/add-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.AddQr(w, r)
 	}).Methods("POST")
-
-	r.HandleFunc("/dene", handlers.Denied)
 
 	r.HandleFunc("/all-qr", func(w http.ResponseWriter, r *http.Request) {
 		qrHandler.GetAllQrs(w, r)
 	}).Methods("GET")
 
 	r.HandleFunc("/qr/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
 		qrHandler.GetQrById(id, w, r)
 	}).Methods("GET")
 
 	r.HandleFunc("/qr/{id}/claim", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
 		qrHandler.ClaimQr(id, w, r)
 	}).Methods("POST")
 
+	////////////////////////////////////////////////////////
+	// 🙋 CATECÚMENOS
+	////////////////////////////////////////////////////////
 	r.HandleFunc("/add-catechumen", func(w http.ResponseWriter, r *http.Request) {
-		catechumenHandler.AddCatechumen(w, r)
+		user := handlers.GetUserFromRequest(r)
+		catechumenHandler.AddCatechumen(user, w, r)
 	}).Methods("POST")
 
 	r.HandleFunc("/catechumens", func(w http.ResponseWriter, r *http.Request) {
-		catechumenHandler.GetAllCatechumens(w, r)
+		user := handlers.GetUserFromRequest(r)
+		catechumenHandler.GetAllCatechumens(user, w, r)
 	}).Methods("GET")
 
 	r.HandleFunc("/catechumen/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		idStr := vars["id"]
-		id, _ := strconv.Atoi(idStr)
-
-		catechumenHandler.GetCatechumenById(id, w, r)
+		user := handlers.GetUserFromRequest(r)
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
+		catechumenHandler.GetCatechumenById(user, id, w, r)
 	}).Methods("GET")
 
 	r.HandleFunc("/catechumen/{id}", func(w http.ResponseWriter, r *http.Request) {
-		catechumenHandler.UpdateCatechumen(w, r)
+		user := handlers.GetUserFromRequest(r)
+		catechumenHandler.UpdateCatechumen(user, w, r)
 	}).Methods("PUT")
 
 	return r

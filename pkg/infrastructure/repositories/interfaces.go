@@ -15,6 +15,7 @@ type GroupRepository interface {
 	GetById(id int) (*entities.Group, error)
 	DeleteById(id int) error
 	Update(group *entities.Group) (*entities.Group, error)
+	GetByCatechistsId(catechistId int) (int, error)
 }
 
 type QrRepository interface {

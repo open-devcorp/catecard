@@ -8,7 +8,7 @@ import (
 )
 
 type GroupUseCase interface {
-	Add(group *entities.Group) error
+	Add(User *entities.User, group *entities.Group) error
 	GetAll(User *entities.User) ([]*entities.Group, error)
 	GetById(User *entities.User, id int) (*entities.Group, error)
 	DeleteById(User *entities.User, id int) error
@@ -73,11 +73,22 @@ func (g *groupUseCase) GetAll(User *entities.User) ([]*entities.Group, error) {
 	if g.groupRepo == nil {
 		return nil, fmt.Errorf("Group repository is not initialized")
 	}
+
+	if User.Role != entities.ADMIN {
+		return nil, fmt.Errorf("forbidden: user does not have admin role")
+	}
+
 	return g.groupRepo.GetAll()
 }
 
-// Add implements GroupUseCase.
-func (g *groupUseCase) Add(group *entities.Group) error {
+func (g *groupUseCase) Add(User *entities.User, group *entities.Group) error {
+
+	if User == nil {
+		return fmt.Errorf("Unauthorized: User is nil")
+	}
+	if User.Role != entities.ADMIN {
+		return fmt.Errorf("Unauthorized: User is not an admin")
+	}
 
 	if group.Name == "" {
 		return fmt.Errorf("Group name cannot be empty")

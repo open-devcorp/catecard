@@ -11,6 +11,24 @@ type groupRepository struct {
 	db  *sql.DB
 }
 
+// GetByCatechistsId implements GroupRepository.
+func (g *groupRepository) GetByCatechistsId(catechistId int) (int, error) {
+
+	query := `SELECT id FROM groups WHERE catechist_id = ?`
+	row := g.db.QueryRow(query, catechistId)
+	var groupId int
+	err := row.Scan(&groupId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil // No group found for the given catechist ID
+		}
+		g.log.Printf("Error getting group by catechist ID: %v", err)
+		return 0, err
+	}
+	return groupId, nil
+
+}
+
 // Update implements GroupRepository.
 func (g *groupRepository) Update(group *entities.Group) (*entities.Group, error) {
 	query := `UPDATE groups SET name = ?, catechist_id = ? WHERE id = ?`

@@ -50,15 +50,7 @@
 						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
 				</div>
 
-				<div>
-					<label for="group_id" class="block text-sm font-medium text-gray-700 mb-1">ID del Grupo</label>
-					<input 
-						type="number" 
-						id="group_id" 
-						name="group_id" 
-						required
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-				</div>
+
 
 				<div id="responseMessage" class="hidden p-3 rounded-md text-sm"></div>
 
@@ -318,7 +310,7 @@
 								<div class="flex flex-col gap-1">
 									<p class="font-normal">${cat.name}</p>
 									<div class="flex flex-row items-center gap-3">
-										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">Nombre de Grupo</p>
+										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">${cat.group.name}</p>
 										<p class="text-[13px] text-gray-500">${cat.age} años</p>
 										<p class="text-[13px] text-gray-500">• 2/4 escaneos</p>
 									</div>

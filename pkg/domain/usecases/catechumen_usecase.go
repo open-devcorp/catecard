@@ -8,32 +8,49 @@ import (
 )
 
 type CatechumenUseCase interface {
-	Add(catechumen *entities.Catechumen) (*entities.Catechumen, *entities.Qr, error)
-	Update(catechumen *entities.Catechumen) (*entities.Catechumen, error)
-	GetAll() ([]*entities.Catechumen, error)
-	GetById(id int) (*entities.Catechumen, error)
+	Add(User *entities.User, catechumen *entities.Catechumen) (*entities.Catechumen, *entities.Qr, error)
+	Update(User *entities.User, catechumen *entities.Catechumen) (*entities.Catechumen, error)
+	GetAll(User *entities.User) ([]*entities.Catechumen, error)
+	GetById(User *entities.User, id int) (*entities.Catechumen, error)
 }
 
 type catechumenUseCase struct {
 	logger         *log.Logger
 	catechumenRepo repositories.CatechumenRepository
+	groupRepo      repositories.GroupRepository
 	qrRepo         repositories.QrRepository
 }
 
-func NewCatechumenUsecase(logger *log.Logger, catechumenRepo repositories.CatechumenRepository, qrRepo repositories.QrRepository) CatechumenUseCase {
-	return &catechumenUseCase{logger, catechumenRepo, qrRepo}
+func NewCatechumenUsecase(logger *log.Logger, catechumenRepo repositories.CatechumenRepository, groupRepo repositories.GroupRepository, qrRepo repositories.QrRepository) CatechumenUseCase {
+	return &catechumenUseCase{logger, catechumenRepo, groupRepo, qrRepo}
 }
 
-func (c *catechumenUseCase) Add(catechumen *entities.Catechumen) (*entities.Catechumen, *entities.Qr, error) {
+func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catechumen) (*entities.Catechumen, *entities.Qr, error) {
+	if User == nil {
+		return nil, nil, fmt.Errorf("Unauthorized: User is nil")
+	}
+	if User.Role != entities.CATECHIST {
+		return nil, nil, fmt.Errorf("Unauthorized: User is not a catechist")
+	}
 	if catechumen.FullName == "" {
 		return nil, nil, fmt.Errorf("Group name cannot be empty")
 	}
 	if catechumen.Age == "" {
 		return nil, nil, fmt.Errorf("Catechumen age cannot be empty")
 	}
-	if catechumen.GroupId == 0 {
-		return nil, nil, fmt.Errorf("Group ID cannot be 0")
+
+	groupId, err := c.groupRepo.GetByCatechistsId(User.ID)
+
+	if err != nil {
+
+		return nil, nil, fmt.Errorf("Error fetching group by catechist ID: %v", err)
 	}
+
+	if groupId == 0 {
+		return nil, nil, fmt.Errorf("No group found for catechist ID: %d", User.ID)
+	}
+
+	catechumen.GroupId = groupId
 
 	cateId, err := c.catechumenRepo.Add(catechumen)
 	if err != nil {
@@ -52,7 +69,17 @@ func (c *catechumenUseCase) Add(catechumen *entities.Catechumen) (*entities.Cate
 	return catechumen, qr, nil
 }
 
-func (c *catechumenUseCase) Update(catechumen *entities.Catechumen) (*entities.Catechumen, error) {
+func (c *catechumenUseCase) Update(User *entities.User, catechumen *entities.Catechumen) (*entities.Catechumen, error) {
+	if User == nil {
+		return nil, fmt.Errorf("Unauthorized: User is nil")
+	}
+	if User.Role != entities.CATECHIST {
+		return nil, fmt.Errorf("Unauthorized: User is not a catechist")
+	}
+	if User.ID == catechumen.ID {
+		return nil, fmt.Errorf("Unauthorized: Cannot update own catechumen record")
+	}
+
 	if catechumen.FullName == "" {
 		return nil, fmt.Errorf("Group name cannot be empty")
 	}
@@ -72,21 +99,73 @@ func (c *catechumenUseCase) Update(catechumen *entities.Catechumen) (*entities.C
 	return updatedCatechumen, nil
 }
 
-func (c *catechumenUseCase) GetAll() ([]*entities.Catechumen, error) {
-	if c.catechumenRepo == nil {
-		return nil, fmt.Errorf("Catechumen repository is not initialized")
+func (c *catechumenUseCase) GetAll(user *entities.User) ([]*entities.Catechumen, error) {
+	if user == nil {
+		return nil, fmt.Errorf("unauthorized: user is nil")
 	}
-	return c.catechumenRepo.GetAll()
+
+	if user.Role != entities.CATECHIST {
+		return nil, fmt.Errorf("unauthorized: user is not a catechist")
+	}
+
+	if c.catechumenRepo == nil {
+		return nil, fmt.Errorf("catechumen repository is not initialized")
+	}
+
+	catechumens, err := c.catechumenRepo.GetAll()
+	if err != nil {
+		c.logger.Printf("Error getting all catechumens: %v", err)
+		return nil, err
+	}
+
+	catechumensByUser := make([]*entities.Catechumen, 0)
+
+	for _, catechumen := range catechumens {
+		g, err := c.groupRepo.GetById(catechumen.GroupId)
+		if err != nil {
+			c.logger.Printf("Error getting group for catechumen %d: %v", catechumen.ID, err)
+			return nil, err
+		}
+
+		if g.CatechistId == user.ID {
+			catechumen.User = user
+			catechumen.Group = g
+			catechumensByUser = append(catechumensByUser, catechumen)
+		}
+	}
+
+	return catechumensByUser, nil
 }
 
-func (c *catechumenUseCase) GetById(id int) (*entities.Catechumen, error) {
-	if id == 0 {
-		return nil, fmt.Errorf("Invalid catechumen ID")
+func (c *catechumenUseCase) GetById(user *entities.User, id int) (*entities.Catechumen, error) {
+	if user == nil {
+		return nil, fmt.Errorf("unauthorized: user is nil")
 	}
+	if user.Role != entities.CATECHIST {
+		return nil, fmt.Errorf("unauthorized: user is not a catechist")
+	}
+	if id == 0 {
+		return nil, fmt.Errorf("invalid catechumen ID")
+	}
+
 	catechumen, err := c.catechumenRepo.GetById(id)
 	if err != nil {
 		c.logger.Printf("Error getting catechumen by ID: %v", err)
 		return nil, err
 	}
+
+	group, err := c.groupRepo.GetById(catechumen.GroupId)
+	if err != nil {
+		c.logger.Printf("Error getting group for catechumen %d: %v", id, err)
+		return nil, err
+	}
+
+	if group.CatechistId != user.ID {
+		return nil, fmt.Errorf("unauthorized: cannot access this catechumen")
+	}
+
+	catechumen.User = user
+	catechumen.Group = group
+
 	return catechumen, nil
 }

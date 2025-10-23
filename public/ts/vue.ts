@@ -2,10 +2,21 @@ import { createApp } from 'vue/dist/vue.esm-bundler.js';
 import { env } from './config';
 
 import TestComponent from './components/test-component.vue';
+import ModalComponent from './components/modal.component.vue';
+
+
+import { ref } from 'vue';
 
 function NewApp() {
-    let app = createApp({})
+    const app = createApp({
+        data() {
+            return {
+                showModal: false
+            }
+        }
+    });
     app.component('test-component', TestComponent);
+    app.component('modal-component', ModalComponent);
     return app;
 }
 

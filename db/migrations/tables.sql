@@ -61,3 +61,9 @@ WHERE NOT EXISTS (SELECT 1 FROM qrs WHERE forum = 1 AND group_id = 2);
 INSERT INTO qrs (forum, group_id, count)
 SELECT 2, 1, 5
 WHERE NOT EXISTS (SELECT 1 FROM qrs WHERE forum = 2 AND group_id = 1);
+    CREATE TABLE IF NOT EXISTS catechumens (
+        id SERIAL PRIMARY KEY,
+        full_name VARCHAR(100) NOT NULL,
+        age VARCHAR(3) NOT NULL,
+        group_id INT NOT NULL
+    );

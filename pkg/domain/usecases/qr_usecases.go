@@ -29,8 +29,9 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving QR: %v", err)
 	}
-	qr.Forum -= 1
-
+	if qr.Forum != 0 {
+		qr.Forum -= 1
+	}
 	err = q.qrRepo.Update(qr)
 	if err != nil {
 		return qr, err

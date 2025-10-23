@@ -87,7 +87,7 @@ func (q *qrHandler) ClaimQr(id int, w http.ResponseWriter, r *http.Request) {
 		// render denied view with error message
 		RenderTemplate(w, "denied.html", map[string]interface{}{
 			"Message": err.Error(),
-			"Data":    qr,
+			"qr":      qr,
 		})
 		return
 	}

@@ -82,7 +82,7 @@ func (q *qrRepository) GetById(id int) (*entities.Qr, error) {
 // Update implements QrRepository.
 func (q *qrRepository) Update(qr *entities.Qr) error {
 
-	if qr.Forum < 0 {
+	if qr.Forum <= 0 {
 		return errors.New("Se alcanzó el límite máximo de participantes para este QR")
 	}
 	query := `UPDATE qrs SET group_id = ?, forum = ? WHERE id = ?`

@@ -1,11 +1,11 @@
 {{ define "content" }}
 <main class="max-w-screen-xl mx-auto px-4 xl:px-0">
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-medium">Hola, Nombre del Catequista</h1>
+    <h1 class="text-2xl font-medium">Hola, {{ .User.Username }}</h1>
   </div>
 
   <div class="flex justify-end">
-    <button @click="showModal = true" class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm">
+    <button @click="showModal = true" class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-2" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
       Agregar Catecúmeno
     </button>
@@ -32,19 +32,9 @@
 				<p class="text-gray-400 text-[13px] mt-1">Edad entre 5 y 18 años</p>
 			</div>
 			<div>
-				<label for="group_id" class="form-label">Grupo</label>
-				<select
-					id="group_id"
-					name="group_id"
-					required
-					class="form-select"
-				>
-					<option value="" disabled selected>Seleccionar grupo</option>
-					<option value="1">Grupo 1</option>
-					<option value="2">Grupo 2</option>
-					<option value="3">Grupo 3</option>
-				</select>
-				<p class="text-gray-500 text-sm mt-5">El QR se podrá escanear solo 3 veces según coordinación</p>
+			<label for="group_id" class="form-label">Grupo</label>
+			<input type="text" class="form-input focus:outline-none" value="{{ .Group.Name }}" readonly>
+			<p class="text-gray-500 text-sm mt-5">El QR se podrá escanear solo 3 veces según coordinación</p>
 			</div>
 			<div class="flex justify-end space-x-2 mt-5">
 				<button type="button" @click="showModal = false" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
@@ -84,7 +74,7 @@
 								<div class="flex flex-col gap-1">
 									<p class="font-normal">${cat.name}</p>
 									<div class="flex flex-row items-center gap-3">
-										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">${cat.group_name || 'Nombre de Grupo'}</p>
+										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">${cat.group.name || 'Nombre de Grupo'}</p>
 										<p class="text-[13px] text-gray-500">${cat.age} años</p>
 										<p class="text-[13px] text-gray-500">• ${cat.scans || '0/3'} escaneos</p>
 									</div>

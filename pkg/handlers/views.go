@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"catecard/pkg/infrastructure/repositories"
 	"html/template"
 	"log"
 	"net/http"
@@ -60,9 +61,26 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "home.html", nil)
 }
 
+var GroupRepo repositories.GroupRepository // Debe ser inicializado en el main/web.go
+
 func Catechist(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "catechist.html", nil)
+	user := GetUserFromRequest(r)
+	var group interface{} = nil
+	if user != nil && GroupRepo != nil {
+		groupId, err := GroupRepo.GetByCatechistsId(user.ID)
+		if err == nil && groupId != 0 {
+			g, err := GroupRepo.GetById(groupId)
+			if err == nil && g != nil {
+				group = g
+			}
+		}
+	}
+	RenderTemplate(w, "catechist.html", map[string]interface{}{
+		"User":  user,
+		"Group": group,
+	})
 }
+
 func Denied(w http.ResponseWriter, r *http.Request) {
 	// read optional message/data from query params and pass to template
 	msg := r.URL.Query().Get("message")

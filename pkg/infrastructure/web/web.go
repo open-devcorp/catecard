@@ -106,6 +106,7 @@ func StartWebServer(cfg *config.Config) error {
 	//REPOSITORIES
 	authRepo := repositories.NewUserRepository(logger, db)
 	groupRepo := repositories.NewGroupRepository(logger, db)
+	handlers.GroupRepo = groupRepo
 	qrRepo := repositories.NewQrRepository(logger, db)
 	catechumenRepo := repositories.NewCatechumenRepository(logger, db)
 

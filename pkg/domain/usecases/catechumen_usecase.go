@@ -108,10 +108,6 @@ func (c *catechumenUseCase) GetAll(user *entities.User) ([]*entities.Catechumen,
 		return nil, fmt.Errorf("unauthorized: user is not a catechist")
 	}
 
-	if c.catechumenRepo == nil {
-		return nil, fmt.Errorf("catechumen repository is not initialized")
-	}
-
 	catechumens, err := c.catechumenRepo.GetAll()
 	if err != nil {
 		c.logger.Printf("Error getting all catechumens: %v", err)

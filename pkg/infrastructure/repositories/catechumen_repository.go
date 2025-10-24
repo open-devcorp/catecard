@@ -56,12 +56,32 @@ func (c *catechumenRepository) GetAll() ([]*entities.Catechumen, error) {
 
 // GetById implements CatechumenRepository.
 func (c *catechumenRepository) GetById(id int) (*entities.Catechumen, error) {
-	panic("unimplemented")
+	query := `SELECT id, full_name, age, group_id FROM catechumens WHERE id = ?`
+	row := c.db.QueryRow(query, id)
+
+	catechumen := &entities.Catechumen{}
+	if err := row.Scan(&catechumen.ID, &catechumen.FullName, &catechumen.Age, &catechumen.GroupId); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Not found
+		}
+		c.log.Printf("Error scanning catechumen by ID: %v", err)
+		return nil, err
+	}
+
+	return catechumen, nil
 }
 
 // Update implements CatechumenRepository.
 func (c *catechumenRepository) Update(catechumen *entities.Catechumen) (*entities.Catechumen, error) {
-	panic("unimplemented")
+	query := `UPDATE catechumens SET full_name = ?, age = ?, group_id = ? WHERE id = ?`
+	_, err := c.db.Exec(query, catechumen.FullName, catechumen.Age, catechumen.GroupId, catechumen.ID)
+
+	if err != nil {
+		c.log.Printf("Error updating catechumen: %v", err)
+		return nil, err
+	}
+
+	return catechumen, nil
 }
 
 func NewCatechumenRepository(logger *log.Logger, db *sql.DB) CatechumenRepository {

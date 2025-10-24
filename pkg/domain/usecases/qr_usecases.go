@@ -34,9 +34,6 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving QR: %w", err)
 	}
-	if qr == nil {
-		return nil, fmt.Errorf("QR not found for ID: %d", qrId)
-	}
 
 	if qr.Catechumen == nil {
 		qr.Catechumen = &entities.Catechumen{}
@@ -52,20 +49,10 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Group: %w", err)
 	}
-	if group == nil {
-		return nil, fmt.Errorf("no group found for Group ID: %d", catechum.GroupId)
-	}
 
 	catechist, err := q.authRepo.GetById(group.CatechistId)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving User: %w", err)
-	}
-	if catechist == nil {
-		return nil, fmt.Errorf("no user found for User ID: %d", group.CatechistId)
-	}
-
-	if qr.Forum <= 0 {
-		return qr, ErrQrFull
 	}
 
 	//Set data
@@ -74,6 +61,11 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	qr.Catechumen.GroupId = catechum.GroupId
 	qr.Catechumen.Group = group
 	qr.Catechumen.User = catechist
+
+	if qr.Forum <= 0 {
+
+		return qr, ErrQrFull
+	}
 
 	// Prepare updates
 	qr.Forum -= 1
@@ -86,7 +78,6 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	if err := q.qrRepo.Update(qr); err != nil {
 		return qr, fmt.Errorf("error updating QR: %w", err)
 	}
-
 	return qr, nil
 }
 

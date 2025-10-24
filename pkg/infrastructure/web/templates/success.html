@@ -72,10 +72,10 @@
           </div>
         </div>
 
-        {{ if ge .qr.Count .qr.Forum }}
+        {{ if (eq .qr.Forum 0)}}
         <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200">
           <p class="text-[13px] text-amber-800 text-center">
-            ⚠️ Este QR alcanzó su límite de escaneos
+            Este QR alcanzó su límite de escaneos
           </p>
         </div>
         {{ end }}

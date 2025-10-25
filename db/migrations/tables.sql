@@ -74,3 +74,10 @@ WHERE NOT EXISTS (SELECT 1 FROM qrs WHERE forum = 2 AND group_id = 1);
         age VARCHAR(3) NOT NULL,
         group_id INT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS scan_catechumens (
+        id SERIAL PRIMARY KEY,
+        catechumen_id INT NOT NULL,
+        scan_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );

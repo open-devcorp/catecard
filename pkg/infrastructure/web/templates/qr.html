@@ -1,21 +1,63 @@
 {{ define "content" }}
 
 <main class="container mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-6 text-center">Lista de QRs</h1>
-  <ul id="qrList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></ul>
+  <h1 class="text-2xl font-bold mb-6 text-center">Panel de QRs y Scans</h1>
+
+  <!-- Controles / Tabs simples -->
+  <div class="flex items-center justify-center gap-3 mb-6">
+    <button id="btnQrs" class="px-4 py-2 text-sm rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">QRs existentes</button>
+    <button id="btnScans" class="px-4 py-2 text-sm rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">Scans y catecúmenos</button>
+  </div>
+
+  <!-- Sección QRs -->
+  <section id="sectionQrs" class="block">
+    <h2 class="text-xl font-semibold mb-4">Lista de QRs</h2>
+    <ul id="qrList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></ul>
+  </section>
+
+  <!-- Sección Scans -->
+  <section id="sectionScans" class="hidden">
+    <h2 class="text-xl font-semibold mb-4">Lista de Scans y Catecúmenos</h2>
+    <div id="scansContainer" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </section>
 </main>
 
+<!-- Librería para generar QR en el cliente -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
 <script>
+  // ---- Helpers para tabs simples
+  const $sectionQrs = document.getElementById('sectionQrs');
+  const $sectionScans = document.getElementById('sectionScans');
+  const $btnQrs = document.getElementById('btnQrs');
+  const $btnScans = document.getElementById('btnScans');
+
+  $btnQrs.addEventListener('click', () => {
+    $sectionQrs.classList.remove('hidden');
+    $sectionScans.classList.add('hidden');
+  });
+  $btnScans.addEventListener('click', () => {
+    $sectionScans.classList.remove('hidden');
+    $sectionQrs.classList.add('hidden');
+  });
+
+  // ---- QRs existentes
   async function loadQrs() {
     try {
-      const res = await fetch('/all-qr');
-      if (!res.ok) throw new Error('Error al obtener datos');
+      const res = await fetch('/all-qr', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) throw new Error('Error al obtener datos de /all-qr');
 
-      const data = await res.json(); // espera [{ id, forum, group_id }, ...]
+      const data = await res.json(); // espera: [{ id, forum, group_id }, ...]
       const container = document.getElementById('qrList');
       container.innerHTML = '';
+
+      if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = `<li class="col-span-full text-center text-gray-500">No hay QRs registrados.</li>`;
+        return;
+      }
 
       for (const item of data) {
         const li = document.createElement('li');
@@ -33,52 +75,95 @@
         `;
         container.appendChild(li);
 
-        // Generate QR in client: payload is the claim path the scanner expects
+        // Generar QR en el cliente: payload = ruta que tu scanner espera
         try {
           const payload = `/qr/${item.id}/claim`;
           const el = document.getElementById(`qr-img-${item.id}`);
-          // generate DataURL (PNG)
-          if (window.QRCode) {
-            // qrcode library provides toDataURL
-            QRCode.toDataURL(payload, { width: 256 })
-              .then(url => {
-                const img = document.createElement('img');
-                img.src = url;
-                img.alt = `QR ${item.id}`;
-                img.className = 'w-40 h-40 object-contain mb-3 border rounded-lg p-2';
-                el.appendChild(img);
-              })
-              .catch(err => console.error('QR gen error', err));
+          if (window.QRCode && QRCode.toDataURL) {
+            const url = await QRCode.toDataURL(payload, { width: 256 });
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = `QR ${item.id}`;
+            img.className = 'w-40 h-40 object-contain mb-3 border rounded-lg p-2';
+            el.appendChild(img);
           } else {
-            // fallback: show payload text
-            el.textContent = payload;
+            el.textContent = payload; // fallback
           }
         } catch (err) {
-          console.error('Error generating QR on client:', err);
+          console.error('QR gen error', err);
         }
       }
-
     } catch (err) {
       console.error('Error cargando QRs:', err);
-      alert('❌ No se pudieron cargar los QRs');
+      const container = document.getElementById('qrList');
+      container.innerHTML = `<li class="col-span-full text-center text-red-500">❌ No se pudieron cargar los QRs</li>`;
     }
   }
 
+  // Endpoint para registrar asistencia de un QR
   async function claim(id) {
     try {
       const res = await fetch(`/qr/${id}/claim`, { method: 'POST' });
       if (res.ok) {
         alert(`✅ Asistencia registrada para ID ${id}`);
       } else {
-        alert(`⚠️ Error al registrar asistencia (ID ${id})`);
+        const text = await res.text().catch(() => '');
+        alert(`⚠️ Error al registrar asistencia (ID ${id}) ${text ? '- ' + text : ''}`);
       }
     } catch {
       alert('❌ Error de conexión con el servidor');
     }
   }
 
-  // Cargar la lista cuando cargue la página
-  document.addEventListener('DOMContentLoaded', loadQrs);
+  // ---- Scans y catecúmenos
+async function loadScans() {
+  try {
+    const res = await fetch('/admin/scans', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('Error al obtener datos de /admin/scans');
+
+    const payload = await res.json();
+    const data = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+    const container = document.getElementById('scansContainer');
+    container.innerHTML = '';
+
+    if (!data.length) {
+      container.innerHTML = `<p class="text-gray-500 col-span-full text-center">No hay registros aún.</p>`;
+      return;
+    }
+
+    for (const item of data) {
+      const cate = item.Catechumen || item.catechumen || {};
+      const user = item.User || item.user || {};
+
+      const card = document.createElement('div');
+      card.className = "bg-white rounded-xl shadow p-5 flex flex-col items-start justify-between hover:shadow-lg transition";
+
+      card.innerHTML = `
+        <p class="text-lg font-semibold text-gray-800 mb-2">${cate.name || cate.FullName || 'Sin nombre'}</p>
+        <p class="text-sm text-gray-600">
+          <strong>Escaneado por:</strong> ${user.username || user.Username || 'N/A'}
+        </p>
+      `;
+
+      container.appendChild(card);
+    }
+
+  } catch (err) {
+    console.error('Error cargando scans:', err);
+    const container = document.getElementById('scansContainer');
+    container.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ Error al cargar los datos</p>`;
+  }
+}
+
+  // Cargar ambas vistas al iniciar
+  document.addEventListener('DOMContentLoaded', () => {
+    loadQrs();
+    loadScans();
+  });
 </script>
 
 {{ end }}

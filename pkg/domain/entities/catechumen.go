@@ -7,6 +7,7 @@ type Catechumen struct {
 	GroupId  int    `json:"group_id"`
 	User     *User  `json:"user,omitempty"`
 	Group    *Group `json:"group,omitempty"`
+	QrId     int    `json:"qr_id"`
 }
 
 func NewCatechumen(fullName string, age string) Catechumen {

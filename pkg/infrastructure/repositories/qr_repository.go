@@ -11,22 +11,22 @@ type qrRepository struct {
 	db  *sql.DB
 }
 
-func (q *qrRepository) Add(qr *entities.Qr) error {
+func (q *qrRepository) Add(qr *entities.Qr) (int, error) {
 	query := `INSERT INTO qrs (group_id, forum, count) VALUES (?, ?, ?)`
 	result, err := q.db.Exec(query, qr.GroupId, qr.Forum, qr.Count)
 	if err != nil {
 		q.log.Printf("Error inserting QR: %v", err)
-		return err
+		return 0, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
 		q.log.Printf("Error getting last insert ID: %v", err)
-		return err
+		return 0, err
 	}
 
 	qr.ID = int(id)
-	return nil
+	return qr.ID, nil
 }
 
 func (q *qrRepository) DeleteById(id int) error {

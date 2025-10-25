@@ -11,10 +11,27 @@ type catechumenRepository struct {
 	db  *sql.DB
 }
 
+// GetByQrId implements CatechumenRepository.
+func (c *catechumenRepository) GetByQrId(qrId int) (*entities.Catechumen, error) {
+	query := `SELECT id, full_name, age, group_id FROM catechumens WHERE qr_id = ?`
+	row := c.db.QueryRow(query, qrId)
+
+	catechumen := &entities.Catechumen{}
+	if err := row.Scan(&catechumen.ID, &catechumen.FullName, &catechumen.Age, &catechumen.GroupId); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Not found
+		}
+		c.log.Printf("Error scanning catechumen by QR ID: %v", err)
+		return nil, err
+	}
+
+	return catechumen, nil
+}
+
 // Add implements CatechumenRepository.
 func (c *catechumenRepository) Add(catechumen *entities.Catechumen) (int, error) {
-	query := `INSERT INTO catechumens(full_name, age, group_id) VALUES(?,?,?)`
-	result, err := c.db.Exec(query, catechumen.FullName, catechumen.Age, catechumen.GroupId)
+	query := `INSERT INTO catechumens(full_name, age, group_id, qr_id) VALUES(?,?,?,?)`
+	result, err := c.db.Exec(query, catechumen.FullName, catechumen.Age, catechumen.GroupId, catechumen.QrId)
 
 	if err != nil {
 		c.log.Printf("Error inserting catechumen: %v", err)

@@ -52,19 +52,21 @@ func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catech
 
 	catechumen.GroupId = groupId
 
+	qr := entities.NewQr(3, groupId)
+
+	qrId, qrErr := c.qrRepo.Add(qr)
+	if qrErr != nil {
+		c.logger.Printf("Error adding QR: %v", qrErr)
+		return nil, nil, qrErr
+	}
+	catechumen.QrId = qrId
+
 	cateId, err := c.catechumenRepo.Add(catechumen)
 	if err != nil {
 		c.logger.Printf("Error adding catechumen: %v", err)
 		return nil, nil, err
 	}
-
-	qr := entities.NewQr(3, cateId)
-
-	qrErr := c.qrRepo.Add(qr)
-	if qrErr != nil {
-		c.logger.Printf("Error adding QR: %v", qrErr)
-		return nil, nil, qrErr
-	}
+	catechumen.ID = cateId
 
 	return catechumen, qr, nil
 }

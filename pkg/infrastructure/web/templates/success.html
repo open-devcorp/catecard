@@ -81,7 +81,7 @@
         {{ end }}
       </div>
 
-      <a href="https://0a0c60b80016.ngrok-free.app/scanner"
+      <a href="#" id="scannerLink"
         class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-gray-100 text-gray-800 hover:bg-gray-50 h-9 sm:h-10 px-4 py-2 w-full mt-6 border-gray-300">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -94,4 +94,12 @@
     </div>
   </div>
 </main>
+
+<script>
+  const link = document.getElementById("scannerLink");
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = `${window.location.origin}/scanner`;
+  });
+</script>
 {{ end }}

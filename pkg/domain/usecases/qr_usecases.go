@@ -9,10 +9,8 @@ import (
 )
 
 type QrUseCase interface {
-	Add(User *entities.User, qr *entities.Qr) error
 	GetAll() ([]*entities.Qr, error)
 	GetById(id int) (*entities.Qr, error)
-	DeleteById(id int) error
 	ClaimQr(User *entities.User, qrId int) (*entities.Qr, error)
 	GetAllScans(User *entities.User) ([]repositories.ScanAndCatechume, error)
 }
@@ -63,7 +61,7 @@ func (q *qrUseCase) ClaimQr(User *entities.User, qrId int) (*entities.Qr, error)
 		qr.Catechumen = &entities.Catechumen{}
 	}
 
-	catechum, err := q.catechumenRepo.GetById(qrId)
+	catechum, err := q.catechumenRepo.GetByQrId(qrId)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Catechumen: %w", err)
 	}
@@ -111,32 +109,29 @@ func (q *qrUseCase) ClaimQr(User *entities.User, qrId int) (*entities.Qr, error)
 	return qr, nil
 }
 
-func (q *qrUseCase) Add(User *entities.User, qr *entities.Qr) error {
+// func (q *qrUseCase) Add(User *entities.User, qr *entities.Qr) error {
 
-	if User == nil {
-		return fmt.Errorf("unauthenticated: user required to create QR")
-	}
+// 	if User == nil {
+// 		return fmt.Errorf("unauthenticated: user required to create QR")
+// 	}
 
-	if User.Role != entities.CATECHIST {
-		return fmt.Errorf("forbidden: only catechist can create QR")
-	}
+// 	if User.Role != entities.CATECHIST {
+// 		return fmt.Errorf("forbidden: only catechist can create QR")
+// 	}
 
-	if qr.Forum == 0 {
-		return fmt.Errorf("Forum cannot be empty")
-	}
+// 	if qr.Forum == 0 {
+// 		return fmt.Errorf("Forum cannot be empty")
+// 	}
 
-	if qr.GroupId == 0 {
-		return fmt.Errorf("GroupId cannot be empty")
-	}
+// 	if qr.GroupId == 0 {
+// 		return fmt.Errorf("GroupId cannot be empty")
+// 	}
 
-	return q.qrRepo.Add(qr)
+// 	return q.qrRepo.Add(qr)
 
-}
+// }
 
 // DeleteById implements QrUseCase.
-func (q *qrUseCase) DeleteById(id int) error {
-	panic("unimplemented")
-}
 
 // GetAll implements QrUseCase.
 func (q *qrUseCase) GetAll() ([]*entities.Qr, error) {

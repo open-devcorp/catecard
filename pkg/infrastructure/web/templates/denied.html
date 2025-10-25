@@ -20,9 +20,8 @@
     </p>
   </div>
 
-  <section class="bg-white border border-red-100 rounded-xl p-5 sm:p-7">
   <div class="bg-white text-gray-800 flex flex-col gap-6 rounded-xl border border-gray-200">
-    <div class="p-6 sm:p-8 space-y-6">
+  <div class="p-6 sm:p-8 space-y-6">
 
       <!-- Información del catecúmeno -->
       <div>
@@ -82,7 +81,7 @@
         {{ end }}
       </div>
 
-      <a href="https://0a0c60b80016.ngrok-free.app/scanner"
+      <a href="#" id="scannerLink"
         class="inline-flex items-center justify-center gap-2 rounded-md text-sm sm:text-base font-medium border bg-gray-100 text-gray-800 hover:bg-gray-50 h-9 sm:h-10 px-4 py-2 w-full mt-6 border-gray-300">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -92,13 +91,15 @@
         </svg>
         Escanear otro código
       </a>
-    </div>
   </div>
-  </section>
+</div>
 
-  <!-- Para depuración: mostrar JSON si lo envías (descomenta) -->
-  <!--
-  <pre class="mt-6 text-xs text-gray-600 bg-gray-50 p-3 rounded overflow-auto">{{ .qrJSON }}</pre>
-  -->
+<script>
+  const link = document.getElementById("scannerLink");
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = `${window.location.origin}/scanner`;
+  });
+</script>
 </main>
 {{ end }}

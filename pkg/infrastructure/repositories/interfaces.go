@@ -29,7 +29,7 @@ type GroupRepository interface {
 }
 
 type QrRepository interface {
-	Add(qr *entities.Qr) error
+	Add(qr *entities.Qr) (int, error)
 	GetAll() ([]*entities.Qr, error)
 	GetById(id int) (*entities.Qr, error)
 	DeleteById(id int) error
@@ -42,4 +42,5 @@ type CatechumenRepository interface {
 	Update(catechumen *entities.Catechumen) (*entities.Catechumen, error)
 	GetAll() ([]*entities.Catechumen, error)
 	GetById(id int) (*entities.Catechumen, error)
+	GetByQrId(qrId int) (*entities.Catechumen, error)
 }

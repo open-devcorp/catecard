@@ -6,57 +6,53 @@
     <p class="text-gray-600 mt-1 text-sm sm:text-base">Escanea el código QR del catecúmeno para registrar su asistencia</p>
   </div>
 
+  <div class="flex flex-col items-center justify-center w-full">
+    <div class="w-full bg-white rounded-2xl">
+      <div class="bg-white rounded-lg px-6 w-full max-w-md flex flex-col items-center mx-auto min-h-[70vh] justify-center">
+        
+        <div
+          id="preview"
+          class="w-64 h-64 sm:w-56 sm:h-56 md:w-48 md:h-48 rounded-3xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 ring-1 ring-blue-500/20 flex items-center justify-center mb-8 relative overflow-hidden transition-all duration-300"
+          aria-label="Área de escaneo"
+        >
+          <div id="previewOverlay" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round"
+                 class="lucide lucide-scan w-24 h-24 sm:w-20 sm:h-20 md:w-16 md:h-16 text-[#1A388B]"
+                 aria-hidden="true">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            </svg>
+          </div>
+        </div>
 
-<div class="flex flex-col items-center justify-center w-full">
-  <div class="w-full bg-white rounded-2xl">
-    <div class="bg-white rounded-lg px-6 w-full max-w-md flex flex-col items-center mx-auto min-h-[70vh] justify-center">
-      
-      <div
-        id="preview"
-        class="w-64 h-64 sm:w-56 sm:h-56 md:w-48 md:h-48 rounded-3xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 ring-1 ring-blue-500/20 flex items-center justify-center mb-8 relative overflow-hidden cursor-pointer transition-all duration-300"
-        aria-label="Área de escaneo"
-      >
-        <div id="previewOverlay" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <button
+          id="scanButton"
+          type="button"
+          class="w-full inline-flex items-center justify-center gap-3 py-3 sm:py-2 px-6 text-lg sm:text-base font-medium rounded-xl text-white bg-[#1A388B] hover:opacity-90 transition cursor-pointer disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:opacity-100"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                stroke-linejoin="round"
-               class="lucide lucide-scan w-24 h-24 sm:w-20 sm:h-20 md:w-16 md:h-16 text-[#1A388B]"
+               class="w-6 h-6 sm:w-5 sm:h-5 text-white"
                aria-hidden="true">
             <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
             <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
             <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
             <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
           </svg>
-        </div>
-      </div>
+          Escanear QR
+        </button>
 
-      <button
-        id="scanButton"
-        type="button"
-        class="w-full inline-flex items-center justify-center gap-3 py-3 sm:py-2 px-6 text-lg sm:text-base font-medium rounded-xl text-white bg-[#1A388B] hover:opacity-90 transition cursor-pointer disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:opacity-100"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             stroke-linejoin="round"
-             class="w-6 h-6 sm:w-5 sm:h-5 text-white"
-             aria-hidden="true">
-          <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-          <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-          <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-          <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-        </svg>
-        Escanear QR
-      </button>
+        <p class="text-gray-500 mt-6 text-center text-base sm:text-sm leading-relaxed">
+          Coloca el código QR dentro del recuadro
+        </p>
 
-          <p class="text-gray-500 mt-6 text-center text-base sm:text-sm leading-relaxed">
-            Coloca el código QR dentro del recuadro
-          </p>
-
-        </div>
       </div>
     </div>
-
-
   </div>
 </main>
 
@@ -65,67 +61,118 @@
 
 <script>
   const preview    = document.getElementById('preview');
-  const overlay    = document.getElementById('previewOverlay');
   const scanButton = document.getElementById('scanButton');
 
   let html5QrCode = null;
   let scanning    = false;
-  let claimedOnce = false; 
+  let claimedOnce = false;
+  let warmupStream = null;
 
-  document.addEventListener('visibilitychange', async () => {
-    if (document.hidden && html5QrCode) {
+  // Reset total y seguro
+  async function hardReset() {
+    if (html5QrCode) {
       try { await html5QrCode.stop(); } catch {}
       try { await html5QrCode.clear(); } catch {}
-      if (overlay) overlay.style.display = '';
-      scanning = false;
-      scanButton.disabled = false;
+      html5QrCode = null;
     }
-  });
+    if (warmupStream) {
+      try { warmupStream.getTracks().forEach(t => t.stop()); } catch {}
+      warmupStream = null;
+    }
+
+    scanning = false;
+    claimedOnce = false;
+
+    // UI: botón
+    if (scanButton) {
+      scanButton.disabled = false;
+      scanButton.textContent = "Escanear QR";
+    }
+
+    // UI: overlay visible, video detenido si quedó alguno
+    if (preview) {
+      const v = preview.querySelector('video');
+      if (v && v.srcObject) {
+        try { v.srcObject.getTracks().forEach(t => t.stop()); } catch {}
+      }
+      const overlay = document.getElementById('previewOverlay');
+      if (overlay) overlay.style.display = '';
+    }
+  }
+
+  // Forzar prompt de permisos si no están concedidos “permanentes”
+  async function ensureCameraPermission() {
+    warmupStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } },
+      audio: false
+    });
+    // Cerramos enseguida; html5-qrcode abrirá su propio stream
+    warmupStream.getTracks().forEach(t => t.stop());
+    warmupStream = null;
+  }
+
+  function extractId(text) {
+    // Soporta: /qr/123, /qr/123/claim, ... o solo "123"
+    const m = text.match(/(?:^|https?:\/\/[^ ]+)?(?:\/)?qr\/(\d+)(?:\/claim)?(?:[?#].*)?$/i);
+    if (m) return parseInt(m[1], 10);
+    if (/^\d+$/.test(text)) return parseInt(text, 10);
+    return null;
+  }
 
   async function startScanner() {
     if (scanning) return;
     scanning = true;
     claimedOnce = false;
 
-    if (overlay) overlay.style.display = 'none';
-    scanButton.disabled = true;
+    // 1) Reset PRIMERO para evitar flickers/estados viejos
+    await hardReset();
+
+    // 2) UI -> escaneando
     const originalText = scanButton.textContent;
+    scanButton.disabled = true;
     scanButton.textContent = "Escaneando...";
 
-    function resetUI() {
-      scanning = false;
-      scanButton.disabled = false;
-      scanButton.textContent = originalText;
-      if (overlay) overlay.style.display = '';
-      try { html5QrCode?.clear(); } catch {}
+    // 3) Oculta overlay actual
+    const overlay = document.getElementById('previewOverlay');
+    if (overlay) overlay.style.display = 'none';
+
+    // 4) Forzar permiso
+    try {
+      await ensureCameraPermission();
+    } catch (err) {
+      console.error("Permiso de cámara denegado o falló:", err);
+      alert("No se pudo acceder a la cámara 📷\n" + (err?.message || err));
+      await hardReset();
+      return;
     }
 
-    function extractId(text) {
-      if (/^\d+$/.test(text)) return parseInt(text, 10); 
-      const m  = text.match(/\/qr\/(\d+)(?:\/claim)?(?:[?#].*)?$/i);
-      if (m) return parseInt(m[1], 10);
-      const m2 = text.match(/qr\/(\d+)/i); 
-      if (m2) return parseInt(m2[1], 10);
-      return null;
-    }
+    // 5) Nueva instancia SIEMPRE
+    html5QrCode = new Html5Qrcode("preview");
 
-    async function onScanSuccess(decodedText) {
-      if (claimedOnce) return; 
+    const config = {
+      fps: 10,
+      qrbox(viewfinder) {
+        const side = Math.floor(Math.min(viewfinder.width, viewfinder.height) * 0.8);
+        return { width: side, height: side };
+      }
+    };
+
+    const onScanSuccess = async (decodedText) => {
+      if (claimedOnce) return;
 
       const id = extractId(decodedText);
       if (!id) {
         alert("Código QR no válido");
-        try { await html5QrCode.stop(); } catch {}
-        resetUI();
+        await hardReset();
         return;
       }
 
       claimedOnce = true;
-
       try { await html5QrCode.stop(); } catch {}
 
       if (navigator.vibrate) navigator.vibrate(50);
 
+      // Redirigir vía POST para reclamar asistencia
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = `/qr/${id}/claim`;
@@ -134,37 +181,25 @@
       if (csrf) {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = 'csrf_token'; 
+        input.name = 'csrf_token';
         input.value = csrf;
         form.appendChild(input);
       }
 
       document.body.appendChild(form);
-      form.submit(); 
-    }
+      form.submit();
+    };
 
     try {
-      if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("preview");
-      } else {
-        try { await html5QrCode.clear(); } catch {}
-      }
-
-      const config = {
-        fps: 10,
-        qrbox(viewfinder) {
-          const side = Math.floor(Math.min(viewfinder.width, viewfinder.height) * 0.8);
-          return { width: side, height: side };
-        }
-      };
-
+      // 6) Iniciar escáner
       await html5QrCode.start(
         { facingMode: "environment" },
         config,
         onScanSuccess,
-        () => {} 
+        () => {} // onScanFailure silencioso
       );
 
+      // Ajustes visuales del <video> (iOS inline, cover, radios)
       queueMicrotask(() => {
         const video = preview.querySelector('video');
         if (video) {
@@ -176,17 +211,32 @@
           video.style.borderRadius = getComputedStyle(preview).borderRadius;
         }
       });
-
     } catch (err) {
-      console.error("Error al abrir cámara:", err);
-      alert("No se pudo acceder a la cámara 📷\n" + (err?.message || err));
-      try { await html5QrCode?.stop(); } catch {}
-      resetUI();
+      console.error("Error al iniciar el escáner:", err);
+      alert("No se pudo iniciar el escáner 📷\n" + (err?.message || err));
+      await hardReset();
+      return;
     }
+
+    // 7) Volver a estado “listo”
+    scanButton.disabled = false;
+    scanButton.textContent = originalText;
   }
 
+  // Ciclo de vida: al ocultar/abandonar la página, resetea
+  document.addEventListener('visibilitychange', async () => {
+    if (document.hidden) await hardReset();
+  });
+
+  // Nota: muchos navegadores no esperan async en beforeunload; hazlo síncrono
+  window.addEventListener('beforeunload', () => {
+    try { html5QrCode?.stop(); } catch {}
+    try { html5QrCode?.clear(); } catch {}
+    try { warmupStream?.getTracks().forEach(t => t.stop()); } catch {}
+  });
+
+  // Solo el BOTÓN abre la cámara
   scanButton.addEventListener('click', startScanner);
-  preview.addEventListener('click', startScanner);
 </script>
 
 {{ end }}

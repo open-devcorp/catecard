@@ -112,7 +112,7 @@ func (c *catechumenHandler) UpdateCatechumen(User *entities.User, w http.Respons
 	}
 
 	idStr := r.FormValue("id")
-	fullName := r.FormValue("name")
+	fullName := r.FormValue("full_name")
 	age := r.FormValue("age")
 	groupIdStr := r.FormValue("group_id")
 

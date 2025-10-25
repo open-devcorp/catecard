@@ -34,7 +34,7 @@ func (c *catechumenHandler) AddCatechumen(User *entities.User, w http.ResponseWr
 		return
 	}
 
-	fullName := r.FormValue("name")
+	fullName := r.FormValue("full_name")
 	age := r.FormValue("age")
 
 	catechumen := entities.NewCatechumen(fullName, age)

@@ -2,7 +2,7 @@ package entities
 
 type Catechumen struct {
 	ID       int    `json:"id"`
-	FullName string `json:"name"`
+	FullName string `json:"full_name"`
 	Age      string `json:"age"`
 	GroupId  int    `json:"group_id"`
 	User     *User  `json:"user,omitempty"`

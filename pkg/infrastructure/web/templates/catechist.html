@@ -21,10 +21,10 @@
 	<modal-component v-cloak :show="showModal" @close="showModal = false">
 		<p class="text-lg font-semibold mb-1">Agregar Catecúmeno</p>
 		<p class="text-gray-400 text-sm">Completa la información del catecúmeno</p>
-		<form id="catechumenForm" class="space-y-4 mt-5">
+		<form id="catechumenForm" class="space-y-4 mt-5" method="post" onsubmit="return false;">
 			<div>
-				<label for="name" class="form-label">Nombre Completo</label>
-				<input type="text" id="name" name="name" required class="form-input" placeholder="Ej: Italo Luna">
+				<label for="full_name" class="form-label">Nombre Completo</label>
+				<input type="text" id="full_name" name="full_name" required class="form-input" placeholder="Ej: Italo Luna">
 			</div>
 			<div>
 				<label for="age" class="form-label">Edad</label>
@@ -38,31 +38,34 @@
 			</div>
 			<div class="flex justify-end space-x-2 mt-5">
 				<button type="button" @click="showModal = false" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
-				<button type="submit" class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm">Agregar catecúmeno</button>
+				<button type="button" id="submitBtn" class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#1A388B]/90 transition-colors">Agregar catecúmeno</button>
 			</div>
 		</form>
 	</modal-component>
 </main>
 
-<!-- Script para cargar catecúmenos -->
 <script>
-	window.addEventListener('load', function() {
-		const list = document.getElementById('catechumensList');
-		if (!list) return;
-		list.innerHTML = '<div class="text-gray-400">Cargando...</div>';
-		fetch('/catechumens')
-			.then(res => {
-				if (!res.ok) throw new Error('Error al obtener catecúmenos');
-				return res.json();
-			})
-			.then(data => {
-				const catechumens = Array.isArray(data.catechumens) ? data.catechumens : [];
-				if (catechumens.length === 0) {
-					list.innerHTML = '<div class="text-gray-400">No hay catecúmenos registrados.</div>';
-					return;
-				}
-				list.innerHTML = catechumens.map(cat => `
-					<div class="bg-white p-5 rounded-xl border-1 border-gray-200 hover:shadow-md transition-all">
+let formSetup = false;
+
+// Cargar lista de catecúmenos
+async function loadCatechumens() {
+  const lista = document.getElementById("catechumensList");
+  if (!lista) return;
+
+  try {
+    const response = await fetch("/catechumens");
+    const data = await response.json();
+    const catechumens = Array.isArray(data) ? data : data.catechumens || [];
+    
+    if (catechumens.length === 0) {
+      lista.innerHTML = `<div class="bg-white p-6 text-center text-gray-400 rounded-xl border">
+        No hay catecúmenos registrados. Haz clic en "Agregar Catecúmeno" para crear uno.
+      </div>`;
+      return;
+    }
+
+    lista.innerHTML = catechumens.map(cat => `
+      <div class="bg-white p-5 rounded-xl border-1 border-gray-200 hover:shadow-md transition-all">
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-4">
 								<div class="w-12 h-12 rounded-xl bg-[#1A388B]/10 flex items-center justify-center flex-shrink-0">
@@ -72,28 +75,91 @@
 									</svg>
 								</div>
 								<div class="flex flex-col gap-1">
-									<p class="font-normal">${cat.name}</p>
+									<p class="font-normal">${cat.full_name}</p>
 									<div class="flex flex-row items-center gap-3">
-										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">${cat.group.name || 'Nombre de Grupo'}</p>
+										<p class="text-xs bg-gray-200 px-2 rounded-lg py-1">${cat.group?.name || 'Sin grupo'}</p>
 										<p class="text-[13px] text-gray-500">${cat.age} años</p>
-										<p class="text-[13px] text-gray-500">• ${cat.scans || '0/3'} escaneos</p>
+										<p class="text-[13px] text-gray-500">• 2/4 escaneos</p>
 									</div>
 								</div>
 							</div>
-							<button 
-								onclick='openEditModal(${JSON.stringify(cat).replace(/'/g, "&#39;")})'
-								class="px-4 py-2 text-[#1A388B] bg-[#1A388B]/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
-								Editar
-							</button>
+              <div class="flex gap-2">
+                <button 
+                  onclick='openEditModal(${JSON.stringify(cat).replace(/'/g, "&#39;")})'
+                  class="px-4 py-2 text-[#1A388B] bg-[#1A388B]/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
+                  Editar
+                </button>
+                <button
+                  class="px-4 py-2 text-red-500 bg-red-500/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
+                  Eliminar
+                </button>
+              </div>
 						</div>
 					</div>
-				`).join('');
-			})
-			.catch(() => {
-				list.innerHTML = '<div class="text-red-500">Error al cargar catecúmenos</div>';
-			});
-	});
-</script>
+    `).join('');
+    
+  } catch (error) {
+    lista.innerHTML = '<div class="text-red-500 text-center p-4">Error al cargar datos</div>';
+  }
+}
 
+// Configurar formulario
+function setupForm() {
+  const form = document.getElementById("catechumenForm");
+  const btn = document.getElementById("submitBtn");
+  
+  if (!form || formSetup) return;
+
+  const enviarForm = async () => {
+    const nombre = form.full_name.value.trim();
+    const edad = form.age.value.trim();
+    
+    if (!nombre || !edad) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    try {
+      const response = await fetch("/add-catechumen", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `full_name=${encodeURIComponent(nombre)}&age=${encodeURIComponent(edad)}`
+      });
+      
+      if (response.ok) {
+        alert("Catecúmeno agregado exitosamente");
+        form.reset();
+        loadCatechumens();
+        // Cerrar modal
+        if (window.app) window.app.showModal = false;
+      } else {
+        alert("Error al agregar catecúmeno");
+      }
+    } catch (error) {
+      alert("Error de conexión");
+    }
+  };
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    enviarForm();
+  };
+  
+  if (btn) btn.onclick = enviarForm;
+  formSetup = true;
+}
+
+// Función para editar (placeholder)
+function editarCatecumeno(id) {
+  alert("Función de edición pendiente para ID: " + id);
+}
+
+// Detectar cuando aparece el formulario en el modal
+new MutationObserver(() => setupForm()).observe(document.body, {childList: true, subtree: true});
+
+// Inicializar
+setupForm();
+loadCatechumens();
+</script>
 
 {{ end }}

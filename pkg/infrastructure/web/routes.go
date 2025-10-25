@@ -218,6 +218,11 @@ func setupRouter(
 		authHandler.GetAllScanners(user, w, r)
 	}).Methods("GET")
 
+	r.HandleFunc("/admin/scans", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		qrHandler.GetAllScans(user, w, r)
+	}).Methods("GET")
+
 	////////////////////////////////////////////////////////
 	// 👥 GRUPOS
 	////////////////////////////////////////////////////////
@@ -266,7 +271,8 @@ func setupRouter(
 
 	r.HandleFunc("/qr/{id}/claim", func(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.Atoi(mux.Vars(r)["id"])
-		qrHandler.ClaimQr(id, w, r)
+		user := handlers.GetUserFromRequest(r)
+		qrHandler.ClaimQr(user, id, w, r)
 	}).Methods("POST")
 
 	////////////////////////////////////////////////////////

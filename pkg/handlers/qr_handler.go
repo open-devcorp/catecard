@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"catecard/pkg/domain/entities"
 	"catecard/pkg/domain/usecases"
 	"encoding/json"
 	"errors"
@@ -12,7 +13,8 @@ type QrHandler interface {
 	AddQr(w http.ResponseWriter, r *http.Request)
 	GetAllQrs(w http.ResponseWriter, r *http.Request)
 	GetQrById(id int, w http.ResponseWriter, r *http.Request)
-	ClaimQr(id int, w http.ResponseWriter, r *http.Request)
+	ClaimQr(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
+	GetAllScans(User *entities.User, w http.ResponseWriter, r *http.Request)
 }
 
 type qrHandler struct {
@@ -44,6 +46,18 @@ func (q *qrHandler) GetAllQrs(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(qrs)
 }
 
+func (q *qrHandler) GetAllScans(User *entities.User, w http.ResponseWriter, r *http.Request) {
+	scans, err := q.uc.GetAllScans(User)
+	if err != nil {
+		q.log.Printf("Error getting all scans: %v", err)
+		http.Error(w, "Error getting all scans", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(scans)
+}
+
 // GetQrById implements QrHandler.
 func (q *qrHandler) GetQrById(id int, w http.ResponseWriter, r *http.Request) {
 	qr, err := q.uc.GetById(id)
@@ -61,13 +75,13 @@ func (q *qrHandler) GetQrById(id int, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(qr)
 }
 
-func (q *qrHandler) ClaimQr(id int, w http.ResponseWriter, r *http.Request) {
+func (q *qrHandler) ClaimQr(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	qr, err := q.uc.ClaimQr(id)
+	qr, err := q.uc.ClaimQr(User, id)
 	if err != nil {
 		if errors.Is(err, usecases.ErrQrFull) {
 			w.WriteHeader(http.StatusForbidden) // o 409

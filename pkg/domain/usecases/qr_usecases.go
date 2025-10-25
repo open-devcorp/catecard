@@ -13,7 +13,8 @@ type QrUseCase interface {
 	GetAll() ([]*entities.Qr, error)
 	GetById(id int) (*entities.Qr, error)
 	DeleteById(id int) error
-	ClaimQr(qrId int) (*entities.Qr, error)
+	ClaimQr(User *entities.User, qrId int) (*entities.Qr, error)
+	GetAllScans(User *entities.User) ([]repositories.ScanAndCatechume, error)
 }
 type qrUseCase struct {
 	logger         *log.Logger
@@ -21,11 +22,34 @@ type qrUseCase struct {
 	catechumenRepo repositories.CatechumenRepository
 	authRepo       repositories.UserRepository
 	groupRepo      repositories.GroupRepository
+	scanCateRepo   repositories.ScanCatechumenRepository
+}
+
+// GetAllScans implements QrUseCase.
+func (q *qrUseCase) GetAllScans(User *entities.User) ([]repositories.ScanAndCatechume, error) {
+
+	if User == nil {
+		return nil, fmt.Errorf("unauthenticated: user required to get scans")
+	}
+
+	if User.Role != entities.ADMIN {
+		return nil, fmt.Errorf("forbidden: only Admin")
+	}
+
+	scans, err := q.scanCateRepo.GetAll()
+	if err != nil {
+		q.logger.Printf("Error getting all scans: %v", err)
+		return nil, err
+	}
+
+	return scans, nil
+
 }
 
 var ErrQrFull = errors.New("max participants reached")
 
-func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
+func (q *qrUseCase) ClaimQr(User *entities.User, qrId int) (*entities.Qr, error) {
+
 	if qrId == 0 {
 		return nil, fmt.Errorf("QR ID cannot be 0")
 	}
@@ -78,6 +102,12 @@ func (q *qrUseCase) ClaimQr(qrId int) (*entities.Qr, error) {
 	if err := q.qrRepo.Update(qr); err != nil {
 		return qr, fmt.Errorf("error updating QR: %w", err)
 	}
+
+	err = q.scanCateRepo.Add(entities.NewScanCatechumen(catechum.ID, User.ID))
+	if err != nil {
+		return qr, fmt.Errorf("error logging scan catechumen: %w", err)
+	}
+
 	return qr, nil
 }
 
@@ -118,12 +148,13 @@ func (q *qrUseCase) GetById(id int) (*entities.Qr, error) {
 	return q.qrRepo.GetById(id)
 }
 
-func NewQrUsecase(logger *log.Logger, qrRepo repositories.QrRepository, catechum repositories.CatechumenRepository, authRepo repositories.UserRepository, groupRepo repositories.GroupRepository) QrUseCase {
+func NewQrUsecase(logger *log.Logger, qrRepo repositories.QrRepository, catechum repositories.CatechumenRepository, authRepo repositories.UserRepository, groupRepo repositories.GroupRepository, scanCateRepo repositories.ScanCatechumenRepository) QrUseCase {
 	return &qrUseCase{
 		logger:         logger,
 		qrRepo:         qrRepo,
 		catechumenRepo: catechum,
 		authRepo:       authRepo,
 		groupRepo:      groupRepo,
+		scanCateRepo:   scanCateRepo,
 	}
 }

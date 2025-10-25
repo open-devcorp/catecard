@@ -30,6 +30,7 @@ func NewUser(username, email, password string, role Role) User {
 
 func FakeUser() User {
 	return User{
+		ID:       1,
 		Username: "rodrigo@devcorp.pe",
 		Email:    "rodrigo@devcorp.pe",
 		Password: "123456",

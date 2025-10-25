@@ -10,6 +10,15 @@ type UserRepository interface {
 	GetById(id int) (*entities.User, error)
 }
 
+type ScanAndCatechume struct {
+	User       *entities.User
+	Catechumen *entities.Catechumen
+}
+type ScanCatechumenRepository interface {
+	Add(scanCatechumen *entities.ScanCatechumen) error
+	GetAll() ([]ScanAndCatechume, error)
+}
+
 type GroupRepository interface {
 	Add(group *entities.Group) error
 	GetAll() ([]*entities.Group, error)

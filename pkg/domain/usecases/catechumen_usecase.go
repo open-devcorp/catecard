@@ -33,7 +33,7 @@ func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catech
 		return nil, nil, fmt.Errorf("Unauthorized: User is not a catechist")
 	}
 	if catechumen.FullName == "" {
-		return nil, nil, fmt.Errorf("Group name cannot be empty")
+		return nil, nil, fmt.Errorf("Catechumen name cannot be empty")
 	}
 	if catechumen.Age == "" {
 		return nil, nil, fmt.Errorf("Catechumen age cannot be empty")

@@ -20,7 +20,7 @@ declare global {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    
-    initVue();
-
+  initVue(() => {
+    console.log('✅ Vue montado correctamente');
+  });
 });

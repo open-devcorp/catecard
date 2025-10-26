@@ -11,7 +11,7 @@
   >
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       @click.self="close"
     >
       <!-- Panel scale/opacity -->
@@ -28,7 +28,7 @@
           role="dialog"
           aria-modal="true"
           style="will-change: transform, opacity;"
-          class="relative bg-white w-full max-w-lg sm:max-w-lg p-6 rounded-lg"
+          class="relative bg-white w-full max-w-lg  p-6 rounded-lg"
         >
           <button
             @click="close"

@@ -106,8 +106,8 @@ func (c *catechumenUseCase) GetAll(user *entities.User) ([]*entities.Catechumen,
 		return nil, fmt.Errorf("unauthorized: user is nil")
 	}
 
-	if user.Role != entities.CATECHIST {
-		return nil, fmt.Errorf("unauthorized: user is not a catechist")
+	if user.Role != entities.CATECHIST && user.Role != entities.ADMIN {
+		return nil, fmt.Errorf("unauthorized: user is neither catechist nor admin")
 	}
 
 	catechumens, err := c.catechumenRepo.GetAll()
@@ -118,6 +118,9 @@ func (c *catechumenUseCase) GetAll(user *entities.User) ([]*entities.Catechumen,
 
 	catechumensByUser := make([]*entities.Catechumen, 0)
 
+	if user.Role == entities.ADMIN {
+		return catechumens, nil
+	}
 	for _, catechumen := range catechumens {
 		g, err := c.groupRepo.GetById(catechumen.GroupId)
 		if err != nil {

@@ -15,6 +15,7 @@ type GroupHandler interface {
 	GetAllGroups(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 	DeleteGroupById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
+	GetGroup(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type groupHandler struct {
@@ -101,6 +102,35 @@ func (g *groupHandler) GetGroupById(User *entities.User, id int, w http.Response
 	resp := map[string]interface{}{
 		"status": "ok",
 		"group":  group,
+	}
+
+	json.NewEncoder(w).Encode(resp)
+
+}
+
+func (g *groupHandler) GetGroup(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return
+	}
+
+	groupInfo, err := g.uc.Get(User, id)
+	if err != nil {
+		g.log.Printf("Error getting group info by ID: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving group info")
+		return
+	}
+	if groupInfo == nil {
+		writeJSONError(w, http.StatusNotFound, "Group not found")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	resp := map[string]interface{}{
+		"status":    "ok",
+		"groupInfo": groupInfo,
 	}
 
 	json.NewEncoder(w).Encode(resp)

@@ -1,6 +1,8 @@
 package repositories
 
-import "catecard/pkg/domain/entities"
+import (
+	"catecard/pkg/domain/entities"
+)
 
 type UserRepository interface {
 	GetAll() ([]*entities.User, error)
@@ -14,6 +16,11 @@ type ScanAndCatechume struct {
 	User       *entities.User
 	Catechumen *entities.Catechumen
 }
+type GroupInfo struct {
+	Group          *entities.Group
+	Catechist      *entities.User
+	CatechumenSize int
+}
 type ScanCatechumenRepository interface {
 	Add(scanCatechumen *entities.ScanCatechumen) error
 	GetAll() ([]ScanAndCatechume, error)
@@ -23,6 +30,7 @@ type GroupRepository interface {
 	Add(group *entities.Group) error
 	GetAll() ([]*entities.Group, error)
 	GetById(id int) (*entities.Group, error)
+	Get(id int) (*GroupInfo, error)
 	DeleteById(id int) error
 	Update(group *entities.Group) (*entities.Group, error)
 	GetByCatechistsId(catechistId int) (int, error)

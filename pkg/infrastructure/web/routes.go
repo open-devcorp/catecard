@@ -208,7 +208,7 @@ func setupRouter(
 		authHandler.DeleteUserById(user, id, w, r)
 	}).Methods("DELETE")
 
-	r.HandleFunc("/add-catechist", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		authHandler.CreateAccounts(user, w, r)
 	}).Methods("POST")
@@ -229,6 +229,12 @@ func setupRouter(
 	r.HandleFunc("/all-groups", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		groupHandler.GetAllGroups(user, w, r)
+	}).Methods("GET")
+
+	r.HandleFunc("/admin/groups/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
+		groupHandler.GetGroup(user, id, w, r)
 	}).Methods("GET")
 
 	r.HandleFunc("/group/{id}", func(w http.ResponseWriter, r *http.Request) {

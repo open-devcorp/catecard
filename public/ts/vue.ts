@@ -3,6 +3,10 @@ import { env } from './config';
 
 import TestComponent from './components/test-component.vue';
 import ModalComponent from './components/modal.component.vue';
+import ScanComponent from './components/scanners-list.component.vue';
+import CardComponent from './components/cards-summary.component.vue';
+import groupComponent from './components/group.component.vue';
+import userComponent from './components/user.component.vue';
 
 
 import { ref } from 'vue';
@@ -17,6 +21,10 @@ function NewApp() {
     });
     app.component('test-component', TestComponent);
     app.component('modal-component', ModalComponent);
+    app.component('scan-component', ScanComponent);
+    app.component('card-component', CardComponent);
+    app.component('group-component', groupComponent);
+    app.component('user-component', userComponent);
     return app;
 }
 

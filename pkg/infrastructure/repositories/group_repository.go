@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"catecard/pkg/domain/entities"
+	"context"
 	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -124,4 +126,57 @@ func (g *groupRepository) GetById(id int) (*entities.Group, error) {
 	}
 
 	return group, nil
+}
+
+func (r *groupRepository) Get(id int) (*GroupInfo, error) {
+	const q = `
+    SELECT
+      g.id,
+      g.name,
+      g.catechist_id,
+      u.id       AS user_id,
+      u.username,
+      u.email,
+      u.role,
+      COUNT(c.id) AS catechumens_count
+    FROM groups g
+    LEFT JOIN users u       ON u.id = g.catechist_id
+    LEFT JOIN catechumens c ON c.group_id = g.id
+    WHERE g.id = $1
+    GROUP BY g.id, g.name, g.catechist_id, u.id, u.username, u.email, u.role;
+    `
+	row := r.db.QueryRowContext(context.Background(), q, id)
+
+	grp := &entities.Group{}
+	usr := &entities.User{}
+	var count int
+
+	if err := row.Scan(
+		&grp.ID,
+		&grp.Name,
+		&grp.CatechistId,
+		&usr.ID,
+		&usr.Username,
+		&usr.Email,
+		&usr.Role,
+		&count,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil // no existe
+		}
+		r.log.Printf("GetById scan error: %v", err)
+		return nil, err
+	}
+
+	// Si no hay catequista (LEFT JOIN), usr.ID puede quedar 0: maneja nil
+	var cate *entities.User
+	if usr.ID != 0 {
+		cate = usr
+	}
+
+	return &GroupInfo{
+		Group:          grp,
+		Catechist:      cate,
+		CatechumenSize: count,
+	}, nil
 }

@@ -13,11 +13,27 @@ type GroupUseCase interface {
 	GetById(User *entities.User, id int) (*entities.Group, error)
 	DeleteById(User *entities.User, id int) error
 	Update(User *entities.User, group *entities.Group) (*entities.Group, error)
+	Get(User *entities.User, id int) (*repositories.GroupInfo, error)
 }
 
 type groupUseCase struct {
 	logger    *log.Logger
 	groupRepo repositories.GroupRepository
+}
+
+// Get implements GroupUseCase.
+func (g *groupUseCase) Get(User *entities.User, id int) (*repositories.GroupInfo, error) {
+
+	if User == nil {
+		return nil, fmt.Errorf("unauthorized: no user in session")
+	}
+	if User.Role != entities.ADMIN {
+		return nil, fmt.Errorf("forbidden: user does not have admin role")
+	}
+	if g.groupRepo == nil {
+		return nil, fmt.Errorf("Group repository is not initialized")
+	}
+	return g.groupRepo.Get(id)
 }
 
 func NewGroupUsecase(logger *log.Logger, r repositories.GroupRepository) GroupUseCase {

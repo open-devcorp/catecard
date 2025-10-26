@@ -26,6 +26,20 @@ func (c *catechumenRepository) GetByQrId(qrId int) (*entities.Catechumen, error)
 	}
 
 	return catechumen, nil
+
+}
+
+// DeleteById implements CatechumenRepository.
+func (c *catechumenRepository) DeleteById(id int) error {
+	query := `DELETE FROM catechumens WHERE id = ?`
+	_, err := c.db.Exec(query, id)
+
+	if err != nil {
+		c.log.Printf("Error deleting catechumen by ID: %v", err)
+		return err
+	}
+
+	return nil
 }
 
 // Add implements CatechumenRepository.

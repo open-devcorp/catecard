@@ -15,7 +15,8 @@ function NewApp() {
     const app = createApp({
         data() {
             return {
-                showModal: false
+                showModal: false,
+                isEditMode: false,
             }
         }
     });

@@ -12,6 +12,7 @@ type CatechumenUseCase interface {
 	Update(User *entities.User, catechumen *entities.Catechumen) (*entities.Catechumen, error)
 	GetAll(User *entities.User) ([]*entities.Catechumen, error)
 	GetById(User *entities.User, id int) (*entities.Catechumen, error)
+	DeleteById(User *entities.User, id int) error
 }
 
 type catechumenUseCase struct {
@@ -19,6 +20,36 @@ type catechumenUseCase struct {
 	catechumenRepo repositories.CatechumenRepository
 	groupRepo      repositories.GroupRepository
 	qrRepo         repositories.QrRepository
+}
+
+// DeleteById implements CatechumenUseCase.
+func (c *catechumenUseCase) DeleteById(User *entities.User, id int) error {
+	if User == nil {
+		return fmt.Errorf("Unauthorized: User is nil")
+	}
+	if User.Role != entities.CATECHIST {
+		return fmt.Errorf("Unauthorized: User is not a catechist")
+	}
+
+	groupId, err := c.groupRepo.GetByCatechistsId(User.ID)
+	if err != nil {
+		return fmt.Errorf("Error fetching group by catechist ID: %v", err)
+	}
+
+	if groupId == 0 {
+		return fmt.Errorf("No group found for catechist ID: %d", User.ID)
+	}
+
+	catechumen, err := c.catechumenRepo.GetById(id)
+	if err != nil {
+		return fmt.Errorf("Error fetching catechumen by ID: %v", err)
+	}
+
+	if catechumen.GroupId != groupId {
+		return fmt.Errorf("Unauthorized: Catechumen does not belong to user's group")
+	}
+
+	return c.catechumenRepo.DeleteById(id)
 }
 
 func NewCatechumenUsecase(logger *log.Logger, catechumenRepo repositories.CatechumenRepository, groupRepo repositories.GroupRepository, qrRepo repositories.QrRepository) CatechumenUseCase {

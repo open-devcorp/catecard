@@ -304,6 +304,11 @@ func setupRouter(
 		user := handlers.GetUserFromRequest(r)
 		catechumenHandler.UpdateCatechumen(user, w, r)
 	}).Methods("PUT")
+	r.HandleFunc("/delete-catechumen/{id}", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		id, _ := strconv.Atoi(mux.Vars(r)["id"])
+		catechumenHandler.DeleteCatechumenById(user, id, w, r)
+	}).Methods("DELETE")
 
 	return r
 }

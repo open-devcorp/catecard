@@ -33,4 +33,5 @@ type CatechumenRepository interface {
 	Update(catechumen *entities.Catechumen) (*entities.Catechumen, error)
 	GetAll() ([]*entities.Catechumen, error)
 	GetById(id int) (*entities.Catechumen, error)
+	DeleteById(id int) error
 }

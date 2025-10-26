@@ -121,7 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
                   Editar
                 </button>
                 <button
-                  class="px-3 sm:px-4 py-2 text-red-500 bg-red-500/20 rounded-lg text-xs sm:text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
+                  data-id="${c.id}"
+                  class="delete-btn px-3 sm:px-4 py-2 text-red-500 bg-red-500/20 rounded-lg text-xs sm:text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
                   Eliminar
                 </button>
               </div>
@@ -184,6 +185,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function deleteCatechumen(id) {
+    if (!id) return;
+    const confirmed = confirm("¿Seguro que deseas eliminar este catecúmeno?");
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/delete-catechumen/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+      await loadCatechumens();
+    } catch (err) {
+      console.error("Error eliminando catecúmeno:", err);
+      alert("No se pudo eliminar el catecúmeno: " + err.message);
+    }
+  }
+
   window.openEditModal = function(catechumen) {
     console.log("🔧 Abriendo modal de edición para:", catechumen);
     
@@ -232,6 +251,11 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("Error parsing catechumen data:", err);
         }
       }
+    }
+
+    if (e.target && e.target.classList.contains("delete-btn")) {
+      const id = e.target.getAttribute("data-id");
+      deleteCatechumen(id);
     }
   });
 });

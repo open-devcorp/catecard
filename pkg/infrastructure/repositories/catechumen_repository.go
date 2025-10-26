@@ -11,6 +11,19 @@ type catechumenRepository struct {
 	db  *sql.DB
 }
 
+// DeleteById implements CatechumenRepository.
+func (c *catechumenRepository) DeleteById(id int) error {
+	query := `DELETE FROM catechumens WHERE id = ?`
+	_, err := c.db.Exec(query, id)
+
+	if err != nil {
+		c.log.Printf("Error deleting catechumen by ID: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 // Add implements CatechumenRepository.
 func (c *catechumenRepository) Add(catechumen *entities.Catechumen) (int, error) {
 	query := `INSERT INTO catechumens(full_name, age, group_id) VALUES(?,?,?)`

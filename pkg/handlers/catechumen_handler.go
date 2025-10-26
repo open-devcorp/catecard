@@ -14,12 +14,24 @@ type CatechumenHandler interface {
 	UpdateCatechumen(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetAllCatechumens(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetCatechumenById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
+	DeleteCatechumenById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 }
 
 type catechumenHandler struct {
 	log      *log.Logger
 	uc       usecases.CatechumenUseCase
 	tmplPath string
+}
+
+// DeleteCatechumenById implements CatechumenHandler.
+func (c *catechumenHandler) DeleteCatechumenById(User *entities.User, id int, w http.ResponseWriter, r *http.Request) {
+	if err := c.uc.DeleteById(User, id); err != nil {
+		c.log.Printf("Error deleting catechumen by ID: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error deleting catechumen")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func NewCatechumenHandler(logger *log.Logger, uc usecases.CatechumenUseCase, tmplPath string) CatechumenHandler {

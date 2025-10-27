@@ -111,7 +111,7 @@ func StartWebServer(cfg *config.Config) error {
 	catechumenRepo := repositories.NewCatechumenRepository(logger, db)
 	scanCatechumen := repositories.NewScanCatechumenRepository(logger, db)
 	//USECASES
-	authUC := usecases.NewAuthUseCase(logger, authRepo)
+	authUC := usecases.NewAuthUseCase(logger, authRepo, groupRepo)
 	groupUC := usecases.NewGroupUsecase(logger, groupRepo)
 	qrUC := usecases.NewQrUsecase(logger, qrRepo, catechumenRepo, authRepo, groupRepo, scanCatechumen)
 	catechumenUC := usecases.NewCatechumenUsecase(logger, catechumenRepo, groupRepo, qrRepo)

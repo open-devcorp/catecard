@@ -1,10 +1,17 @@
 <template>
   <section class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-8">
     <!-- Groups -->
-    <article class="bg-white rounded-xl border border-gray-300 p-6">
+    <article class="bg-white rounded-xl border border-gray-200 p-6">
       <div class="flex justify-between items-center">
         <p>Total Grupos</p>
-        <div class="aspect-square rounded-3xl size-10 bg-blue-300 text-blue-800"></div>
+      <div class="rounded-3xl size-10 bg-blue-200 text-blue-800 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-5 h-5 text-primary" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      </div>
       </div>
       <div class="mt-12">
         <p class="text-4xl">
@@ -15,11 +22,18 @@
     </article>
 
     <!-- Catechists -->
-    <article class="bg-white rounded-xl border border-gray-300 p-6">
+    <article class="bg-white rounded-xl border border-gray-200 p-6">
       <div class="flex justify-between items-center">
         <p>Total Catequistas</p>
-        <div class="aspect-square rounded-3xl size-10 bg-blue-300 text-blue-800"></div>
+      <div class="rounded-3xl size-10 bg-blue-200 text-blue-800 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-5 h-5 text-primary" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
       </div>
+            </div>
       <div class="mt-12">
         <p class="text-4xl">
           {{ loading.catechists ? '...' : catechists.length }}
@@ -29,11 +43,17 @@
     </article>
 
     <!-- Catechumens -->
-    <article class="bg-white rounded-xl border border-gray-300 p-6">
+    <article class="bg-white rounded-xl border border-gray-200 p-6">
       <div class="flex justify-between items-center">
         <p>Total Catecúmenos</p>
-        <div class="aspect-square rounded-3xl size-10 bg-blue-300 text-blue-800"></div>
-      </div>
+      <div class="rounded-3xl size-10 bg-blue-200 text-blue-800 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-5 h-5 text-primary" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      </div>      </div>
       <div class="mt-12">
         <p class="text-4xl">
           {{ loading.catechumens ? '...' : catechumens.length }}

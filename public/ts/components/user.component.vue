@@ -1,149 +1,187 @@
 <template>
-  <section class="max-w-5xl mx-auto">
+  <section class="bg-white rounded-xl border border-gray-200 p-6 space-y-6 mb-10">
     <!-- Header -->
-    <div class="mb-6 flex items-center justify-between">
+    <div class="flex items-center justify-between mb-4">
       <div>
         <h2 class="text-[22px] font-semibold text-gray-900">Usuarios</h2>
         <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
       </div>
       <button
         @click="openCreate"
-        class="h-9 px-3 rounded-lg bg-[#1A388B] text-white text-sm hover:bg-[#1A388B]/90">
+        class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             class="w-4 h-4">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
         Nuevo Usuario
       </button>
     </div>
 
-    <!-- CATEQUISTAS -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold text-gray-900">
-          Catequistas <span class="text-gray-500">({{ catechists.length }})</span>
-        </h3>
-        <button @click="loadCatechists" class="h-9 px-3 rounded-lg ring-1 ring-gray-300 text-sm hover:bg-gray-50">
-          Actualizar
-        </button>
+ 
+    <!-- ========== SCANNERS ========== -->
+    <div class="space-y-3 mb-10">
+      <h2 class="text-lg font-semibold text-gray-900">
+              Escáneres
+            <span class="text-base text-gray-600">({{ catechists.length }})</span>
+        </h2>
+
+      <template v-if="loading.scanners">
+        <div v-for="n in 2" :key="'s-skel-'+n" class="rounded-2xl border border-gray-200 bg-white p-4">
+          <div class="flex items-center gap-4">
+            <span class="w-9 h-9 rounded-xl bg-indigo-100 animate-pulse"></span>
+            <div>
+              <div class="h-4 w-40 bg-gray-200 rounded mb-2 animate-pulse"></div>
+              <div class="h-3 w-56 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <div v-else-if="!scanners.length"
+           class="rounded-2xl border border-gray-200 bg-white p-6 text-center text-gray-500">
+        No hay cuentas de escáner.
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-        <table class="min-w-full text-sm">
-          <thead class="bg-gray-50 text-gray-600">
-            <tr>
-              <th class="px-4 py-3 text-left font-medium">Nombre de usuario</th>
-              <th class="px-4 py-3 text-left font-medium">Correo</th>
-              <th class="px-4 py-3 text-left font-medium">Rol</th>
-              <th class="px-4 py-3 text-right font-medium">Acciones</th>
-            </tr>
-          </thead>
+      <template v-else>
+        <div v-for="u in scanners" :key="'s-'+u.id"
+             class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between hover:shadow-sm transition">
+          <div class="flex items-center gap-4">
+            <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium">
+              {{ u.username.charAt(0).toUpperCase() }}
+            </span>
+            <div>
+              <p class="text-[15px] font-medium text-gray-900">{{ u.username }}</p>
+              <p class="text-[13px] text-gray-600">{{ u.email }}</p>
 
-          <!-- Skeleton -->
-          <tbody v-if="loading.catechists">
-            <tr v-for="n in 3" :key="'c-skel-'+n" class="border-t">
-              <td class="px-4 py-3"><div class="h-4 w-44 bg-gray-200 rounded animate-pulse"></div></td>
-              <td class="px-4 py-3"><div class="h-4 w-64 bg-gray-200 rounded animate-pulse"></div></td>
-              <td class="px-4 py-3"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
-              <td class="px-4 py-3 text-right"><div class="h-8 w-36 bg-gray-200 rounded animate-pulse inline-block"></div></td>
-            </tr>
-          </tbody>
+            </div>
+          </div>
 
-          <!-- Datos -->
-          <tbody v-else>
-            <tr v-if="!catechists.length" class="border-t">
-              <td colspan="4" class="px-4 py-6 text-center text-gray-500">No hay catequistas.</td>
-            </tr>
-            <tr v-for="u in catechists" :key="'c-'+u.id" class="border-t">
-              <td class="px-4 py-3 text-gray-900">{{ u.username }}</td>
-              <td class="px-4 py-3 text-gray-900">{{ u.email }}</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center rounded-full text-[11px] px-2 py-0.5 ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700">
-                  Catequista
+          <div class="flex items-center gap-2">
+            <button
+              @click="openCredentials(u, 'scanner')"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition"
+              title="Ver credenciales">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   class="w-4 h-4 text-gray-700">
+                <path d="M2.062 12.348a1 1 0 0 1 0-.696
+                        10.75 10.75 0 0 1 19.876 0
+                        1 1 0 0 1 0 .696
+                        10.75 10.75 0 0 1-19.876 0" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+
+            <button
+              @click="confirmDelete(u, 'scanner')"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 text-red-600 transition"
+              title="Eliminar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   class="w-4 h-4">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4
+                         a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+       <!-- ========== CATEQUISTAS ========== -->
+    <div class="space-y-3 mb-10">
+        <h2 class="text-lg font-semibold text-gray-900">
+              Catequistas
+            <span class="text-base text-gray-600">({{ catechists.length }})</span>
+        </h2>
+
+      <!-- Skeleton -->
+      <template v-if="loading.catechists">
+        <div v-for="n in 3" :key="'c-skel-'+n" class="rounded-2xl border border-gray-200 bg-white p-4">
+          <div class="flex items-center gap-4">
+            <span class="w-9 h-9 rounded-xl bg-emerald-100 animate-pulse"></span>
+            <div>
+              <div class="h-4 w-40 bg-gray-200 rounded mb-2 animate-pulse"></div>
+              <div class="h-3 w-56 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Empty -->
+      <div v-else-if="!catechists.length"
+           class="rounded-2xl border border-gray-200 bg-white p-6 text-center text-gray-500">
+        No hay catequistas.
+      </div>
+
+      <!-- Items -->
+      <template v-else>
+        <div v-for="u in catechists" :key="'c-'+u.id"
+            class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between hover:shadow-sm transition">
+          <div class="flex items-center gap-4">
+            <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-medium">
+              {{ u.username.charAt(0).toUpperCase() }}
+            </span>
+            <div>
+              <p class="text-[15px] font-medium text-gray-900">{{ u.username }}</p>
+              <div class="flex">
+              <div class="flex gap-1 mt-1">
+                <span v-for="g in u.groups" :key="g.id"
+                      class="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                  {{ g.name }}
                 </span>
-              </td>
-              <td class="px-4 py-3">
-                <div class="flex justify-end gap-2">
-                  <button
-                    @click="openCredentials(u, 'catechist')"
-                    class="inline-flex items-center rounded-md text-xs px-3 py-1.5 ring-1 ring-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
-                    Ver credenciales
-                  </button>
-                  <button
-                    @click="confirmDelete(u, 'catechist')"
-                    class="inline-flex items-center rounded-md text-xs px-3 py-1.5 ring-1 ring-red-200 bg-red-50 text-red-700 hover:bg-red-100">
-                    Eliminar
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </div>
+              </div>
+             
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              @click="openCredentials(u, 'catechist')"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition"
+              title="Ver credenciales">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  class="w-4 h-4 text-gray-700">
+                <path d="M2.062 12.348a1 1 0 0 1 0-.696
+                        10.75 10.75 0 0 1 19.876 0
+                        1 1 0 0 1 0 .696
+                        10.75 10.75 0 0 1-19.876 0" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+
+            <button
+              @click="confirmDelete(u, 'catechist')"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 text-red-600 transition"
+              title="Eliminar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  class="w-4 h-4">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4
+                        a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </template>
+
     </div>
 
-    <!-- SCANNERS -->
-    <div>
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold text-gray-900">
-          Escáneres <span class="text-gray-500">({{ scanners.length }})</span>
-        </h3>
-        <button @click="loadScanners" class="h-9 px-3 rounded-lg ring-1 ring-gray-300 text-sm hover:bg-gray-50">
-          Actualizar
-        </button>
-      </div>
-
-      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-        <table class="min-w-full text-sm">
-          <thead class="bg-gray-50 text-gray-600">
-            <tr>
-              <th class="px-4 py-3 text-left font-medium">Nombre de usuario</th>
-              <th class="px-4 py-3 text-left font-medium">Correo</th>
-              <th class="px-4 py-3 text-left font-medium">Rol</th>
-              <th class="px-4 py-3 text-right font-medium">Acciones</th>
-            </tr>
-          </thead>
-
-          <!-- Skeleton -->
-          <tbody v-if="loading.scanners">
-            <tr v-for="n in 2" :key="'s-skel-'+n" class="border-t">
-              <td class="px-4 py-3"><div class="h-4 w-44 bg-gray-200 rounded animate-pulse"></div></td>
-              <td class="px-4 py-3"><div class="h-4 w-64 bg-gray-200 rounded animate-pulse"></div></td>
-              <td class="px-4 py-3"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
-              <td class="px-4 py-3 text-right"><div class="h-8 w-36 bg-gray-200 rounded animate-pulse inline-block"></div></td>
-            </tr>
-          </tbody>
-
-          <!-- Datos -->
-          <tbody v-else>
-            <tr v-if="!scanners.length" class="border-t">
-              <td colspan="4" class="px-4 py-6 text-center text-gray-500">No hay cuentas de escáner.</td>
-            </tr>
-            <tr v-for="u in scanners" :key="'s-'+u.id" class="border-t">
-              <td class="px-4 py-3 text-gray-900">{{ u.username }}</td>
-              <td class="px-4 py-3 text-gray-900">{{ u.email }}</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center rounded-full text-[11px] px-2 py-0.5 ring-1 ring-indigo-200 bg-indigo-50 text-indigo-700">
-                  Escáner
-                </span>
-              </td>
-              <td class="px-4 py-3">
-                <div class="flex justify-end gap-2">
-                  <button
-                    @click="openCredentials(u, 'scanner')"
-                    class="inline-flex items-center rounded-md text-xs px-3 py-1.5 ring-1 ring-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
-                    Ver credenciales
-                  </button>
-                  <button
-                    @click="confirmDelete(u, 'scanner')"
-                    class="inline-flex items-center rounded-md text-xs px-3 py-1.5 ring-1 ring-red-200 bg-red-50 text-red-700 hover:bg-red-100">
-                    Eliminar
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </section>
-
   <!-- MODAL: Crear Nuevo Usuario -->
   <modal-component :show="showCreate" @close="closeCreate">
     <div class="pr-2">
@@ -173,13 +211,13 @@
                     @click="createForm.role = 'catechist'"
                     :class="['h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1',
                              createForm.role==='catechist' ? 'bg-[#1A388B] text-white ring-[#1A388B]' : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50']">
-              <span>👤</span> Catequista
+              Catequista
             </button>
             <button type="button"
                     @click="createForm.role = 'scanner'"
                     :class="['h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1',
                              createForm.role==='scanner' ? 'bg-[#1A388B] text-white ring-[#1A388B]' : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50']">
-              <span>🛰️</span> Escáner
+               Escáner
             </button>
           </div>
         </div>
@@ -201,96 +239,99 @@
   </modal-component>
 
   <!-- MODAL: Credenciales -->
-  <modal-component :show="showModal" @close="closeModal">
-    <div class="pr-2">
-      <h3 class="text-xl font-semibold text-gray-900">Credenciales de Acceso</h3>
-      <p class="text-sm text-gray-500">Comparte estas credenciales con {{ modalName }}</p>
+<modal-component :show="showModal" @close="closeModal">
+  <div class="pr-2">
+    <h3 class="text-xl font-semibold text-gray-900">Credenciales de Acceso</h3>
+    <p class="text-sm text-gray-500">Comparte estas credenciales con {{ modalName }}</p>
 
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-4 text-[13px] text-gray-600">
-        Guarda estas credenciales en un lugar seguro. El usuario necesitará estos datos para iniciar sesión.
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-4 text-[13px] text-gray-600">
+      Guarda estas credenciales en un lugar seguro. El usuario necesitará estos datos para iniciar sesión.
+    </div>
+
+    <div class="space-y-5 mt-5 text-[15px]">
+      <!-- Nombre -->
+      <div>
+        <p class="text-gray-600 text-sm">Nombre</p>
+        <p class="mt-1 text-gray-900">{{ modalName }}</p>
       </div>
 
-      <div class="space-y-5 mt-5 text-[15px]">
-        <div>
-          <p class="text-gray-600 text-sm">Nombre</p>
-          <p class="mt-1 text-gray-900">{{ modalName }}</p>
-        </div>
+      <!-- Tipo de Cuenta -->
+      <div>
+        <p class="text-gray-600 text-sm">Tipo de Cuenta</p>
+        <span v-if="modalType === 'catechist'"
+          class="inline-flex items-center mt-1 rounded-full text-[11px] px-2 py-0.5 ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700">
+          Catequista
+        </span>
+        <span v-else
+          class="inline-flex items-center mt-1 rounded-full text-[11px] px-2 py-0.5 ring-1 ring-indigo-200 bg-indigo-50 text-indigo-700">
+          Escáner
+        </span>
+      </div>
 
-        <div>
-          <p class="text-gray-600 text-sm">Tipo de Cuenta</p>
-          <span v-if="modalType === 'catechist'"
-                class="inline-flex items-center mt-1 rounded-full text-[11px] px-2 py-0.5 ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700">
-            Catequista
-          </span>
-          <span v-else
-                class="inline-flex items-center mt-1 rounded-full text-[11px] px-2 py-0.5 ring-1 ring-indigo-200 bg-indigo-50 text-indigo-700">
-            Escáner
-          </span>
-        </div>
-
-        <div>
-          <p class="text-gray-600 text-sm">Correo Electrónico</p>
-          <div class="mt-1 flex items-center gap-2">
-            <input :value="modalEmail" readonly
-                   class="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none" />
-            <button @click="copy(modalEmail)"
-                    class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
-                    title="Copiar correo">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <p class="text-gray-600 text-sm">Contraseña</p>
-          <div class="mt-1 flex items-center gap-2">
-            <input :value="modalPassword" readonly
-                   class="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none" />
-            <button @click="copy(modalPassword)"
-                    class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
-                    title="Copiar contraseña">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-end pt-2">
-          <button @click="closeModal"
-                  class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">
-            Cerrar
+      <!-- Correo -->
+      <div>
+        <p class="text-gray-600 text-sm">Correo Electrónico</p>
+        <div class="mt-1 flex items-center gap-2">
+          <input :value="modalEmail" readonly
+                class="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none" />
+          <button @click="copy(modalEmail)"
+                  class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
+                  title="Copiar correo">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
           </button>
         </div>
       </div>
-    </div>
-  </modal-component>
-</template>
 
+      <!-- Contraseña -->
+      <div>
+        <p class="text-gray-600 text-sm">Contraseña</p>
+        <div class="mt-1 flex items-center gap-2">
+          <input :value="modalPassword" readonly
+                class="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none" />
+          <button @click="copy(modalPassword)"
+                  class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
+                  title="Copiar contraseña">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Botón cerrar -->
+      <div class="flex justify-end pt-2">
+        <button @click="closeModal"
+                class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</modal-component>
+
+</template>
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 
-type User = {
-  id: number
-  username: string
-  email: string
-  password?: string
-  role?: number | string
-}
+/* ===== Tipos ===== */
+type Group = { id: number; name: string }
+type User = { id: number; username: string; email: string; password?: string; role?: number|string; groups?: Group[] }
+type UserData = { User: User; Groups: Group[] }
 
+/* ===== Props ===== */
 const props = defineProps({
   catechistsUrl: { type: String, default: '/all-catechists' },
-  scannersUrl:   { type: String, default: '/all-scanners' },
+  scannersUrl: { type: String, default: '/all-scanners' },
   deleteCatechistUrlBase: { type: String, default: '/catechists' },
-  deleteScannerUrlBase:   { type: String, default: '/scanners' },
-  createUrl: { type: String, default: '/users' }, // POST /users
+  deleteScannerUrlBase: { type: String, default: '/scanners' },
+  createUrl: { type: String, default: '/users' },
 })
 
-/* ===== Listas ===== */
+/* ===== Estado ===== */
 const catechists = ref<User[]>([])
 const scanners = ref<User[]>([])
 const loading = reactive({ catechists: true, scanners: true })
@@ -302,6 +343,7 @@ const modalUser = ref<User | null>(null)
 const modalName = computed(() => modalUser.value?.username || 'Usuario')
 const modalEmail = computed(() => modalUser.value?.email || '')
 const modalPassword = computed(() => modalUser.value?.password || '')
+const modalGroups = computed(() => modalUser.value?.groups || [])
 
 /* ===== Modal Crear ===== */
 const showCreate = ref(false)
@@ -315,32 +357,38 @@ const createForm = ref<{ username: string; email: string; role: 'catechist'|'sca
 
 /* ===== Fetchers ===== */
 async function loadCatechists() {
+  loading.catechists = true
   try {
-    loading.catechists = true
-    const res = await fetch(props.catechistsUrl, { headers: { Accept: 'application/json' }, credentials: 'include', cache: 'no-store' })
+    const res = await fetch(props.catechistsUrl, { headers: { Accept: 'application/json' }, credentials: 'include' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json().catch(() => [])
-    catechists.value = Array.isArray(data) ? data : (data?.users || data?.catechists || [])
+    const data: UserData[] = await res.json().catch(() => [])
+    catechists.value = Array.isArray(data) ? data.map(d => ({ ...d.User, groups: d.Groups || [] })) : []
   } catch (e) {
-    console.error('catechists error', e); catechists.value = []
+    console.error('catechists error', e)
+    catechists.value = []
   } finally {
     loading.catechists = false
   }
 }
+
 async function loadScanners() {
+  loading.scanners = true
   try {
-    loading.scanners = true
-    const res = await fetch(props.scannersUrl, { headers: { Accept: 'application/json' }, credentials: 'include', cache: 'no-store' })
+    const res = await fetch(props.scannersUrl, { headers: { Accept: 'application/json' }, credentials: 'include' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json().catch(() => [])
-    scanners.value = Array.isArray(data) ? data : (data?.users || data?.scanners || [])
+    const data: UserData[] = await res.json().catch(() => [])
+    scanners.value = Array.isArray(data) ? data.map(d => ({ ...d.User, groups: d.Groups || [] })) : []
   } catch (e) {
-    console.error('scanners error', e); scanners.value = []
+    console.error('scanners error', e)
+    scanners.value = []
   } finally {
     loading.scanners = false
   }
 }
-onMounted(async () => { await Promise.all([loadCatechists(), loadScanners()]) })
+
+onMounted(async () => {
+  await Promise.all([loadCatechists(), loadScanners()])
+})
 
 /* ===== Modal Credenciales ===== */
 function openCredentials(u: User, type: 'catechist'|'scanner') {
@@ -348,7 +396,10 @@ function openCredentials(u: User, type: 'catechist'|'scanner') {
   modalType.value = type
   showModal.value = true
 }
-function closeModal() { showModal.value = false; modalUser.value = null }
+function closeModal() {
+  showModal.value = false
+  modalUser.value = null
+}
 
 /* ===== Crear Usuario ===== */
 function openCreate() {
@@ -356,14 +407,22 @@ function openCreate() {
   createForm.value = { username: '', email: '', role: 'catechist' }
   showCreate.value = true
 }
-function closeCreate() { showCreate.value = false }
+function closeCreate() {
+  showCreate.value = false
+}
 
-const ROLE_MAP: Record<'catechist'|'scanner', number> = { catechist: 1, scanner: 3 }
+const ROLE_MAP: Record<'catechist'|'scanner', number> = {
+  catechist: 1,
+  scanner: 3,
+}
 
 async function submitCreate() {
   createError.value = null
   const f = createForm.value
-  if (!f.username || !f.email) { createError.value = 'Completa nombre y correo.'; return }
+  if (!f.username || !f.email) {
+    createError.value = 'Completa nombre y correo.'
+    return
+  }
 
   submittingCreate.value = true
   try {
@@ -372,37 +431,59 @@ async function submitCreate() {
       email: f.email,
       role: String(ROLE_MAP[f.role]),
     })
+
     const res = await fetch(props.createUrl, {
       method: 'POST',
       credentials: 'include',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
       body,
     })
-    if (!res.ok) {
-      const msg = `HTTP ${res.status}`
-      createError.value = 'No se pudo crear el usuario. ' + msg
-      throw new Error(msg)
+
+    // ⚙️ Intentamos parsear el JSON aunque el status no sea 200
+    let payload: any = null
+    try {
+      payload = await res.json()
+    } catch {
+      payload = null
     }
-    const payload = await res.json().catch(() => ({}))
-    const u = payload?.user || {}
+
+    // Normalizar distintas formas de respuesta del backend
+    // Algunos endpoints devuelven { user: {...} } y otros { User: {...}, Groups: [...] }
+    const respUser = payload?.user ?? payload?.User ?? null
+    const respGroups = payload?.Groups ?? payload?.groups ?? []
+
+    if (!res.ok && !respUser) {
+      throw new Error(`HTTP ${res.status}`)
+    }
+
+    if (!respUser) {
+      // nada útil en la respuesta
+      throw new Error('No user returned from server')
+    }
 
     const created: User = {
-      id: u.id, username: u.username, email: u.email, password: u.password, role: u.role
+      ...respUser,
+      password: respUser.password || '',
+      groups: respGroups || [],
     }
 
-    // Añadir a la tabla correspondiente
-    if (f.role === 'catechist') catechists.value = [created, ...catechists.value]
-    else scanners.value = [created, ...scanners.value]
+    // 🔄 Refrescar la lista según el tipo y luego mostrar modal con las credenciales
+    if (f.role === 'catechist') {
+      await loadCatechists()
+    } else {
+      await loadScanners()
+    }
 
-    // Abrir credenciales con el usuario recién creado
-    modalType.value = f.role
+    // ✅ Mostrar modal de credenciales usando la información devuelta por el servidor
     openCredentials(created, f.role)
-
-    // Cerrar el modal de crear
     showCreate.value = false
+
   } catch (e) {
-    console.error('create error:', e)
-    if (!createError.value) createError.value = 'No se pudo crear el usuario.'
+    console.error('create error', e)
+    if (!createError.value) createError.value = 'No se pudo crear el usuario (revisa si ya existe).'
   } finally {
     submittingCreate.value = false
   }
@@ -410,29 +491,35 @@ async function submitCreate() {
 
 /* ===== Copiar ===== */
 async function copy(text: string) {
-  try { await navigator.clipboard.writeText(text || '') }
-  catch (e) { console.error('clipboard error', e) }
+  try {
+    await navigator.clipboard.writeText(text || '')
+  } catch (e) {
+    console.error('clipboard error', e)
+  }
 }
 
 /* ===== Delete ===== */
 async function doDelete(type: 'catechist'|'scanner', id: number) {
-  const base = type === 'catechist' ? '/catechists' : '/scanners'
-  const res = await fetch(`${base}/${id}`, { method: 'DELETE', credentials: 'include', headers: { Accept: 'application/json' } })
+  const base = type === 'catechist' ? props.deleteCatechistUrlBase : props.deleteScannerUrlBase
+  const res = await fetch(`${base}/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
   if (type === 'catechist') catechists.value = catechists.value.filter(u => u.id !== id)
   else scanners.value = scanners.value.filter(u => u.id !== id)
 }
+
 async function confirmDelete(u: User, type: 'catechist'|'scanner') {
   if (!confirm('¿Eliminar esta cuenta? Esta acción no se puede deshacer.')) return
-  try { await doDelete(type, u.id) }
-  catch (e) { console.error('delete error', e); alert('No se pudo eliminar.') }
+  try {
+    await doDelete(type, u.id)
+  } catch (e) {
+    console.error('delete error', e)
+    alert('No se pudo eliminar.')
+  }
 }
-async function handleDeleteFromModal() {
-  if (!modalUser.value) return
-  const type = modalType.value
-  const id = modalUser.value.id
-  if (!confirm('¿Eliminar esta cuenta? Esta acción no se puede deshacer.')) return
-  try { await doDelete(type, id); closeModal() }
-  catch (e) { console.error('delete error', e); alert('No se pudo eliminar.') }
-}
+
 </script>

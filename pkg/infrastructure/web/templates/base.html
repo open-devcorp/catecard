@@ -11,8 +11,12 @@
 
 </head>
 <body class="bg-white">
-  {{ template "content" . }}
+  <div data-behavior="vue">
+    {{ if .ShowNav }}
+      <nav-component></nav-component>
+    {{ end }}
+    {{ template "content" . }}
+  </div>
 
 </body>
-
 </html>

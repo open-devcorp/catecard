@@ -1,46 +1,53 @@
 <template>
-  <section class="max-w-5xl mx-auto">
+  <section class="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-[22px] font-semibold text-gray-900">
-        Grupos <span class="text-gray-500">({{ totalLabel }})</span>
-      </h2>
-      <div class="flex items-center gap-2">
-        <!-- New -->
-        <button
-          @click="openAddModal"
-          class="h-9 px-3 rounded-lg bg-[#1A388B] text-white text-sm hover:bg-[#1A388B]/90"
-        >
-          Nuevo
-        </button>
-        <button
-          @click="reloadAll"
-          class="h-9 px-3 rounded-lg ring-1 ring-gray-300 text-sm hover:bg-gray-50"
-        >
-          Actualizar
-        </button>
-      </div>
-    </div>
+<div class="flex flex-col sm:flex-row sm:justify-between gap-3">
+  <div class="sm:pr-4">
+    <h2 class="text-lg font-semibold text-gray-900">
+      Grupos de Catequesis
+      <span class="text-base text-gray-600">({{ totalLabel }})</span>
+    </h2>
+    <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
+  </div>
+
+  <div class="flex sm:items-start">
+    <!-- Botón Nuevo Grupo -->
+    <button
+      @click="openAddModal"
+      class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition w-full sm:w-auto">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-4 h-4">
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
+      </svg>
+      Nuevo Grupo
+    </button>
+  </div>
+</div>
+
+
 
     <!-- Tabla -->
-    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50 text-gray-600">
-          <tr>
-            <th class="px-4 py-3 text-left font-medium">Nombre</th>
-            <th class="px-4 py-3 text-left font-medium">Líder</th>
-            <th class="px-4 py-3 text-left font-medium">Cantidad de catecúmenos</th>
-            <th class="px-4 py-3 text-right font-medium">Acciones</th>
+    <div class="overflow-x-auto rounded-xl bg-white">
+      <table class="min-w-full text-xs sm:text-sm">
+        <thead>
+          <tr class="border-b border-gray-200">
+            <th class="px-3 sm:px-4 py-2 text-left font-medium">Grupo</th>
+            <th class="px-3 sm:px-4 py-2 text-left font-medium">Líder/Catequista</th>
+            <th class="px-3 sm:px-4 py-2 text-center font-medium">Catecúmenos</th>
+            <th class="px-3 sm:px-4 py-2 text-right font-medium">Acciones</th>
           </tr>
         </thead>
 
         <!-- Skeleton -->
         <tbody v-if="loading">
-          <tr v-for="n in 3" :key="n" class="border-t">
-            <td class="px-4 py-3"><div class="h-4 w-44 bg-gray-200 rounded animate-pulse"></div></td>
-            <td class="px-4 py-3"><div class="h-4 w-36 bg-gray-200 rounded animate-pulse"></div></td>
-            <td class="px-4 py-3"><div class="h-4 w-24 bg-gray-200 rounded animate-pulse"></div></td>
-            <td class="px-4 py-3 text-right"><div class="h-8 w-28 bg-gray-200 rounded animate-pulse inline-block"></div></td>
+          <tr v-for="n in 2" :key="n" class="border-t">
+            <td class="px-4 py-2"><div class="h-4 w-36 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-4 py-2"><div class="h-4 w-28 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-4 py-2"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-4 py-2 text-right"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse inline-block"></div></td>
           </tr>
         </tbody>
 
@@ -55,27 +62,45 @@
 
         <!-- Filas -->
         <tbody v-else>
-          <tr v-for="r in rows" :key="r.id" class="border-t">
-            <td class="px-4 py-3">
+          <tr v-for="r in rows" :key="r.id" class="border-t border-gray-300 hover:bg-gray-50 transition">
+            <td class="px-3 sm:px-4 py-2">
               <span class="text-gray-900">{{ r.name }}</span>
             </td>
-            <td class="px-4 py-3">
+            <td class="px-3 sm:px-4 py-2">
               <span class="text-gray-900">{{ leaderName(r.id) }}</span>
             </td>
-            <td class="px-4 py-3">
-              <span class="text-gray-900">{{ countOf(r.id) }}</span>
+            <td class="px-3 sm:px-4 py-2 text-center">
+              <span class="inline-block border rounded-md border-gray-300 px-2">{{ countOf(r.id) }}</span>
             </td>
-            <td class="px-4 py-3">
-              <div class="flex justify-end gap-2">
+            <td class="px-3 sm:px-4 py-2">
+              <div class="flex justify-end gap-1 sm:gap-2">
+                <!-- Ver -->
                 <button
                   @click="openInfoModal(r.id)"
-                  class="inline-flex items-center rounded-md text-xs px-3 py-1.5 ring-1 ring-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
-                  Ver
+                  class="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-gray-100 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"
+                      class="w-4 h-4">
+                    <path d="M2.062 12.348a1 1 0 0 1 0-.696
+                            10.75 10.75 0 0 1 19.876 0
+                            1 1 0 0 1 0 .696
+                            10.75 10.75 0 0 1-19.876 0" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
                 </button>
+
+                <!-- Editar -->
                 <button
                   @click="openEditModal(r.id)"
-                  class="inline-flex items-center rounded-md text-xs px-3 py-1.5 ring-1 ring-gray-300 hover:bg-gray-50">
-                  Editar
+                  class="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-gray-100 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"
+                      class="w-4 h-4">
+                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
+                  </svg>
                 </button>
               </div>
             </td>
@@ -85,7 +110,7 @@
     </div>
   </section>
 
-  <!-- Modal INFO -->
+  <!-- Modales -->
   <modal-component :show="showInfo" @close="closeInfo">
     <div class="pr-2">
       <h3 class="text-xl font-semibold text-gray-900">{{ infoTitle }}</h3>
@@ -119,7 +144,6 @@
     </div>
   </modal-component>
 
-  <!-- Modal EDIT -->
   <modal-component :show="showEdit" @close="closeEdit">
     <div class="pr-2">
       <h3 class="text-xl font-semibold text-gray-900">Editar grupo</h3>
@@ -153,7 +177,6 @@
     </div>
   </modal-component>
 
-  <!-- Modal ADD (NUEVO) -->
   <modal-component :show="showAdd" @close="closeAdd">
     <div class="pr-2">
       <h3 class="text-xl font-semibold text-gray-900">Nuevo grupo</h3>

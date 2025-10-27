@@ -13,14 +13,15 @@ type AuthUseCase interface {
 	Login(input LoginStruct) (*entities.User, error)
 	SignUp(input SignupStruct) (*entities.User, error)
 	CreateAccounts(User *entities.User, input SignupStruct) (*entities.User, error)
-	GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*entities.User, error)
+	GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*CatechistWithGroups, error)
 	GetUserById(User *entities.User, id int) (*entities.User, error)
 	DeleteUserById(User *entities.User, id int) error
 }
 
 type authUseCase struct {
-	log      *log.Logger
-	userRepo repositories.UserRepository
+	log       *log.Logger
+	userRepo  repositories.UserRepository
+	groupRepo repositories.GroupRepository
 }
 
 type SignupStruct struct {
@@ -41,8 +42,8 @@ type UserRepository interface {
 	SaveUser(user *entities.User) (*entities.User, error)
 }
 
-func NewAuthUseCase(logger *log.Logger, r repositories.UserRepository) AuthUseCase {
-	return &authUseCase{logger, r}
+func NewAuthUseCase(logger *log.Logger, r repositories.UserRepository, g repositories.GroupRepository) AuthUseCase {
+	return &authUseCase{logger, r, g}
 }
 
 // SignUp implements AuthUseCase.
@@ -109,9 +110,14 @@ func (uc *authUseCase) CreateAccounts(User *entities.User, input SignupStruct) (
 
 }
 
-func (uc *authUseCase) GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*entities.User, error) {
-	if User.Role != entities.ADMIN {
-		uc.log.Printf("only users with role Admin can view catechists")
+type CatechistWithGroups struct {
+	User   *entities.User
+	Groups []*entities.Group
+}
+
+func (uc *authUseCase) GetAllAccountsByRole(user *entities.User, role entities.Role) ([]*CatechistWithGroups, error) {
+	if user.Role != entities.ADMIN {
+		uc.log.Printf("Only users with role Admin can view catechists")
 		return nil, errors.New("only users with role Admin can view catechists")
 	}
 
@@ -121,15 +127,32 @@ func (uc *authUseCase) GetAllAccountsByRole(User *entities.User, role entities.R
 		return nil, err
 	}
 
-	var filteredUsers []*entities.User
+	groups, err := uc.groupRepo.GetAll()
+	if err != nil {
+		uc.log.Printf("Error retrieving groups: %v", err)
+		return nil, err
+	}
+
+	var result []*CatechistWithGroups
+
 	for _, u := range allUsers {
 		if u.Role == role {
-			filteredUsers = append(filteredUsers, u)
+			userGroups := []*entities.Group{}
+			for _, g := range groups {
+				if g.CatechistId == u.ID {
+					userGroups = append(userGroups, g)
+					uc.log.Printf("User %s assigned to group %s", u.Username, g.Name)
+				}
+			}
+
+			result = append(result, &CatechistWithGroups{
+				User:   u,
+				Groups: userGroups,
+			})
 		}
 	}
 
-	return filteredUsers, nil
-
+	return result, nil
 }
 
 func (uc *authUseCase) GetUserById(User *entities.User, id int) (*entities.User, error) {

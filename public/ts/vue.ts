@@ -7,6 +7,7 @@ import ScanComponent from './components/scanners-list.component.vue';
 import CardComponent from './components/cards-summary.component.vue';
 import groupComponent from './components/group.component.vue';
 import userComponent from './components/user.component.vue';
+import navComponent from './components/nav-component.vue';
 
 
 import { ref } from 'vue';
@@ -26,6 +27,7 @@ function NewApp() {
     app.component('card-component', CardComponent);
     app.component('group-component', groupComponent);
     app.component('user-component', userComponent);
+    app.component('nav-component', navComponent);
     return app;
 }
 

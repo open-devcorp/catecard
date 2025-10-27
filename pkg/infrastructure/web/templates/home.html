@@ -1,12 +1,58 @@
 {{ define "content" }}
 <main class="max-w-screen-xl mx-auto">
-    <h2 class="text-2xl font-semibold">Hola, Administrador</h2>
-    <div data-behavior="vue">
+  <h2 class="text-2xl font-semibold">Hola, Administrador</h2>
+
+  <!-- Sections -->
+  <card-component class="mb-4"></card-component>
+
+  <!-- Tabs -->
+  <div id="tabs" class="mb-4 inline-flex rounded-lg bg-gray-100 p-1">
+    <button data-tab="scan" class="px-3 py-1 rounded-md text-sm text-gray-700">Escaneos</button>
+    <button data-tab="group" class="px-3 py-1 rounded-md text-sm text-gray-700">Grupos</button>
+    <button data-tab="user" class="px-3 py-1 rounded-md text-sm text-gray-700">Usuarios</button>
+  </div>
+
+  <div class="mt-4">
+  <section data-zone="scan" style="display:block">
     <scan-component></scan-component>
-    <card-component></card-component>
+  </section>
+  <section data-zone="group" style="display:none">
     <group-component></group-component>
+  </section>
+  <section data-zone="user" style="display:none">
     <user-component></user-component>
-    </div>
-    
+  </section>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tabsContainer = document.getElementById('tabs');
+      const buttons = () => Array.from(document.querySelectorAll('#tabs [data-tab]'));
+
+      function setActive(key) {
+        // re-query zones every time to avoid stale references if Vue re-renders
+        const zones = Array.from(document.querySelectorAll('[data-zone]'));
+        buttons().forEach(b => {
+          b.classList.toggle('bg-white', b.dataset.tab === key);
+          b.classList.toggle('text-blue-700', b.dataset.tab === key);
+        });
+        zones.forEach(z => { if (z && z.dataset) z.style.display = (z.dataset.zone === key) ? 'block' : 'none'; });
+        try { localStorage.setItem('home:activeTab', key); } catch(e){}
+      }
+
+      // delegate clicks from document so it still works even if Vue re-renders #tabs
+      document.addEventListener('click', function (ev) {
+        const target = ev.target || null;
+        const b = (target && target.closest) ? target.closest('[data-tab]') : null;
+        if (!b) return;
+        const key = b.dataset.tab;
+        setActive(key);
+      });
+
+      // Restaurar tab activo
+      setActive(localStorage.getItem('home:activeTab') || 'scan');
+    });
+  </script>
 </main>
+
 {{ end }}

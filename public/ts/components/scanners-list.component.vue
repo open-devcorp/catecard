@@ -1,9 +1,11 @@
 <template>
-  <section class="max-w-5xl mx-auto">
+  <section class="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-[22px] font-semibold text-gray-900">
-        Escaneos <span class="text-gray-500">({{ groups.length }})</span>
-      </h2>
+        Escaneos
+           <span class="text-base text-gray-600">({{ groups.length }})</span>
+        </h2>
+ 
     </div>
 
     <!-- Lista (cards) -->
@@ -11,6 +13,7 @@
       <!-- Skeleton -->
       <template v-if="loading">
         <div v-for="n in 3" :key="n" class="rounded-2xl border border-gray-200 bg-white p-4">
+          
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <span class="w-9 h-9 rounded-xl bg-emerald-100 animate-pulse"></span>
@@ -40,7 +43,20 @@
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
-              <span class="w-9 h-9 rounded-xl bg-emerald-100 inline-block"></span>
+<span class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round"
+       class="w-6 h-6 text-green-800"
+       aria-hidden="true">
+    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+  </svg>
+</span>
+
+
               <div>
                 <div class="flex items-center gap-3">
                   <p class="text-[17px] font-medium text-gray-900">{{ g.name }}</p>

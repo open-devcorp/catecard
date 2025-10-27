@@ -43,6 +43,30 @@ func RenderTemplate(w http.ResponseWriter, name string, data interface{}) {
 	}
 
 	baseName := filepath.Base(basePath)
+	// Ensure data is a map so we can inject a ShowNav flag for templates.
+	var dataMap map[string]interface{}
+	if data == nil {
+		dataMap = map[string]interface{}{}
+		data = dataMap
+	} else {
+		if dm, ok := data.(map[string]interface{}); ok {
+			dataMap = dm
+		} else {
+			// wrap non-map data so existing templates that expect a map still work
+			dataMap = map[string]interface{}{"Payload": data}
+			data = dataMap
+		}
+	}
+
+	// By default show nav; hide it for the login view
+	if _, exists := dataMap["ShowNav"]; !exists {
+		if name == "login.html" {
+			dataMap["ShowNav"] = false
+		} else {
+			dataMap["ShowNav"] = true
+		}
+	}
+
 	if err := t.ExecuteTemplate(w, baseName, data); err != nil {
 		http.Error(w, "Error al ejecutar plantilla"+err.Error(), http.StatusInternalServerError)
 	}

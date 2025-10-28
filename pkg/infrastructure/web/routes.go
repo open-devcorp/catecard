@@ -182,8 +182,6 @@ func setupRouter(
 	r.HandleFunc("/signup", handlers.SignUp).Methods("GET")
 	r.HandleFunc("/login", handlers.Login).Methods("GET")
 	r.HandleFunc("/scanner", handlers.Scanner).Methods("GET")
-	r.HandleFunc("/dene", handlers.Denied)
-	r.HandleFunc("/all-qr-list", handlers.QrList)
 
 	////////////////////////////////////////////////////////
 	// 🔐 AUTENTICACIÓN

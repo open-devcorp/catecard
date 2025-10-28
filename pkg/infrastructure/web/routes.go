@@ -223,6 +223,11 @@ func setupRouter(
 		qrHandler.GetAllScans(user, w, r)
 	}).Methods("GET")
 
+	r.HandleFunc("/catechists-without-group", func(w http.ResponseWriter, r *http.Request) {
+		user := handlers.GetUserFromRequest(r)
+		authHandler.GetAllCatechistsWithoutGroup(user, 0, w, r)
+	}).Methods("GET")
+
 	////////////////////////////////////////////////////////
 	// 👥 GRUPOS
 	////////////////////////////////////////////////////////

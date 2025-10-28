@@ -1,31 +1,31 @@
 <template>
-  <section class="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+  <section class="">
     <!-- Header -->
-<div class="flex flex-col sm:flex-row sm:justify-between gap-3">
-  <div class="sm:pr-4">
-    <h2 class="text-lg font-semibold text-gray-900">
-      Grupos de Catequesis
-      <span class="text-base text-gray-600">({{ totalLabel }})</span>
-    </h2>
-    <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
-  </div>
+  <div class="flex flex-col sm:flex-row sm:justify-between gap-3">
+    <div class="sm:pr-4 mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">
+        Grupos de Catequesis
+        <span class="text-base text-gray-600">({{ totalLabel }})</span>
+      </h2>
+      <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
+    </div>
 
-  <div class="flex sm:items-start">
-    <!-- Botón Nuevo Grupo -->
-    <button
-      @click="openAddModal"
-      class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition w-full sm:w-auto">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round"
-          class="w-4 h-4">
-        <path d="M5 12h14" />
-        <path d="M12 5v14" />
-      </svg>
-      Nuevo Grupo
-    </button>
+    <div class="flex sm:items-start">
+      <!-- Botón Nuevo Grupo -->
+      <button
+        @click="openAddModal"
+        class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition w-full sm:w-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            class="w-4 h-4">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+        Nuevo Grupo
+      </button>
+    </div>
   </div>
-</div>
 
 
 
@@ -102,6 +102,21 @@
                     <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
                   </svg>
                 </button>
+                <!-- Eliminar -->
+                <button
+                  @click="confirmDelete(r.id)"
+                  :disabled="deletingId === r.id"
+                  class="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-gray-100 transition text-red-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"
+                      class="w-4 h-4">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+                </button>
               </div>
             </td>
           </tr>
@@ -136,7 +151,7 @@
 
         <div class="flex justify-end pt-4">
           <button @click="closeInfo"
-                  class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
             Cerrar
           </button>
         </div>
@@ -153,13 +168,19 @@
         <div>
           <label class="block text-sm text-gray-600 mb-1">Nombre</label>
           <input v-model.trim="editForm.name" type="text" required
-                 class="w-full h-9 rounded-lg border border-gray-300 px-3 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none" />
+                 class="form-input" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Catequista ID</label>
-          <input v-model.number="editForm.catechist_id" type="number" min="1" required
-                 class="w-full h-9 rounded-lg border border-gray-300 px-3 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none" />
+          <label class="block text-sm text-gray-600 mb-1">Catequista</label>
+          <label class="sr-only">Seleccione catequista</label>
+          <select v-model.number="editForm.catechist_id" required
+                  class="form-input">
+            <option value="" disabled>-- Seleccione un catequista --</option>
+            <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.username }}</option>
+          </select>
+          <p v-if="loadingCatechistsOptions" class="text-xs text-gray-500 mt-1">Cargando catequistas…</p>
+          <p v-else-if="!catechistsOptions.length" class="text-xs text-gray-500 mt-1">No hay catequistas disponibles.</p>
         </div>
 
         <p v-if="editError" class="text-sm text-red-600">{{ editError }}</p>
@@ -167,9 +188,9 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" @click="closeEdit"
-                  class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">Cancelar</button>
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
           <button type="submit" :disabled="submittingEdit"
-                  class="px-4 py-2 rounded-lg bg-[#1A388B] text-white hover:bg-[#1A388B]/90 disabled:opacity-60">
+                  class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#1A388B]/90 transition-colors">
             {{ submittingEdit ? 'Guardando…' : 'Guardar cambios' }}
           </button>
         </div>
@@ -187,14 +208,19 @@
           <label class="block text-sm text-gray-600 mb-1">Nombre</label>
           <input v-model.trim="addForm.name" type="text" required
                  placeholder="Ej. Grupo San Marcos"
-                 class="w-full h-9 rounded-lg border border-gray-300 px-3 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none" />
+                 class="form-input" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Catequista ID</label>
-          <input v-model.number="addForm.catechist_id" type="number" min="1" required
-                 placeholder="Ej. 12"
-                 class="w-full h-9 rounded-lg border border-gray-300 px-3 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none" />
+          <label class="block text-sm text-gray-600 mb-1">Catequista </label>
+          <label class="sr-only">Seleccione catequista</label>
+          <select v-model.number="addForm.catechist_id" required
+                  class="form-input">
+            <option value="" disabled selected>-- Seleccione un catequista --</option>
+            <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.username }}</option>
+          </select>
+          <p v-if="loadingCatechistsOptions" class="text-xs text-gray-500 mt-1">Cargando catequistas…</p>
+          <p v-else-if="!catechistsOptions.length" class="text-xs text-gray-500 mt-1">No hay catequistas disponibles.</p>
         </div>
 
         <p v-if="addError" class="text-sm text-red-600">{{ addError }}</p>
@@ -202,9 +228,9 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" @click="closeAdd"
-                  class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">Cancelar</button>
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
           <button type="submit" :disabled="submittingAdd"
-                  class="px-4 py-2 rounded-lg bg-[#1A388B] text-white hover:bg-[#1A388B]/90 disabled:opacity-60">
+                  class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#1A388B]/90 transition-colors">
             {{ submittingAdd ? 'Creando…' : 'Crear grupo' }}
           </button>
         </div>
@@ -221,6 +247,7 @@ const props = defineProps({
   groupUrlBase: { type: String, default: '/admin/groups' },    // { groupInfo: { Group, Catechist, CatechumenSize } }
   editUrlBase:  { type: String, default: '/edit-group' },      // PUT /edit-group/{id} (FormValue)
   addUrl:       { type: String, default: '/add-group' },       // POST /add-group (FormValue)
+  catechistsWithoutGroupUrl: { type: String, default: '/catechists-without-group' },
 })
 
 type Group = { id: number; name: string; catechist_id: number }
@@ -343,12 +370,61 @@ const editError = ref<string|null>(null)
 const editSuccess = ref<string|null>(null)
 const submittingEdit = ref(false)
 
+/* ===== Eliminar ===== */
+const deletingId = ref<number | null>(null)
+const deleteError = ref<string | null>(null)
+
+async function confirmDelete(id: number) {
+  // simple confirmation dialog
+  const ok = window.confirm('¿Eliminar este grupo? Esta acción no se puede deshacer.')
+  if (!ok) return
+
+  deleteError.value = null
+  deletingId.value = id
+  try {
+    const res = await fetch(`/delete-group/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) {
+      // try to read structured error
+      const body = await res.json().catch(() => ({}))
+      const msg = body?.message || body?.error || `HTTP ${res.status}`
+      throw new Error(msg)
+    }
+
+    // Quita del listado y detalles
+    raw.value = raw.value.filter(g => g.id !== id)
+    const copy = { ...details.value }
+    delete copy[id]
+    details.value = copy
+
+    // Cierra modal de info si estaba abierto sobre este id
+    if (currentInfoId.value === id) closeInfo()
+  } catch (e) {
+    console.error('delete group error:', e)
+    deleteError.value = 'No se pudo eliminar el grupo.'
+  } finally {
+    deletingId.value = null
+  }
+}
+
 async function openEditModal(id: number) {
   showEdit.value = true
   editError.value = null
   editSuccess.value = null
   submittingEdit.value = false
-  const { group } = await fetchGroupInfo(id)
+  // Cargar opciones en paralelo y la info del grupo
+  const loadOptionsP = loadCatechistsWithoutGroup()
+  const { group, catechist: currentCatechist } = await fetchGroupInfo(id)
+  await loadOptionsP
+
+  // Asegura que el catequista actual esté en las opciones (puede no estar si tiene grupo)
+  if (currentCatechist && !catechistsOptions.value.find(c => c.id === currentCatechist.id)) {
+    catechistsOptions.value.unshift({ id: currentCatechist.id, username: currentCatechist.username || `ID ${currentCatechist.id}`, email: currentCatechist.email })
+  }
+
   editForm.value = { id: group.id, name: group.name, catechist_id: group.catechist_id }
 }
 
@@ -402,12 +478,34 @@ const addError = ref<string|null>(null)
 const addSuccess = ref<string|null>(null)
 const submittingAdd = ref(false)
 
+/* Opciones de catequistas (para selector) */
+const catechistsOptions = ref<Array<{ id: number; username: string; email?: string }>>([])
+const loadingCatechistsOptions = ref(false)
+
+async function loadCatechistsWithoutGroup() {
+  loadingCatechistsOptions.value = true
+  try {
+    const res = await fetch(props.catechistsWithoutGroupUrl, { credentials: 'include', headers: { Accept: 'application/json' } })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const payload = await res.json().catch(() => ([]))
+    const list: any[] = Array.isArray(payload) ? payload : (Array.isArray(payload?.users) ? payload.users : [])
+    catechistsOptions.value = list.map(u => ({ id: u.id, username: u.username, email: u.email }))
+  } catch (e) {
+    console.error('load catechists without group error', e)
+    catechistsOptions.value = []
+  } finally {
+    loadingCatechistsOptions.value = false
+  }
+}
+
 function openAddModal() {
   showAdd.value = true
   addForm.value = { name: '', catechist_id: null }
   addError.value = null
   addSuccess.value = null
   submittingAdd.value = false
+  // cargar opciones de catequistas sin grupo antes de mostrar
+  loadCatechistsWithoutGroup()
 }
 
 function closeAdd() { showAdd.value = false }

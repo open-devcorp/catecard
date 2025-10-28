@@ -16,12 +16,49 @@ type AuthUseCase interface {
 	GetAllAccountsByRole(User *entities.User, role entities.Role) ([]*CatechistWithGroups, error)
 	GetUserById(User *entities.User, id int) (*entities.User, error)
 	DeleteUserById(User *entities.User, id int) error
+	GetAllCatechistsWithoutGroup() ([]*entities.User, error)
 }
 
 type authUseCase struct {
 	log       *log.Logger
 	userRepo  repositories.UserRepository
 	groupRepo repositories.GroupRepository
+}
+
+// GetAllCatechistsWithoutGroup obtiene a todos los catequistas sin grupo asociado.
+func (uc *authUseCase) GetAllCatechistsWithoutGroup() ([]*entities.User, error) {
+	users, err := uc.userRepo.GetAll()
+	if err != nil {
+		uc.log.Printf("Error retrieving users: %v", err)
+		return nil, err
+	}
+
+	groups, err := uc.groupRepo.GetAll()
+	if err != nil {
+		uc.log.Printf("Error retrieving groups: %v", err)
+		return nil, err
+	}
+
+	var catechists []*entities.User
+	for _, u := range users {
+		if u.Role != entities.CATECHIST {
+			continue
+		}
+
+		hasGroup := false
+		for _, g := range groups {
+			if g.CatechistId == u.ID {
+				hasGroup = true
+				break
+			}
+		}
+
+		if !hasGroup {
+			catechists = append(catechists, u)
+		}
+	}
+
+	return catechists, nil
 }
 
 type SignupStruct struct {

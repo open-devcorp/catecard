@@ -20,12 +20,38 @@ type AuthHandler interface {
 	GetAllScanners(User *entities.User, w http.ResponseWriter, r *http.Request)
 	GetUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
 	DeleteUserById(User *entities.User, id int, w http.ResponseWriter, r *http.Request)
+	GetAllCatechistsWithoutGroup(User *entities.User, id int, w http.ResponseWriter, r *http.Request) ([]*entities.User, error)
 }
 
 type authHandler struct {
 	log      *log.Logger
 	uc       usecases.AuthUseCase
 	tmplPath string
+}
+
+// GetAllCatechistsWithoutGroup  AuthHandler.
+func (a *authHandler) GetAllCatechistsWithoutGroup(User *entities.User, id int, w http.ResponseWriter, r *http.Request) ([]*entities.User, error) {
+	if User == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Unauthorized: no user in session")
+		return nil, nil
+	}
+	if User.Role != entities.ADMIN {
+		writeJSONError(w, http.StatusForbidden, "Invalid role value")
+		return nil, nil
+	}
+
+	catechists, err := a.uc.GetAllCatechistsWithoutGroup()
+	if err != nil {
+		a.log.Printf("Error retrieving catechists without group: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Error retrieving catechists without group")
+		return nil, err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(catechists)
+	return catechists, nil
+
 }
 
 // CreateCatechist implements AuthHandler.

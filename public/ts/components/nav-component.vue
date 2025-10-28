@@ -1,6 +1,6 @@
 <template>
 
-<nav class="bg-white shadow-md px-6 py-3 flex items-center justify-between">
+<nav class="bg-white px-6 py-3 flex items-center justify-between">
   <div class="text-xl font-bold text-[#1A388B]">
     CATECARD
   </div>

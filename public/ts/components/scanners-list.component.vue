@@ -1,11 +1,10 @@
 <template>
-  <section class="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+  <section class="max-w-screen-xl mx-auto px-4 xl:px-0 mb-4">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-[22px] font-semibold text-gray-900">
+      <h2 class="text-lg font-semibold text-gray-900">
         Escaneos
            <span class="text-base text-gray-600">({{ groups.length }})</span>
         </h2>
- 
     </div>
 
     <!-- Lista (cards) -->

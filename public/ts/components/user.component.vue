@@ -1,14 +1,14 @@
 <template>
-  <section class="bg-white rounded-xl border border-gray-200 p-6 space-y-6 mb-10">
+  <section class="">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-4">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
       <div>
-        <h2 class="text-[22px] font-semibold text-gray-900">Usuarios</h2>
+        <h2 class="text-lg font-semibold text-gray-900">Usuarios</h2>
         <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
       </div>
       <button
         @click="openCreate"
-        class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition">
+        class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition w-full sm:w-auto">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round"
@@ -25,7 +25,7 @@
     <div class="space-y-3 mb-10">
       <h2 class="text-lg font-semibold text-gray-900">
               Escáneres
-            <span class="text-base text-gray-600">({{ catechists.length }})</span>
+            <span class="text-base text-gray-600">({{ scanners.length }})</span>
         </h2>
 
       <template v-if="loading.scanners">
@@ -193,44 +193,88 @@
           <label class="block text-sm text-gray-600 mb-1">Nombre completo</label>
           <input v-model.trim="createForm.username" type="text" required
                  placeholder="Ej: María García"
-                 class="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none bg-gray-50" />
+                 class="form-input" />
         </div>
 
         <div>
           <label class="block text-sm text-gray-600 mb-1">Correo electrónico</label>
           <input v-model.trim="createForm.email" type="email" required
                  placeholder="Ej: maria@catequesis.com"
-                 class="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none bg-gray-50" />
+                 class="form-input" />
           <p class="text-[12px] text-gray-500 mt-1">Se generará una contraseña automáticamente.</p>
         </div>
 
         <div>
           <label class="block text-sm text-gray-700 mb-2">Tipo de cuenta</label>
           <div class="grid grid-cols-2 gap-2">
-            <button type="button"
-                    @click="createForm.role = 'catechist'"
-                    :class="['h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1',
-                             createForm.role==='catechist' ? 'bg-[#1A388B] text-white ring-[#1A388B]' : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50']">
+            <!-- Catequista -->
+            <button
+              type="button"
+              @click="createForm.role = 'catechist'"
+              :class="[
+                'h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1 transition',
+                createForm.role === 'catechist'
+                  ? 'bg-[#1A388B] text-white ring-[#1A388B]'
+                  : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50'
+              ]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5"
+              >
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
               Catequista
             </button>
-            <button type="button"
-                    @click="createForm.role = 'scanner'"
-                    :class="['h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1',
-                             createForm.role==='scanner' ? 'bg-[#1A388B] text-white ring-[#1A388B]' : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50']">
-               Escáner
+
+            <!-- Escáner -->
+            <button
+              type="button"
+              @click="createForm.role = 'scanner'"
+              :class="[
+                'h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1 transition',
+                createForm.role === 'scanner'
+                  ? 'bg-[#1A388B] text-white ring-[#1A388B]'
+                  : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50'
+              ]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5"
+              >
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+              </svg>
+              Escáner
             </button>
           </div>
+
         </div>
 
         <p v-if="createError" class="text-sm text-red-600">{{ createError }}</p>
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" @click="closeCreate"
-                  class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
             Cancelar
           </button>
           <button type="submit" :disabled="submittingCreate"
-                  class="px-4 py-2 rounded-lg bg-[#1A388B] text-white hover:bg-[#1A388B]/90 disabled:opacity-60">
+                  class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#1A388B]/90 transition-colors">
             {{ submittingCreate ? 'Creando…' : 'Crear Usuario' }}
           </button>
         </div>
@@ -273,7 +317,7 @@
         <p class="text-gray-600 text-sm">Correo Electrónico</p>
         <div class="mt-1 flex items-center gap-2">
           <input :value="modalEmail" readonly
-                class="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none" />
+                class="form-input" />
           <button @click="copy(modalEmail)"
                   class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
                   title="Copiar correo">
@@ -290,7 +334,7 @@
         <p class="text-gray-600 text-sm">Contraseña</p>
         <div class="mt-1 flex items-center gap-2">
           <input :value="modalPassword" readonly
-                class="flex-1 h-10 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none" />
+                class="form-input" />
           <button @click="copy(modalPassword)"
                   class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
                   title="Copiar contraseña">
@@ -328,6 +372,7 @@ const props = defineProps({
   scannersUrl: { type: String, default: '/all-scanners' },
   deleteCatechistUrlBase: { type: String, default: '/catechists' },
   deleteScannerUrlBase: { type: String, default: '/scanners' },
+  deleteUserUrlBase: { type: String, default: '/delete-user' },
   createUrl: { type: String, default: '/users' },
 })
 
@@ -500,7 +545,8 @@ async function copy(text: string) {
 
 /* ===== Delete ===== */
 async function doDelete(type: 'catechist'|'scanner', id: number) {
-  const base = type === 'catechist' ? props.deleteCatechistUrlBase : props.deleteScannerUrlBase
+  // Prefer explicit delete-user endpoint when available (server routes use /delete-user/{id})
+  const base = props.deleteUserUrlBase || (type === 'catechist' ? props.deleteCatechistUrlBase : props.deleteScannerUrlBase)
   const res = await fetch(`${base}/${id}`, {
     method: 'DELETE',
     credentials: 'include',

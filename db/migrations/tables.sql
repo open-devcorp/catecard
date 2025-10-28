@@ -34,12 +34,13 @@
         expires_at TIMESTAMP NOT NULL
     );
 
-    CREATE TABLE IF NOT EXISTS qrs (
+    -- Nuevo esquema: qr_codes con referencia al catecúmeno
+    CREATE TABLE IF NOT EXISTS qr_codes (
         id SERIAL PRIMARY KEY,
-        forum INT NOT NULL,
-        group_id INT NOT NULL,
-        count INT DEFAULT 0
-
+        code VARCHAR(255),
+        catechumen_id INT NOT NULL,
+        total_allowed INT NOT NULL,
+        used_scans INT NOT NULL DEFAULT 0
     );
 
 INSERT INTO groups (name, catechist_id)
@@ -55,24 +56,15 @@ SELECT 'Grupo C', 2
 WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo C');
 
 
-INSERT INTO qrs (forum, group_id, count)
-SELECT 1, 1, 0
-WHERE NOT EXISTS (SELECT 1 FROM qrs WHERE forum = 1 AND group_id = 1);
-
-INSERT INTO qrs (forum, group_id, count)
-SELECT 1, 2, 3
-WHERE NOT EXISTS (SELECT 1 FROM qrs WHERE forum = 1 AND group_id = 2);
-
-INSERT INTO qrs (forum, group_id, count)
-SELECT 2, 1, 5
-WHERE NOT EXISTS (SELECT 1 FROM qrs WHERE forum = 2 AND group_id = 1);
+-- Datos de ejemplo opcionales para qr_codes (si existen catechumens con IDs 1..3)
+-- INSERT INTO qr_codes (code, catechumen_id, total_allowed, used_scans) VALUES (NULL, 1, 1, 0);
+-- INSERT INTO qr_codes (code, catechumen_id, total_allowed, used_scans) VALUES (NULL, 2, 1, 3);
+-- INSERT INTO qr_codes (code, catechumen_id, total_allowed, used_scans) VALUES (NULL, 3, 2, 5);
 CREATE TABLE IF NOT EXISTS catechumens (
     id SERIAL PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     age VARCHAR(3) NOT NULL,
-    group_id INT NOT NULL,
-    qr_id INT NOT NULL
-
+    group_id INT NOT NULL
 );
 
 

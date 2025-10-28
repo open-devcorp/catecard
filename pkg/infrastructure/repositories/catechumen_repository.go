@@ -13,7 +13,11 @@ type catechumenRepository struct {
 
 // GetByQrId implements CatechumenRepository.
 func (c *catechumenRepository) GetByQrId(qrId int) (*entities.Catechumen, error) {
-	query := `SELECT id, full_name, age, group_id FROM catechumens WHERE qr_id = ?`
+	// Adaptado a esquema qr_codes: buscar catechumen por join qr_codes -> catechumens
+	query := `SELECT c.id, c.full_name, c.age, c.group_id
+			  FROM catechumens c
+			  JOIN qr_codes q ON q.catechumen_id = c.id
+			 WHERE q.id = ?`
 	row := c.db.QueryRow(query, qrId)
 
 	catechumen := &entities.Catechumen{}
@@ -44,8 +48,9 @@ func (c *catechumenRepository) DeleteById(id int) error {
 
 // Add implements CatechumenRepository.
 func (c *catechumenRepository) Add(catechumen *entities.Catechumen) (int, error) {
-	query := `INSERT INTO catechumens(full_name, age, group_id, qr_id) VALUES(?,?,?,?)`
-	result, err := c.db.Exec(query, catechumen.FullName, catechumen.Age, catechumen.GroupId, catechumen.QrId)
+	// Esquema actual: catechumens ya no lleva qr_id; QR se crea en qr_codes con catechumen_id
+	query := `INSERT INTO catechumens(full_name, age, group_id) VALUES(?,?,?)`
+	result, err := c.db.Exec(query, catechumen.FullName, catechumen.Age, catechumen.GroupId)
 
 	if err != nil {
 		c.log.Printf("Error inserting catechumen: %v", err)
@@ -87,11 +92,15 @@ func (c *catechumenRepository) GetAll() ([]*entities.Catechumen, error) {
 
 // GetById implements CatechumenRepository.
 func (c *catechumenRepository) GetById(id int) (*entities.Catechumen, error) {
-	query := `SELECT id, full_name, age, group_id FROM catechumens WHERE id = ?`
+	// Trae catecúmeno y, si existe, el qr_id derivado desde qr_codes
+	query := `SELECT c.id, c.full_name, c.age, c.group_id, COALESCE(q.id, 0) AS qr_id
+			  FROM catechumens c
+			  LEFT JOIN qr_codes q ON q.catechumen_id = c.id
+			 WHERE c.id = ?`
 	row := c.db.QueryRow(query, id)
 
 	catechumen := &entities.Catechumen{}
-	if err := row.Scan(&catechumen.ID, &catechumen.FullName, &catechumen.Age, &catechumen.GroupId); err != nil {
+	if err := row.Scan(&catechumen.ID, &catechumen.FullName, &catechumen.Age, &catechumen.GroupId, &catechumen.QrId); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Not found
 		}

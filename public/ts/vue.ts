@@ -8,6 +8,8 @@ import CardComponent from './components/cards-summary.component.vue';
 import groupComponent from './components/group.component.vue';
 import userComponent from './components/user.component.vue';
 import navComponent from './components/nav-component.vue';
+import catechistComponent from './components/catechist-component.vue';
+import footerComponent from './components/footer.component.vue';
 
 
 import { ref } from 'vue';
@@ -28,6 +30,8 @@ function NewApp() {
     app.component('group-component', groupComponent);
     app.component('user-component', userComponent);
     app.component('nav-component', navComponent);
+    app.component('catechist-component', catechistComponent);
+    app.component('footer-component', footerComponent);
     return app;
 }
 

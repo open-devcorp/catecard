@@ -1,5 +1,5 @@
 <template>
-  <section class="max-w-screen-xl mx-auto px-4 xl:px-0 mb-4">
+  <section class="max-w-7xl mx-auto px-4 xl:px-0 mb-4">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-semibold text-gray-900">
         Escaneos

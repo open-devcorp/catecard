@@ -5,7 +5,8 @@
     "apexcharts": "^5.3.5",
     "concurrently": "^9.2.1",
     "esbuild": "^0.25.11",
-    "esbuild-plugin-vue3": "^0.5.0"
+    "esbuild-plugin-vue3": "^0.5.0",
+    "qr-code-styling": "^1.6.0"
   },
   "devDependencies": {
     "@types/bun": "latest",

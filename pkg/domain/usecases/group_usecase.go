@@ -56,6 +56,14 @@ func (g *groupUseCase) Update(User *entities.User, group *entities.Group) (*enti
 		return nil, fmt.Errorf("Catechist ID cannot be 0")
 	}
 
+	currentGroup, err := g.groupRepo.Get(group.ID)
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching current group data: %v", err)
+	}
+	if group.LimitCatechumens < currentGroup.CatechumenSize || group.LimitCatechumens == 0 {
+		return nil, fmt.Errorf("El nuevo límite no puede ser menor que la cantidad actual de catecúmenos ni 0 (%d)", currentGroup.CatechumenSize)
+	}
+
 	return g.groupRepo.Update(group)
 }
 
@@ -111,6 +119,9 @@ func (g *groupUseCase) Add(User *entities.User, group *entities.Group) error {
 	}
 	if group.CatechistId == 0 {
 		return fmt.Errorf("Catechist ID cannot be 0")
+	}
+	if group.LimitCatechumens <= 0 {
+		return fmt.Errorf("Limit of catechumens must be greater than 0")
 	}
 
 	err := g.groupRepo.Add(group)

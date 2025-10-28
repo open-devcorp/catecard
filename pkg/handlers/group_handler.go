@@ -54,9 +54,18 @@ func (g *groupHandler) AddGroup(User *entities.User, w http.ResponseWriter, r *h
 		return
 	}
 
+	limit := r.FormValue("limit_catechumens")
+	limitCatechumens, err := strconv.Atoi(limit)
+	if err != nil {
+		g.log.Printf("Error parsing limit of catechumens: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid limit of catechumens value")
+		return
+	}
+
 	group := entities.Group{
-		Name:        name,
-		CatechistId: catechistId,
+		Name:             name,
+		CatechistId:      catechistId,
+		LimitCatechumens: limitCatechumens,
 	}
 
 	err = g.uc.Add(User, &group)
@@ -157,6 +166,7 @@ func (g *groupHandler) EditGroup(User *entities.User, w http.ResponseWriter, r *
 	idStr := r.FormValue("id")
 	name := r.FormValue("name")
 	catechistIdStr := r.FormValue("catechist_id")
+	limit := r.FormValue("limit_catechumens")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		g.log.Printf("Error parsing group ID: %v", err)
@@ -170,10 +180,18 @@ func (g *groupHandler) EditGroup(User *entities.User, w http.ResponseWriter, r *
 		return
 	}
 
+	limitCatechumens, err := strconv.Atoi(limit)
+	if err != nil {
+		g.log.Printf("Error parsing limit of catechumens: %v", err)
+		writeJSONError(w, http.StatusBadRequest, "Invalid limit of catechumens value")
+		return
+	}
+
 	group := &entities.Group{
-		ID:          id,
-		Name:        name,
-		CatechistId: catechistId,
+		ID:               id,
+		Name:             name,
+		CatechistId:      catechistId,
+		LimitCatechumens: limitCatechumens,
 	}
 
 	updatedGroup, err := g.uc.Update(User, group)

@@ -49,6 +49,11 @@ func (c *catechumenUseCase) DeleteById(User *entities.User, id int) error {
 		return fmt.Errorf("Unauthorized: Catechumen does not belong to user's group")
 	}
 
+	err = c.groupRepo.UpdateLimitGroup(groupId)
+	if err != nil {
+		return fmt.Errorf("Error updating group limit: %v", err)
+	}
+
 	return c.catechumenRepo.DeleteById(id)
 }
 
@@ -79,6 +84,16 @@ func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catech
 
 	if groupId == 0 {
 		return nil, nil, fmt.Errorf("No group found for catechist ID: %d", User.ID)
+	}
+
+	group, err := c.groupRepo.Get(groupId)
+
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error fetching group details: %v", err)
+	}
+
+	if group.CatechumenSize >= group.Group.LimitCatechumens {
+		return nil, nil, fmt.Errorf("Group has reached its catechumen limit")
 	}
 
 	catechumen.GroupId = groupId

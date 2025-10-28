@@ -37,7 +37,8 @@
             <th class="px-2 py-2 text-left font-medium">Grupo</th>
             <th class="px-2 py-2 text-left font-medium">Líder/Catequista</th>
             <th class="px-2 py-2 text-center font-medium">Catecúmenos</th>
-            <th class="px-2 py-2 text-right font-medium">Acciones</th>
+            <th class="px-3 sm:px-4 py-2 text-center font-medium">Límite</th>
+            <th class="px-3 sm:px-4 py-2 text-right font-medium">Acciones</th>
           </tr>
         </thead>
 
@@ -47,6 +48,7 @@
             <td class="px-2 py-2"><div class="h-4 w-36 bg-gray-200 rounded animate-pulse"></div></td>
             <td class="px-2 py-2"><div class="h-4 w-28 bg-gray-200 rounded animate-pulse"></div></td>
             <td class="px-2 py-2"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-2 py-2"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
             <td class="px-2 py-2 text-right"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse inline-block"></div></td>
           </tr>
         </tbody>
@@ -54,7 +56,7 @@
         <!-- Sin datos -->
         <tbody v-else-if="rows.length === 0">
           <tr class="border-t">
-            <td colspan="4" class="px-4 py-6 text-center text-gray-500">
+            <td colspan="5" class="px-4 py-6 text-center text-gray-500">
               No hay grupos que coincidan.
             </td>
           </tr>
@@ -72,7 +74,10 @@
             <td class="px-2 py-2 text-center">
               <span class="inline-block border text-[12px] rounded-md border-gray-200 px-2">{{ countOf(r.id) }}</span>
             </td>
-            <td class="px-2 py-2">
+            <td class="px-2 py-2 text-center">
+              <span class="inline-block text-gray-700">{{ r.limit_catechumens ?? '—' }}</span>
+            </td>
+            <td class="px-3 sm:px-4 py-2">
               <div class="flex justify-end gap-1 sm:gap-2">
                 <!-- Ver -->
                 <button
@@ -140,6 +145,10 @@
           <p class="font-semibold text-gray-900">Cantidad de Catecúmenos</p>
           <p class="mt-1 text-gray-900">{{ catechumensCount }}</p>
         </div>
+         <div>
+          <p class="font-semibold text-gray-900">Límite de catecúmenos</p>
+          <p class="mt-1 text-gray-900">{{ limitCatechumens }}</p>
+        </div>
 
         <div class="flex justify-end pt-4">
           <button @click="closeInfo"
@@ -163,6 +172,11 @@
                  class="form-input" />
         </div>
 
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Límite de catecúmenos</label>
+        <input v-model.number="editForm.limit_catechumens" type="number" min="0" required
+        class="form-input" />
+      </div>
         <div>
           <label class="form-label">Catequista</label>
           <label class="sr-only">Seleccione catequista</label>
@@ -214,6 +228,13 @@
           <p v-else-if="!catechistsOptions.length" class="text-xs text-gray-500 mt-1">No hay catequistas disponibles.</p>
         </div>
 
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Límite de catecúmenos</label>
+          <input v-model.number="addForm.limit_catechumens" type="number" min="0" required
+                 placeholder="Ej. 30"
+                 class="form-input" />
+        </div>
+
         <p v-if="addError" class="text-sm text-red-600">{{ addError }}</p>
         <p v-if="addSuccess" class="text-sm text-emerald-700">{{ addSuccess }}</p>
 
@@ -241,7 +262,7 @@ const props = defineProps({
   catechistsWithoutGroupUrl: { type: String, default: '/catechists-without-group' },
 })
 
-type Group = { id: number; name: string; catechist_id: number }
+type Group = { id: number; name: string; catechist_id: number; limit_catechumens?: number | null }
 type Catechist = { id?: number; username?: string; email?: string; role?: any }
 
 /* ===== Estado base ===== */
@@ -257,7 +278,7 @@ async function fetchGroups(url: string): Promise<Group[]> {
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const payload = await res.json().catch(() => ({}))
   const list: any[] = Array.isArray(payload?.groups) ? payload.groups : []
-  return list.map((g: any) => ({ id: g.id, name: g.name, catechist_id: g.catechist_id }))
+  return list.map((g: any) => ({ id: g.id, name: g.name, catechist_id: g.catechist_id, limit_catechumens: g.limit_catechumens ?? null }))
 }
 
 async function load() {
@@ -286,7 +307,7 @@ async function fetchGroupInfo(id: number) {
   const g = gi?.Group ?? {}
   const c = gi?.Catechist ?? null
   return {
-    group: { id: g.id, name: g.name, catechist_id: g.catechist_id } as Group,
+    group: { id: g.id, name: g.name, catechist_id: g.catechist_id,limit_catechumens: g.limit_catechumens } as Group,
     catechist: c ? { id: c.id, username: c.username, email: c.email, role: c.role } : null,
     count: Number(gi?.CatechumenSize ?? 0),
   }
@@ -327,6 +348,7 @@ const detailError = ref<string | null>(null)
 const groupName = ref<string>('')
 const catechist = ref<Catechist | null>(null)
 const catechumensCount = ref<number>(0)
+const limitCatechumens= ref<number | null>(null)
 
 const infoTitle = computed(() => groupName.value || 'Grupo')
 const catechistDisplay = computed(() => leaderName(currentInfoId.value || 0))
@@ -343,6 +365,7 @@ async function openInfoModal(id: number) {
     groupName.value = group.name
     catechist.value = c
     catechumensCount.value = count
+    limitCatechumens.value = group.limit_catechumens ?? null
     // sincroniza detalles de la tabla
     details.value[id] = { catechist: c, count }
   } catch (e) {
@@ -356,7 +379,7 @@ function closeInfo() { showInfo.value = false }
 
 /* ===== Editar ===== */
 const showEdit = ref(false)
-const editForm = ref<{ id: number|null; name: string; catechist_id: number|null }>({ id: null, name: '', catechist_id: null })
+const editForm = ref<{ id: number|null; name: string; catechist_id: number|null; limit_catechumens: number|null }>({ id: null, name: '', catechist_id: null, limit_catechumens: null })
 const editError = ref<string|null>(null)
 const editSuccess = ref<string|null>(null)
 const submittingEdit = ref(false)
@@ -416,7 +439,7 @@ async function openEditModal(id: number) {
     catechistsOptions.value.unshift({ id: currentCatechist.id, username: currentCatechist.username || `ID ${currentCatechist.id}`, email: currentCatechist.email })
   }
 
-  editForm.value = { id: group.id, name: group.name, catechist_id: group.catechist_id }
+  editForm.value = { id: group.id, name: group.name, catechist_id: group.catechist_id, limit_catechumens: (group.limit_catechumens ?? null) }
 }
 
 function closeEdit() { showEdit.value = false }
@@ -425,7 +448,7 @@ async function submitEdit() {
   editError.value = null
   editSuccess.value = null
   const f = editForm.value
-  if (!f.id || !f.name || !f.catechist_id) {
+  if (!f.id || !f.name || !f.catechist_id || f.limit_catechumens == null) {
     editError.value = 'Completa todos los campos.'
     return
   }
@@ -436,6 +459,7 @@ async function submitEdit() {
       id: String(f.id),
       name: f.name,
       catechist_id: String(f.catechist_id),
+      limit_catechumens: String(f.limit_catechumens),
     })
 
     const res = await fetch(`${props.editUrlBase}/${f.id}`, {
@@ -449,7 +473,7 @@ async function submitEdit() {
 
     // Actualiza lista base
     const idx = raw.value.findIndex(g => g.id === f.id)
-    if (idx !== -1) raw.value[idx] = { id: f.id, name: f.name, catechist_id: f.catechist_id }
+  if (idx !== -1) raw.value[idx] = { id: f.id, name: f.name, catechist_id: f.catechist_id, limit_catechumens: f.limit_catechumens }
 
     // Relee detalles y abre modal de info con la data actualizada
     showEdit.value = false
@@ -464,7 +488,7 @@ async function submitEdit() {
 
 /* ===== Agregar (NUEVO) ===== */
 const showAdd = ref(false)
-const addForm = ref<{ name: string; catechist_id: number|null }>({ name: '', catechist_id: null })
+const addForm = ref<{ name: string; catechist_id: number|null; limit_catechumens: number|null }>({ name: '', catechist_id: null, limit_catechumens: null })
 const addError = ref<string|null>(null)
 const addSuccess = ref<string|null>(null)
 const submittingAdd = ref(false)
@@ -491,7 +515,7 @@ async function loadCatechistsWithoutGroup() {
 
 function openAddModal() {
   showAdd.value = true
-  addForm.value = { name: '', catechist_id: null }
+  addForm.value = { name: '', catechist_id: null, limit_catechumens: null }
   addError.value = null
   addSuccess.value = null
   submittingAdd.value = false
@@ -505,7 +529,7 @@ async function submitAdd() {
   addError.value = null
   addSuccess.value = null
   const f = addForm.value
-  if (!f.name || !f.catechist_id) {
+  if (!f.name || !f.catechist_id || f.limit_catechumens == null) {
     addError.value = 'Completa todos los campos.'
     return
   }
@@ -515,6 +539,7 @@ async function submitAdd() {
     const body = new URLSearchParams({
       name: f.name,
       catechist_id: String(f.catechist_id),
+      limit_catechumens: String(f.limit_catechumens),
     })
 
     const res = await fetch(props.addUrl, {

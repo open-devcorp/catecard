@@ -15,19 +15,20 @@
     <button data-tab="user" class="px-3 py-1 rounded-md text-sm text-gray-700">Usuarios</button>
   </div>
 
-  <div class="mt-4">
-    <section data-zone="scan" style="display:block">
-      <scan-component></scan-component>
-    </section>
-    <section data-zone="group" style="display:none">
-      <group-component></group-component>
-    </section>
-    <section data-zone="user" style="display:none">
-      <user-component></user-component>
-    </section>
+    <div class="mt-4">
+      <section data-zone="scan" style="display:block">
+        <scan-component></scan-component>
+      </section>
+      <section data-zone="group" style="display:none">
+        <group-component></group-component>
+      </section>
+      <section data-zone="user" style="display:none">
+        <user-component></user-component>
+      </section>
+    </div>
+  <main>
+
   </div>
-  </div>
- </div>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const tabsContainer = document.getElementById('tabs');

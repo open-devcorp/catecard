@@ -172,14 +172,16 @@ func setupRouter(
 			handlers.Catechist(w, r)
 			return
 		}
+		if user.Role == entities.SCANNER {
+			handlers.Scanner(w, r)
+			return
+		}
 		handlers.Home(w, r)
 	}).Methods("GET")
 
 	r.HandleFunc("/signup", handlers.SignUp).Methods("GET")
 	r.HandleFunc("/login", handlers.Login).Methods("GET")
 	r.HandleFunc("/scanner", handlers.Scanner).Methods("GET")
-	r.HandleFunc("/dene", handlers.Denied)
-	r.HandleFunc("/all-qr-list", handlers.QrList)
 
 	////////////////////////////////////////////////////////
 	// 🔐 AUTENTICACIÓN

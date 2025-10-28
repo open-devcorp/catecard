@@ -1,20 +1,20 @@
 <template>
-  <section class="">
+  <section class="p-6 border border-gray-200 rounded-2xl">
     <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:justify-between gap-3">
     <div class="sm:pr-4 mb-4">
-      <h2 class="text-lg font-semibold text-gray-900">
+      <h2 class="text-base font-semibold text-gray-900">
         Grupos de Catequesis
         <span class="text-base text-gray-600">({{ totalLabel }})</span>
       </h2>
-      <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
+      <p class="text-[13px] text-gray-500">Gestiona catequistas y cuentas de escáner</p>
     </div>
 
     <div class="flex sm:items-start">
       <!-- Botón Nuevo Grupo -->
       <button
         @click="openAddModal"
-        class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition w-full sm:w-auto">
+        class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer gap-5">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round"
@@ -22,7 +22,7 @@
           <path d="M5 12h14" />
           <path d="M12 5v14" />
         </svg>
-        Nuevo Grupo
+        <p class="text-sm">Nuevo Grupo</p>
       </button>
     </div>
   </div>
@@ -30,24 +30,24 @@
 
 
     <!-- Tabla -->
-    <div class="overflow-x-auto rounded-xl bg-white">
-      <table class="min-w-full text-xs sm:text-sm">
+    <div class="overflow-x-auto rounded-xl bg-white mt-8">
+      <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-gray-200">
-            <th class="px-3 sm:px-4 py-2 text-left font-medium">Grupo</th>
-            <th class="px-3 sm:px-4 py-2 text-left font-medium">Líder/Catequista</th>
-            <th class="px-3 sm:px-4 py-2 text-center font-medium">Catecúmenos</th>
-            <th class="px-3 sm:px-4 py-2 text-right font-medium">Acciones</th>
+            <th class="px-2 py-2 text-left font-medium">Grupo</th>
+            <th class="px-2 py-2 text-left font-medium">Líder/Catequista</th>
+            <th class="px-2 py-2 text-center font-medium">Catecúmenos</th>
+            <th class="px-2 py-2 text-right font-medium">Acciones</th>
           </tr>
         </thead>
 
         <!-- Skeleton -->
         <tbody v-if="loading">
           <tr v-for="n in 2" :key="n" class="border-t">
-            <td class="px-4 py-2"><div class="h-4 w-36 bg-gray-200 rounded animate-pulse"></div></td>
-            <td class="px-4 py-2"><div class="h-4 w-28 bg-gray-200 rounded animate-pulse"></div></td>
-            <td class="px-4 py-2"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
-            <td class="px-4 py-2 text-right"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse inline-block"></div></td>
+            <td class="px-2 py-2"><div class="h-4 w-36 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-2 py-2"><div class="h-4 w-28 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-2 py-2"><div class="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></td>
+            <td class="px-2 py-2 text-right"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse inline-block"></div></td>
           </tr>
         </tbody>
 
@@ -62,17 +62,17 @@
 
         <!-- Filas -->
         <tbody v-else>
-          <tr v-for="r in rows" :key="r.id" class="border-t border-gray-300 hover:bg-gray-50 transition">
-            <td class="px-3 sm:px-4 py-2">
-              <span class="text-gray-900">{{ r.name }}</span>
+          <tr v-for="r in rows" :key="r.id" class="border-t border-gray-200 hover:bg-gray-50 transition">
+            <td class="px-2 py-2">
+              <span class="text-gray-900 text-nowrap">{{ r.name }}</span>
             </td>
-            <td class="px-3 sm:px-4 py-2">
-              <span class="text-gray-900">{{ leaderName(r.id) }}</span>
+            <td class="px-2 py-2">
+              <span class="text-gray-900 text-nowrap">{{ leaderName(r.id) }}</span>
             </td>
-            <td class="px-3 sm:px-4 py-2 text-center">
-              <span class="inline-block border rounded-md border-gray-300 px-2">{{ countOf(r.id) }}</span>
+            <td class="px-2 py-2 text-center">
+              <span class="inline-block border text-[12px] rounded-md border-gray-200 px-2">{{ countOf(r.id) }}</span>
             </td>
-            <td class="px-3 sm:px-4 py-2">
+            <td class="px-2 py-2">
               <div class="flex justify-end gap-1 sm:gap-2">
                 <!-- Ver -->
                 <button
@@ -107,15 +107,7 @@
                   @click="confirmDelete(r.id)"
                   :disabled="deletingId === r.id"
                   class="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-gray-100 transition text-red-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round"
-                      class="w-4 h-4">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2 lucide-trash-2 w-4 h-4 text-destructive" aria-hidden="true"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 </button>
               </div>
             </td>
@@ -129,7 +121,7 @@
   <modal-component :show="showInfo" @close="closeInfo">
     <div class="pr-2">
       <h3 class="text-xl font-semibold text-gray-900">{{ infoTitle }}</h3>
-      <p class="text-sm text-gray-400 mb-6">Información detallada del grupo</p>
+      <p class="text-sm text-gray-600 mt-1 mb-6">Información detallada del grupo</p>
 
       <div v-if="loadingDetail" class="space-y-3">
         <div class="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
@@ -151,7 +143,7 @@
 
         <div class="flex justify-end pt-4">
           <button @click="closeInfo"
-                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                  class="px-3 py-2 bg-white text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-300 cursor-pointer">
             Cerrar
           </button>
         </div>
@@ -162,21 +154,21 @@
   <modal-component :show="showEdit" @close="closeEdit">
     <div class="pr-2">
       <h3 class="text-xl font-semibold text-gray-900">Editar grupo</h3>
-      <p class="text-sm text-gray-400 mb-6">Modifica la información del grupo</p>
+      <p class="text-sm mt-1 text-gray-600 mb-6">Modifica la información del grupo</p>
 
       <form class="space-y-4" @submit.prevent="submitEdit">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Nombre</label>
+          <label class="form-label">Nombre</label>
           <input v-model.trim="editForm.name" type="text" required
                  class="form-input" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Catequista</label>
+          <label class="form-label">Catequista</label>
           <label class="sr-only">Seleccione catequista</label>
           <select v-model.number="editForm.catechist_id" required
-                  class="form-input">
-            <option value="" disabled>-- Seleccione un catequista --</option>
+                  class="form-select">
+            <option value="" disabled>Seleccione un catequista</option>
             <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.username }}</option>
           </select>
           <p v-if="loadingCatechistsOptions" class="text-xs text-gray-500 mt-1">Cargando catequistas…</p>
@@ -188,7 +180,7 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" @click="closeEdit"
-                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
+                  class="px-3 py-2 bg-white text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-300 cursor-pointer">Cancelar</button>
           <button type="submit" :disabled="submittingEdit"
                   class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#1A388B]/90 transition-colors">
             {{ submittingEdit ? 'Guardando…' : 'Guardar cambios' }}
@@ -201,22 +193,21 @@
   <modal-component :show="showAdd" @close="closeAdd">
     <div class="pr-2">
       <h3 class="text-xl font-semibold text-gray-900">Nuevo grupo</h3>
-      <p class="text-sm text-gray-400 mb-6">Registra un nuevo grupo</p>
+      <p class="text-sm mt-1 text-gray-600 mb-6">Registra un nuevo grupo</p>
 
       <form class="space-y-4" @submit.prevent="submitAdd">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Nombre</label>
+          <label class="form-label">Nombre</label>
           <input v-model.trim="addForm.name" type="text" required
                  placeholder="Ej. Grupo San Marcos"
                  class="form-input" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Catequista </label>
-          <label class="sr-only">Seleccione catequista</label>
+          <label class="form-label">Catequista </label>
           <select v-model.number="addForm.catechist_id" required
-                  class="form-input">
-            <option value="" disabled selected>-- Seleccione un catequista --</option>
+                  class="form-select">
+            <option value="" disabled selected>Seleccione un catequista</option>
             <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.username }}</option>
           </select>
           <p v-if="loadingCatechistsOptions" class="text-xs text-gray-500 mt-1">Cargando catequistas…</p>
@@ -228,7 +219,7 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" @click="closeAdd"
-                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Cancelar</button>
+                  class="px-3 py-2 bg-white text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-300 cursor-pointer">Cancelar</button>
           <button type="submit" :disabled="submittingAdd"
                   class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#1A388B]/90 transition-colors">
             {{ submittingAdd ? 'Creando…' : 'Crear grupo' }}

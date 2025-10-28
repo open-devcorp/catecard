@@ -82,7 +82,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "home.html", nil)
+	user := GetUserFromRequest(r)
+	RenderTemplate(w, "home.html", map[string]interface{}{
+		"User": user,
+	})
+	// RenderTemplate(w, "home.html", nil)
 }
 
 var GroupRepo repositories.GroupRepository // Debe ser inicializado en el main/web.go

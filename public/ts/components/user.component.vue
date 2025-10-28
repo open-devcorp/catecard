@@ -1,29 +1,32 @@
 <template>
-  <section class="">
+  <section class="p-6 border border-gray-200 rounded-2xl">
     <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
       <div>
-        <h2 class="text-lg font-semibold text-gray-900">Usuarios</h2>
-        <p class="text-sm text-gray-500">Gestiona catequistas y cuentas de escáner</p>
+        <h2 class="font-semibold ">Usuarios</h2>
+        <p class="text-[13px] text-gray-600">Gestiona catequistas y cuentas de escáner</p>
       </div>
-      <button
-        @click="openCreate"
-        class="inline-flex items-center justify-center gap-2 rounded-md h-9 px-4 bg-[#1A388B] text-white text-sm font-medium hover:bg-[#1A388B]/90 transition w-full sm:w-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round"
-             class="w-4 h-4">
-          <path d="M5 12h14" />
-          <path d="M12 5v14" />
-        </svg>
-        Nuevo Usuario
-      </button>
+      <div class="flex sm:items-start">
+
+        <button
+          @click="openCreate"
+          class="flex flex-row items-center bg-[#1A388B] text-white px-3 py-2 rounded-lg text-sm cursor-pointer gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"
+               class="w-4 h-4">
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+          </svg>
+          Nuevo Usuario
+        </button>
+      </div>
     </div>
 
  
     <!-- ========== SCANNERS ========== -->
-    <div class="space-y-3 mb-10">
-      <h2 class="text-lg font-semibold text-gray-900">
+    <div class="space-y-3 mb-10 mt-10">
+      <h2 class="font-semibold ">
               Escáneres
             <span class="text-base text-gray-600">({{ scanners.length }})</span>
         </h2>
@@ -53,7 +56,7 @@
               {{ u.username.charAt(0).toUpperCase() }}
             </span>
             <div>
-              <p class="text-[15px] font-medium text-gray-900">{{ u.username }}</p>
+              <p class="text-[15px] font-medium ">{{ u.username }}</p>
               <p class="text-[13px] text-gray-600">{{ u.email }}</p>
 
             </div>
@@ -62,7 +65,7 @@
           <div class="flex items-center gap-2">
             <button
               @click="openCredentials(u, 'scanner')"
-              class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition"
+              class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg bg-gray-100 transition text-sm font-medium text-gray-800"
               title="Ver credenciales">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                    fill="none" stroke="currentColor" stroke-width="2"
@@ -74,6 +77,7 @@
                         10.75 10.75 0 0 1-19.876 0" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
+              <span>Ver Credenciales</span>
             </button>
 
             <button
@@ -97,7 +101,7 @@
     </div>
        <!-- ========== CATEQUISTAS ========== -->
     <div class="space-y-3 mb-10">
-        <h2 class="text-lg font-semibold text-gray-900">
+        <h2 class="font-semibold ">
               Catequistas
             <span class="text-base text-gray-600">({{ catechists.length }})</span>
         </h2>
@@ -130,7 +134,7 @@
               {{ u.username.charAt(0).toUpperCase() }}
             </span>
             <div>
-              <p class="text-[15px] font-medium text-gray-900">{{ u.username }}</p>
+              <p class="text-[15px] font-medium ">{{ u.username }}</p>
               <div class="flex">
               <div class="flex gap-1 mt-1">
                 <span v-for="g in u.groups" :key="g.id"
@@ -145,20 +149,23 @@
 
           <div class="flex items-center gap-2">
             <button
-              @click="openCredentials(u, 'catechist')"
-              class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition"
-              title="Ver credenciales">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round"
-                  class="w-4 h-4 text-gray-700">
-                <path d="M2.062 12.348a1 1 0 0 1 0-.696
-                        10.75 10.75 0 0 1 19.876 0
-                        1 1 0 0 1 0 .696
-                        10.75 10.75 0 0 1-19.876 0" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+                @click="openCredentials(u, 'catechist')"
+                class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg bg-gray-100 transition text-sm font-medium text-gray-800"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    class="w-4 h-4">
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696
+                          10.75 10.75 0 0 1 19.876 0
+                          1 1 0 0 1 0 .696
+                          10.75 10.75 0 0 1-19.876 0" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span>Ver Credenciales</span>
             </button>
+
 
             <button
               @click="confirmDelete(u, 'catechist')"
@@ -185,19 +192,19 @@
   <!-- MODAL: Crear Nuevo Usuario -->
   <modal-component :show="showCreate" @close="closeCreate">
     <div class="pr-2">
-      <h3 class="text-xl font-semibold text-gray-900">Crear Nuevo Usuario</h3>
-      <p class="text-sm text-gray-500">Crea una cuenta de catequista o escáner</p>
+      <h3 class="text-lg font-semibold ">Crear Nuevo Usuario</h3>
+      <p class="text-sm text-gray-600 mt-1">Crea una cuenta de catequista o escáner</p>
 
       <form class="space-y-4 mt-5" @submit.prevent="submitCreate">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Nombre completo</label>
+          <label class="form-label">Nombre completo</label>
           <input v-model.trim="createForm.username" type="text" required
                  placeholder="Ej: María García"
                  class="form-input" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Correo electrónico</label>
+          <label class="form-label">Correo electrónico</label>
           <input v-model.trim="createForm.email" type="email" required
                  placeholder="Ej: maria@catequesis.com"
                  class="form-input" />
@@ -215,7 +222,7 @@
                 'h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1 transition',
                 createForm.role === 'catechist'
                   ? 'bg-[#1A388B] text-white ring-[#1A388B]'
-                  : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50'
+                  : 'bg-white  ring-gray-300 hover:bg-gray-50'
               ]"
             >
               <svg
@@ -226,7 +233,7 @@
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="w-5 h-5"
+                class="w-4 h-4"
               >
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
@@ -239,10 +246,10 @@
               type="button"
               @click="createForm.role = 'scanner'"
               :class="[
-                'h-10 rounded-lg text-sm flex items-center justify-center gap-2 ring-1 transition',
+                'rounded-lg text-sm flex items-center justify-center gap-2 ring-1 transition',
                 createForm.role === 'scanner'
                   ? 'bg-[#1A388B] text-white ring-[#1A388B]'
-                  : 'bg-white text-gray-900 ring-gray-300 hover:bg-gray-50'
+                  : 'bg-white  ring-gray-300 hover:bg-gray-50'
               ]"
             >
               <svg
@@ -253,7 +260,7 @@
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="w-5 h-5"
+                class="w-4 h-4"
               >
                 <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                 <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
@@ -270,7 +277,7 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" @click="closeCreate"
-                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                  class="px-3 py-2 bg-white text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-300 cursor-pointer">
             Cancelar
           </button>
           <button type="submit" :disabled="submittingCreate"
@@ -285,23 +292,23 @@
   <!-- MODAL: Credenciales -->
 <modal-component :show="showModal" @close="closeModal">
   <div class="pr-2">
-    <h3 class="text-xl font-semibold text-gray-900">Credenciales de Acceso</h3>
-    <p class="text-sm text-gray-500">Comparte estas credenciales con {{ modalName }}</p>
+    <h3 class="text-lg font-semibold ">Credenciales de Acceso</h3>
+    <p class="text-sm text-gray-600 mt-1">Comparte estas credenciales con {{ modalName }}</p>
 
-    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-4 text-[13px] text-gray-600">
+    <div class="border border-gray-200 rounded-lg py-3 px-4 mt-4 text-[13px] text-gray-600">
       Guarda estas credenciales en un lugar seguro. El usuario necesitará estos datos para iniciar sesión.
     </div>
 
-    <div class="space-y-5 mt-5 text-[15px]">
+    <div class="space-y-4 mt-5">
       <!-- Nombre -->
       <div>
-        <p class="text-gray-600 text-sm">Nombre</p>
-        <p class="mt-1 text-gray-900">{{ modalName }}</p>
+        <p class="text-sm font-semibold">Nombre</p>
+        <p class="mt-1 ">{{ modalName }}</p>
       </div>
 
       <!-- Tipo de Cuenta -->
       <div>
-        <p class="text-gray-600 text-sm">Tipo de Cuenta</p>
+        <p class="text-sm font-semibold">Tipo de Cuenta</p>
         <span v-if="modalType === 'catechist'"
           class="inline-flex items-center mt-1 rounded-full text-[11px] px-2 py-0.5 ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700">
           Catequista
@@ -314,34 +321,28 @@
 
       <!-- Correo -->
       <div>
-        <p class="text-gray-600 text-sm">Correo Electrónico</p>
+        <p class="text-sm font-semibold">Correo Electrónico</p>
         <div class="mt-1 flex items-center gap-2">
           <input :value="modalEmail" readonly
                 class="form-input" />
           <button @click="copy(modalEmail)"
-                  class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
+                  class="inline-flex items-center justify-center h-8 px-2 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
                   title="Copiar correo">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy w-4 h-4" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
           </button>
         </div>
       </div>
 
       <!-- Contraseña -->
       <div>
-        <p class="text-gray-600 text-sm">Contraseña</p>
+        <p class="text-sm font-semibold">Contraseña</p>
         <div class="mt-1 flex items-center gap-2">
           <input :value="modalPassword" readonly
                 class="form-input" />
           <button @click="copy(modalPassword)"
-                  class="inline-flex items-center justify-center h-10 w-10 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
+                  class="inline-flex items-center justify-center h-8 px-2 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
                   title="Copiar contraseña">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy w-4 h-4" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
           </button>
         </div>
       </div>
@@ -349,7 +350,7 @@
       <!-- Botón cerrar -->
       <div class="flex justify-end pt-2">
         <button @click="closeModal"
-                class="px-4 py-2 rounded-lg ring-1 ring-gray-300 bg-white hover:bg-gray-50">
+                class="px-3 py-2 bg-white text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-300 cursor-pointer">
           Cerrar
         </button>
       </div>

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="../../../../public/src/output.css" rel="stylesheet">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../../../public/src/output.css" rel="stylesheet">
 
 
-<script defer src="/public/js/app.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+  <script defer src="/public/js/app.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
 
-</head>
-<body class="bg-white">
- 
-      {{ template "content" . }}
-
-</body>
+  </head>
+  <body class="bg-white min-h-screen flex flex-col">
+    <div data-behavior="vue" class="flex flex-col flex-1 min-h-screen">
+        {{ template "content" . }}
+    </div>
+  </body>
 </html>

@@ -83,15 +83,7 @@ func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catech
 
 	catechumen.GroupId = groupId
 
-	qr := entities.NewQr(3, groupId)
-
-	qrId, qrErr := c.qrRepo.Add(qr)
-	if qrErr != nil {
-		c.logger.Printf("Error adding QR: %v", qrErr)
-		return nil, nil, qrErr
-	}
-	catechumen.QrId = qrId
-
+	// 1) Crear catecúmeno primero
 	cateId, err := c.catechumenRepo.Add(catechumen)
 	if err != nil {
 		c.logger.Printf("Error adding catechumen: %v", err)
@@ -99,6 +91,15 @@ func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catech
 	}
 	catechumen.ID = cateId
 
+	// 2) Crear QR asociado al catecúmeno (esquema qr_codes)
+	qr := entities.NewQr(3, groupId)
+	qr.Catechumen = &entities.Catechumen{ID: cateId}
+	qrId, qrErr := c.qrRepo.Add(qr)
+	if qrErr != nil {
+		c.logger.Printf("Error adding QR: %v", qrErr)
+		return catechumen, nil, qrErr
+	}
+	qr.ID = qrId
 	return catechumen, qr, nil
 }
 

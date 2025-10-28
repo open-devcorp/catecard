@@ -13,6 +13,32 @@ type groupRepository struct {
 	db  *sql.DB
 }
 
+// UpdateLimitGroup implements GroupRepository.
+func (g *groupRepository) UpdateLimitGroup(groupId int) error {
+	// Obtiene el grupo
+	grp, err := g.GetById(groupId)
+	if err != nil {
+		g.log.Printf("Error fetching group for UpdateLimitGroup: %v", err)
+		return err
+	}
+	if grp == nil {
+		g.log.Printf("UpdateLimitGroup: group %d not found", groupId)
+		return sql.ErrNoRows
+	}
+
+	// Aumenta el límite en 1 (si se requiere otro incremento, cambiar aquí)
+	grp.LimitCatechumens = grp.LimitCatechumens + 1
+
+	// Persiste el cambio
+	_, err = g.Update(grp)
+	if err != nil {
+		g.log.Printf("Error updating group limit for id %d: %v", groupId, err)
+		return err
+	}
+
+	return nil
+}
+
 // GetByCatechistsId implements GroupRepository.
 func (g *groupRepository) GetByCatechistsId(catechistId int) (int, error) {
 
@@ -33,8 +59,8 @@ func (g *groupRepository) GetByCatechistsId(catechistId int) (int, error) {
 
 // Update implements GroupRepository.
 func (g *groupRepository) Update(group *entities.Group) (*entities.Group, error) {
-	query := `UPDATE groups SET name = ?, catechist_id = ? WHERE id = ?`
-	_, err := g.db.Exec(query, group.Name, group.CatechistId, group.ID)
+	query := `UPDATE groups SET name = ?, catechist_id = ?, limit_catechumens= ? WHERE id = ?`
+	_, err := g.db.Exec(query, group.Name, group.CatechistId, group.LimitCatechumens, group.ID)
 	if err != nil {
 		g.log.Printf("Error updating group: %v", err)
 		return nil, err
@@ -57,11 +83,9 @@ func NewGroupRepository(logger *log.Logger, db *sql.DB) GroupRepository {
 	return &groupRepository{logger, db}
 }
 
-// Add implements GroupRepository.
 func (g *groupRepository) Add(group *entities.Group) error {
-
-	query := `INSERT INTO groups(name, catechist_id) VALUES (?,?)`
-	result, err := g.db.Exec(query, group.Name, group.CatechistId)
+	query := `INSERT INTO groups(name, catechist_id, limit_catechumens) VALUES (?,?,?)`
+	result, err := g.db.Exec(query, group.Name, group.CatechistId, group.LimitCatechumens)
 	if err != nil {
 		g.log.Printf("Error inserting group: %v", err)
 		return err
@@ -76,14 +100,9 @@ func (g *groupRepository) Add(group *entities.Group) error {
 	return nil
 }
 
-// Edit implements GroupRepository.
-func (g *groupRepository) Edit(group *entities.Group) error {
-	panic("unimplemented")
-}
-
 // GetAll implements GroupRepository.
 func (g *groupRepository) GetAll() ([]*entities.Group, error) {
-	query := `SELECT id, name, catechist_id FROM groups`
+	query := `SELECT id, name, catechist_id,limit_catechumens FROM groups`
 	rows, err := g.db.Query(query)
 	if err != nil {
 		g.log.Printf("Error querying groups: %v", err)
@@ -94,7 +113,7 @@ func (g *groupRepository) GetAll() ([]*entities.Group, error) {
 	var groups []*entities.Group
 	for rows.Next() {
 		group := &entities.Group{}
-		err := rows.Scan(&group.ID, &group.Name, &group.CatechistId)
+		err := rows.Scan(&group.ID, &group.Name, &group.CatechistId, &group.LimitCatechumens)
 		if err != nil {
 			g.log.Printf("Error scanning group: %v", err)
 			return nil, err
@@ -112,11 +131,11 @@ func (g *groupRepository) GetAll() ([]*entities.Group, error) {
 }
 
 func (g *groupRepository) GetById(id int) (*entities.Group, error) {
-	query := `SELECT id, name, catechist_id FROM groups WHERE id = ?`
+	query := `SELECT id, name, catechist_id, limit_catechumens FROM groups WHERE id = ?`
 	row := g.db.QueryRow(query, id)
 
 	group := &entities.Group{}
-	err := row.Scan(&group.ID, &group.Name, &group.CatechistId)
+	err := row.Scan(&group.ID, &group.Name, &group.CatechistId, &group.LimitCatechumens)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // No group found with the given ID
@@ -130,21 +149,22 @@ func (g *groupRepository) GetById(id int) (*entities.Group, error) {
 
 func (r *groupRepository) Get(id int) (*GroupInfo, error) {
 	const q = `
-    SELECT
-      g.id,
-      g.name,
-      g.catechist_id,
-      u.id       AS user_id,
-      u.username,
-      u.email,
-      u.role,
-      COUNT(c.id) AS catechumens_count
-    FROM groups g
-    LEFT JOIN users u       ON u.id = g.catechist_id
-    LEFT JOIN catechumens c ON c.group_id = g.id
-    WHERE g.id = $1
-    GROUP BY g.id, g.name, g.catechist_id, u.id, u.username, u.email, u.role;
-    `
+			SELECT
+				g.id,
+				g.name,
+				g.catechist_id,
+				g.limit_catechumens,
+				u.id       AS user_id,
+				u.username,
+				u.email,
+				u.role,
+				COUNT(c.id) AS catechumens_count
+			FROM groups g
+			LEFT JOIN users u       ON u.id = g.catechist_id
+			LEFT JOIN catechumens c ON c.group_id = g.id
+			WHERE g.id = $1
+			GROUP BY g.id, g.name, g.catechist_id, g.limit_catechumens, u.id, u.username, u.email, u.role;
+			`
 	row := r.db.QueryRowContext(context.Background(), q, id)
 
 	grp := &entities.Group{}
@@ -155,6 +175,7 @@ func (r *groupRepository) Get(id int) (*GroupInfo, error) {
 		&grp.ID,
 		&grp.Name,
 		&grp.CatechistId,
+		&grp.LimitCatechumens,
 		&usr.ID,
 		&usr.Username,
 		&usr.Email,
@@ -168,7 +189,6 @@ func (r *groupRepository) Get(id int) (*GroupInfo, error) {
 		return nil, err
 	}
 
-	// Si no hay catequista (LEFT JOIN), usr.ID puede quedar 0: maneja nil
 	var cate *entities.User
 	if usr.ID != 0 {
 		cate = usr

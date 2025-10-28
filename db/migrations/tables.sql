@@ -9,24 +9,25 @@
     CREATE TABLE IF NOT EXISTS groups (
         id SERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        catechist_id INT NOT NULL
+        catechist_id INT NOT NULL,
+        limit_catechumens INT NOT NULL
     );
 
-    INSERT INTO users (username, email, password, role)
-    SELECT 'admin', 'admin', 'admin', '0'
-    WHERE NOT EXISTS (
-        SELECT 1 FROM users WHERE username = 'admin' OR email = 'admin'
-    );
-        INSERT INTO users (username, email, password, role)
-    SELECT 'cate', 'cate', 'cate', '1'
-    WHERE NOT EXISTS (
-        SELECT 2 FROM users WHERE username = 'cate' OR email = 'cate'
-    );
-    INSERT INTO users (username, email, password, role)
-    SELECT 'scan', 'scan', 'scan', '3'
-    WHERE NOT EXISTS (
-        SELECT 3 FROM users WHERE username = 'scan' OR email = 'scan'
-    );
+    -- INSERT INTO users (username, email, password, role)
+    -- SELECT 'admin', 'admin', 'admin', '0'
+    -- WHERE NOT EXISTS (
+    --     SELECT 1 FROM users WHERE username = 'admin' OR email = 'admin'
+    -- );
+    --     INSERT INTO users (username, email, password, role)
+    -- SELECT 'cate', 'cate', 'cate', '1'
+    -- WHERE NOT EXISTS (
+    --     SELECT 2 FROM users WHERE username = 'cate' OR email = 'cate'
+    -- );
+    -- INSERT INTO users (username, email, password, role)
+    -- SELECT 'scan', 'scan', 'scan', '3'
+    -- WHERE NOT EXISTS (
+    --     SELECT 3 FROM users WHERE username = 'scan' OR email = 'scan'
+    -- );
 
     CREATE TABLE IF NOT EXISTS sessions (
         token TEXT PRIMARY KEY,
@@ -43,17 +44,17 @@
         used_scans INT NOT NULL DEFAULT 0
     );
 
-INSERT INTO groups (name, catechist_id)
-SELECT 'Grupo A', 2
-WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo A');
+-- INSERT INTO groups (name, catechist_id)
+-- SELECT 'Grupo A', 2
+-- WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo A');
 
-INSERT INTO groups (name, catechist_id)
-SELECT 'Grupo B', 2
-WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo B');
+-- INSERT INTO groups (name, catechist_id)
+-- SELECT 'Grupo B', 2
+-- WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo B');
 
-INSERT INTO groups (name, catechist_id)
-SELECT 'Grupo C', 2
-WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo C');
+-- INSERT INTO groups (name, catechist_id)
+-- SELECT 'Grupo C', 2
+-- WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'Grupo C');
 
 
 -- Datos de ejemplo opcionales para qr_codes (si existen catechumens con IDs 1..3)

@@ -10,11 +10,11 @@
       <div class="flex flex-col md:flex-row items-center gap-1 lg:gap-4 mt-2 lg:mt-0 font-mont-regular">
         <span class="text-sm lg:text-base">Diseñado y desarrollado por:</span>
     <a href="https://devcorp.pe" target="_blank" rel="noopener">
-    <!-- <img src="../../assets/images/logo-devcorp.webp" 
+  <img src="/public/images/logo-devcorp.webp" 
       alt="Logo Devcorp"
       width="128" height="32"
       decoding="async" loading="lazy"
-      class="h-8 object-contain"> -->
+      class="h-8 object-contain"> 
     </a>
       </div>
     </div>

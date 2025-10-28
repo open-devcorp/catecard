@@ -162,7 +162,7 @@ func setupRouter(
 	////////////////////////////////////////////////////////
 	// 🌐 VISTAS (HTML)
 	////////////////////////////////////////////////////////
-	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromRequest(r)
 		if user == nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)

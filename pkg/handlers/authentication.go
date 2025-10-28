@@ -171,8 +171,7 @@ func (a *authHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a.log.Printf("USER WAS LOGGED %v", user)
-	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 }
 

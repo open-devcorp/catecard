@@ -40,7 +40,7 @@
       <!-- Right: Logout Button -->
       <button
         class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg  hover:bg-gray-200 transition-all duration-150 active:scale-[0.98]"
-      >
+            @click="doLogout">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="18"

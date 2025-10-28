@@ -38,6 +38,8 @@
 
     <!-- Right: Logout Button -->
     <button
+      type="button"
+      @click="doLogout"
       class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg  hover:bg-gray-200 transition-all duration-150 active:scale-[0.98]"
     >
       <svg
@@ -62,3 +64,40 @@
     </button>
   </nav>
 </template>
+ 
+<script setup lang="ts">
+import { } from 'vue'
+
+async function doLogout() {
+  try {
+    const res = await fetch('/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    })
+
+    // Si el logout fue OK, redirigimos al login
+    if (res.ok) {
+      window.location.href = '/login'
+      return
+    }
+
+    // Intentar leer mensaje del servidor
+    let msg = `Error ${res.status}`
+    try {
+      const payload = await res.json()
+      if (payload && (payload.error || payload.message)) msg = payload.error || payload.message
+    } catch (_) {
+      try {
+        const txt = await res.text()
+        if (txt) msg = txt
+      } catch (_e) {}
+    }
+
+    alert('No se pudo cerrar sesión: ' + msg)
+  } catch (e) {
+    console.error('logout error', e)
+    alert('Error de conexión al intentar cerrar sesión')
+  }
+}
+</script>

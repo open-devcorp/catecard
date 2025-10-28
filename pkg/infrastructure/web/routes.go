@@ -172,6 +172,10 @@ func setupRouter(
 			handlers.Catechist(w, r)
 			return
 		}
+		if user.Role == entities.SCANNER {
+			handlers.Scanner(w, r)
+			return
+		}
 		handlers.Home(w, r)
 	}).Methods("GET")
 

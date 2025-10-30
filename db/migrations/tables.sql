@@ -13,11 +13,11 @@
         limit_catechumens INT NOT NULL
     );
 
-    -- INSERT INTO users (username, email, password, role)
-    -- SELECT 'admin', 'admin', 'admin', '0'
-    -- WHERE NOT EXISTS (
-    --     SELECT 1 FROM users WHERE username = 'admin' OR email = 'admin'
-    -- );
+    INSERT INTO users (username, email, password, role)
+    SELECT 'admin', 'admin', 'admin', '0'
+    WHERE NOT EXISTS (
+        SELECT 1 FROM users WHERE username = 'admin' OR email = 'admin'
+    );
     --     INSERT INTO users (username, email, password, role)
     -- SELECT 'cate', 'cate', 'cate', '1'
     -- WHERE NOT EXISTS (

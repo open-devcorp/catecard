@@ -1,11 +1,11 @@
 ### RUN SERVER
 ```
-go run ./cmd/server
+air
 ```
 ### RUN TAILWIND
 
 ```
- npx @tailwindcss/cli -i ./public/src/input.css -o ./public/src/output.css --watch
+ bun run dev
  ```
 
 ### RUN MODE DEV / MOBILE

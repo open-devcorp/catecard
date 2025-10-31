@@ -107,7 +107,7 @@ func (c *catechumenUseCase) Add(User *entities.User, catechumen *entities.Catech
 	catechumen.ID = cateId
 
 	// 2) Crear QR asociado al catecúmeno (esquema qr_codes)
-	qr := entities.NewQr(3, groupId)
+	qr := entities.NewQr(2, groupId)
 	qr.Catechumen = &entities.Catechumen{ID: cateId}
 	qrId, qrErr := c.qrRepo.Add(qr)
 	if qrErr != nil {

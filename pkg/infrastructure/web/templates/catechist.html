@@ -3,11 +3,15 @@
 
 <main class="max-w-7xl mx-auto px-4 xl:px-0 flex-1 w-full">
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-medium">Hola, {{ .User.Username }}</h1>
+    <h1 class="text-2xl font-medium">Hola, {{ .User.FullName }}</h1>
   </div>
 
   <div>
-    <catechist-component group-name="{{ .Group.Name }}" :group-id="{{ .Group.ID }}"></catechist-component>
+    {{ with .Group }}
+      <catechist-component group-name="{{ .Name }}" :group-id="{{ .ID }}"></catechist-component>
+    {{ else }}
+      <catechist-component group-name="" :group-id="0"></catechist-component>
+    {{ end }}
   </div>
 </main>
 

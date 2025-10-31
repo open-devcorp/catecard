@@ -64,7 +64,7 @@ func (uc *authUseCase) GetAllCatechistsWithoutGroup() ([]*entities.User, error) 
 type SignupStruct struct {
 	// User info
 	Username string        `json:"username"`
-	Email    string        `json:"email"`
+	FullName string        `json:"full_name"`
 	Password string        `json:"password"`
 	Role     entities.Role `json:"role"`
 }
@@ -86,7 +86,7 @@ func NewAuthUseCase(logger *log.Logger, r repositories.UserRepository, g reposit
 // SignUp implements AuthUseCase.
 func (uc *authUseCase) SignUp(input SignupStruct) (*entities.User, error) {
 
-	user := entities.NewUser(input.Username, input.Email, input.Password, input.Role)
+	user := entities.NewUser(input.Username, input.FullName, input.Password, input.Role)
 
 	savedUser, err := uc.userRepo.SaveUser(&user)
 	if err != nil {
@@ -133,7 +133,7 @@ func (uc *authUseCase) CreateAccounts(User *entities.User, input SignupStruct) (
 	randomPass := string(b)
 	input.Password = randomPass
 
-	user := entities.NewUser(input.Username, input.Email, input.Password, input.Role)
+	user := entities.NewUser(input.Username, input.FullName, input.Password, input.Role)
 
 	catechist, err := uc.userRepo.SaveUser(&user)
 	if err != nil {

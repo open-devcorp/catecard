@@ -53,11 +53,10 @@
              class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between hover:shadow-sm transition">
           <div class="flex items-center gap-4">
             <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium">
-              {{ u.username.charAt(0).toUpperCase() }}
+              {{ u.full_name.charAt(0).toUpperCase() }}
             </span>
             <div>
-              <p class="text-[15px] font-medium ">{{ u.username }}</p>
-              <p class="text-[13px] text-gray-600">{{ u.email }}</p>
+              <p class="text-[15px] font-medium ">{{ u.full_name }}</p>
 
             </div>
           </div>
@@ -131,10 +130,10 @@
             class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between hover:shadow-sm transition">
           <div class="flex items-center gap-4">
             <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-medium">
-              {{ u.username.charAt(0).toUpperCase() }}
+              {{ u.full_name.charAt(0).toUpperCase() }}
             </span>
             <div>
-              <p class="text-[15px] font-medium ">{{ u.username }}</p>
+              <p class="text-[15px] font-medium ">{{ u.full_name }}</p>
               <div class="flex">
               <div class="flex gap-1 mt-1">
                 <span v-for="g in u.groups" :key="g.id"
@@ -198,15 +197,15 @@
       <form class="space-y-4 mt-5" @submit.prevent="submitCreate">
         <div>
           <label class="form-label">Nombre completo</label>
-          <input v-model.trim="createForm.username" type="text" required
+          <input v-model.trim="createForm.fullname" type="text" required
                  placeholder="Ej: María García"
                  class="form-input" />
         </div>
 
         <div>
-          <label class="form-label">Correo electrónico</label>
-          <input v-model.trim="createForm.email" type="email" required
-                 placeholder="Ej: maria@catequesis.com"
+          <label class="form-label">Nombre de usuario</label>
+          <input v-model.trim="createForm.username" type="text" required
+                 placeholder="Ej: mgarcia"
                  class="form-input" />
           <p class="text-[12px] text-gray-500 mt-1">Se generará una contraseña automáticamente.</p>
         </div>
@@ -300,10 +299,10 @@
     </div>
 
     <div class="space-y-4 mt-5">
-      <!-- Nombre -->
+      <!-- Nombre completo -->
       <div>
-        <p class="text-sm font-semibold">Nombre</p>
-        <p class="mt-1 ">{{ modalName }}</p>
+        <p class="text-sm font-semibold">Nombre completo</p>
+        <p class="mt-1 ">{{ modalFullName }}</p>
       </div>
 
       <!-- Tipo de Cuenta -->
@@ -319,19 +318,20 @@
         </span>
       </div>
 
-      <!-- Correo -->
+      <!-- Nombre de usuario (para login) -->
       <div>
-        <p class="text-sm font-semibold">Correo Electrónico</p>
+        <p class="text-sm font-semibold">Nombre de usuario</p>
         <div class="mt-1 flex items-center gap-2">
-          <input :value="modalEmail" readonly
-                class="form-input" />
-          <button @click="copy(modalEmail)"
+          <input :value="modalUser?.username || ''" readonly class="form-input" />
+          <button @click="copy(modalUser?.username || '')"
                   class="inline-flex items-center justify-center h-8 px-2 rounded-md ring-1 ring-gray-300 hover:bg-gray-50"
-                  title="Copiar correo">
+                  title="Copiar usuario">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy w-4 h-4" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
           </button>
         </div>
       </div>
+
+      <!-- (Opcional) Puedes duplicar datos si quieres otro bloque de copia rápida del nombre completo -->
 
       <!-- Contraseña -->
       <div>
@@ -364,7 +364,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 
 /* ===== Tipos ===== */
 type Group = { id: number; name: string }
-type User = { id: number; username: string; email: string; password?: string; role?: number|string; groups?: Group[] }
+type User = { id: number; username: string; full_name: string; password?: string; role?: number|string; groups?: Group[] }
 type UserData = { User: User; Groups: Group[] }
 
 /* ===== Props ===== */
@@ -387,7 +387,7 @@ const showModal = ref(false)
 const modalType = ref<'catechist'|'scanner'>('catechist')
 const modalUser = ref<User | null>(null)
 const modalName = computed(() => modalUser.value?.username || 'Usuario')
-const modalEmail = computed(() => modalUser.value?.email || '')
+const modalFullName = computed(() => modalUser.value?.full_name || '')
 const modalPassword = computed(() => modalUser.value?.password || '')
 const modalGroups = computed(() => modalUser.value?.groups || [])
 
@@ -395,9 +395,9 @@ const modalGroups = computed(() => modalUser.value?.groups || [])
 const showCreate = ref(false)
 const submittingCreate = ref(false)
 const createError = ref<string|null>(null)
-const createForm = ref<{ username: string; email: string; role: 'catechist'|'scanner' }>({
+const createForm = ref<{ fullname: string; username: string; role: 'catechist'|'scanner' }>({
+  fullname: '',
   username: '',
-  email: '',
   role: 'catechist',
 })
 
@@ -450,7 +450,7 @@ function closeModal() {
 /* ===== Crear Usuario ===== */
 function openCreate() {
   createError.value = null
-  createForm.value = { username: '', email: '', role: 'catechist' }
+  createForm.value = { fullname: '', username: '', role: 'catechist' }
   showCreate.value = true
 }
 function closeCreate() {
@@ -465,8 +465,8 @@ const ROLE_MAP: Record<'catechist'|'scanner', number> = {
 async function submitCreate() {
   createError.value = null
   const f = createForm.value
-  if (!f.username || !f.email) {
-    createError.value = 'Completa nombre y correo.'
+  if (!f.fullname || !f.username) {
+    createError.value = 'Completa nombre completo y nombre de usuario.'
     return
   }
 
@@ -474,7 +474,7 @@ async function submitCreate() {
   try {
     const body = new URLSearchParams({
       username: f.username,
-      email: f.email,
+      full_name: f.fullname,
       role: String(ROLE_MAP[f.role]),
     })
 

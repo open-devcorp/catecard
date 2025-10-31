@@ -156,14 +156,14 @@ func (r *groupRepository) Get(id int) (*GroupInfo, error) {
 				g.limit_catechumens,
 				u.id       AS user_id,
 				u.username,
-				u.email,
+				u.full_name,
 				u.role,
 				COUNT(c.id) AS catechumens_count
 			FROM groups g
 			LEFT JOIN users u       ON u.id = g.catechist_id
 			LEFT JOIN catechumens c ON c.group_id = g.id
 			WHERE g.id = $1
-			GROUP BY g.id, g.name, g.catechist_id, g.limit_catechumens, u.id, u.username, u.email, u.role;
+			GROUP BY g.id, g.name, g.catechist_id, g.limit_catechumens, u.id, u.username, u.full_name, u.role;
 			`
 	row := r.db.QueryRowContext(context.Background(), q, id)
 
@@ -178,7 +178,7 @@ func (r *groupRepository) Get(id int) (*GroupInfo, error) {
 		&grp.LimitCatechumens,
 		&usr.ID,
 		&usr.Username,
-		&usr.Email,
+		&usr.FullName,
 		&usr.Role,
 		&count,
 	); err != nil {

@@ -172,12 +172,12 @@
                         <div id="modalBody">
                             <form id="newUserForm" class="space-y-3">
                                 <div>
-                                    <label class="block text-sm text-gray-700">Usuario</label>
-                                    <input name="username" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="usuario@ejemplo.com">
+                                    <label class="block text-sm text-gray-700">Nombre de usuario</label>
+                                    <input name="username" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="usuario123">
                                 </div>
                                 <div>
-                                    <label class="block text-sm text-gray-700">Email</label>
-                                    <input name="email" required type="email" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="email@ejemplo.com">
+                                    <label class="block text-sm text-gray-700">Nombre completo</label>
+                                    <input name="full_name" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="María García">
                                 </div>
                                 <div>
                                     <label class="block text-sm text-gray-700">Tipo de cuenta</label>
@@ -268,7 +268,7 @@
                             <div class="py-2">
                                 <h4 class="text-lg font-medium mb-2">Usuario creado</h4>
                                 <p class="text-sm">Usuario: <strong>${user.username}</strong></p>
-                                <p class="text-sm">Email: <strong>${user.email}</strong></p>
+                                <p class="text-sm">Nombre completo: <strong>${user.full_name}</strong></p>
                                 <p class="text-sm">Contraseña: <strong>${user.password}</strong></p>
                             </div>
                             <div class="flex justify-end gap-2 mt-4">
@@ -287,12 +287,12 @@
                         modalBody.innerHTML = `
                             <form id="newUserForm" class="space-y-3">
                                 <div>
-                                    <label class="block text-sm text-gray-700">Usuario</label>
-                                    <input name="username" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="usuario@ejemplo.com">
+                                    <label class="block text-sm text-gray-700">Nombre de usuario</label>
+                                    <input name="username" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="usuario123">
                                 </div>
                                 <div>
-                                    <label class="block text-sm text-gray-700">Email</label>
-                                    <input name="email" required type="email" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="email@ejemplo.com">
+                                    <label class="block text-sm text-gray-700">Nombre completo</label>
+                                    <input name="full_name" required type="text" class="mt-1 block w-full rounded-md border-gray-300 p-2" placeholder="María García">
                                 </div>
                                 <input type="hidden" name="role" value="1">
                                 <div class="flex justify-end gap-2 mt-2">
@@ -519,8 +519,8 @@
                             left.innerHTML = `
                                 <div class="bg-blue-400 text-blue-800 aspect-square rounded-xl size-10"></div>
                                 <div>
-                                    <p>${u.username || u.email || 'Usuario'}</p>
-                                    <p class="mt-1 text-slate-500 font-medium text-xs">${u.email || ''} · <span class="p-1 rounded-md text-slate-700 bg-slate-300">${u.group_name || u.group || ''}</span></p>
+                                    <p>${u.username || u.full_name || 'Usuario'}</p>
+                                    <p class="mt-1 text-slate-500 font-medium text-xs">${u.full_name || ''} · <span class="p-1 rounded-md text-slate-700 bg-slate-300">${u.group_name || u.group || ''}</span></p>
                                 </div>
                             `;
                             const right = document.createElement('div');
@@ -550,8 +550,8 @@
                                 <div class="flex gap-2 items-center">
                                     <div class="bg-blue-400 text-blue-800 aspect-square rounded-xl size-10"></div>
                                     <div>
-                                        <p>${s.name || s.username || s.email || 'Escáner'}</p>
-                                        <p class="mt-1 text-slate-500 font-medium text-xs">${s.email || ''} · <span class="p-1 rounded-md text-slate-700 bg-slate-300">${s.group_name || s.group || ''}</span></p>
+                                        <p>${s.name || s.username || s.full_name || 'Escáner'}</p>
+                                        <p class="mt-1 text-slate-500 font-medium text-xs">${s.full_name || ''} · <span class="p-1 rounded-md text-slate-700 bg-slate-300">${s.group_name || s.group || ''}</span></p>
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
@@ -715,8 +715,8 @@
                             userDetailsBody.innerHTML = `
                                 <div>
                                     <p class="text-sm">ID: <strong>${u.id ?? ''}</strong></p>
-                                    <p class="text-sm">Usuario: <strong>${u.username ?? u.email ?? ''}</strong></p>
-                                    <p class="text-sm">Email: <strong>${u.email ?? ''}</strong></p>
+                                    <p class="text-sm">Usuario: <strong>${u.username ?? ''}</strong></p>
+                                    <p class="text-sm">Nombre completo: <strong>${u.full_name ?? ''}</strong></p>
                                     <p class="text-sm">Role: <strong>${u.role ?? ''}</strong></p>
                                     <p class="text-sm">Password (si está): <strong>${u.password ?? ''}</strong></p>
                                 </div>

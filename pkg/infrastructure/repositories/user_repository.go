@@ -17,10 +17,10 @@ type userRepository struct {
 func (r *userRepository) GetById(id int) (*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	query := `SELECT id, username,email, password, role FROM users WHERE id = ?`
+	query := `SELECT id, username, full_name, password, role FROM users WHERE id = ?`
 	row := r.db.QueryRowContext(ctx, query, id)
 	user := &entities.User{}
-	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
+	err := row.Scan(&user.ID, &user.Username, &user.FullName, &user.Password, &user.Role)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -39,7 +39,7 @@ func (r *userRepository) GetAll() ([]*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := `SELECT id, username,email, password, role FROM users`
+	query := `SELECT id, username, full_name, password, role FROM users`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		r.log.Println("Error querying users:", err)
@@ -51,7 +51,7 @@ func (r *userRepository) GetAll() ([]*entities.User, error) {
 	for rows.Next() {
 		user := &entities.User{}
 
-		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
+		err := rows.Scan(&user.ID, &user.Username, &user.FullName, &user.Password, &user.Role)
 		if err != nil {
 			r.log.Println("Error scanning user:", err)
 			return nil, err
@@ -72,11 +72,12 @@ func (r *userRepository) GetUser(username, password string) *entities.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := `SELECT id, username, password, role FROM users WHERE username = ?`
-	row := r.db.QueryRowContext(ctx, query, username)
+	// Validate by username AND password, and retrieve full_name as well
+	query := `SELECT id, username, full_name, password, role FROM users WHERE username = ? AND password = ?`
+	row := r.db.QueryRowContext(ctx, query, username, password)
 
 	user := &entities.User{}
-	err := row.Scan(&user.ID, &user.Username, &user.Password, &user.Role)
+	err := row.Scan(&user.ID, &user.Username, &user.FullName, &user.Password, &user.Role)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			r.log.Printf("User not found: %s", username)
@@ -101,10 +102,10 @@ func (r *userRepository) SaveUser(user *entities.User) (*entities.User, error) {
 	}
 	defer tx.Rollback()
 
-	// SQLite query with correct syntax
-	query := `INSERT INTO users (username,email,password, role) VALUES (?, ?,?, ?) RETURNING id`
+	// Insert username and full_name only (email removed from schema)
+	query := `INSERT INTO users (username, full_name, password, role) VALUES (?, ?, ?, ?) RETURNING id`
 
-	err = tx.QueryRowContext(ctx, query, user.Username, user.Email, user.Password, user.Role).Scan(&user.ID)
+	err = tx.QueryRowContext(ctx, query, user.Username, user.FullName, user.Password, user.Role).Scan(&user.ID)
 	if err != nil {
 		r.log.SetFlags(log.LstdFlags | log.Llongfile)
 		r.log.Println("Error saving user:", err)

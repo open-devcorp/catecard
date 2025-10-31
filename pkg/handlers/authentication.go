@@ -82,7 +82,7 @@ func (a *authHandler) CreateAccounts(User *entities.User, w http.ResponseWriter,
 
 	signupData := usecases.SignupStruct{
 		Username: r.FormValue("username"),
-		Email:    r.FormValue("email"),
+		FullName: r.FormValue("full_name"),
 		Role:     entities.Role(roleInt),
 	}
 
@@ -100,11 +100,11 @@ func (a *authHandler) CreateAccounts(User *entities.User, w http.ResponseWriter,
 		"status":  "ok",
 		"message": "catechist created",
 		"user": map[string]interface{}{
-			"id":       user.ID,
-			"username": user.Username,
-			"email":    user.Email,
-			"password": user.Password,
-			"role":     user.Role,
+			"id":        user.ID,
+			"username":  user.Username,
+			"full_name": user.FullName,
+			"password":  user.Password,
+			"role":      user.Role,
 		},
 	}
 
@@ -130,7 +130,7 @@ func (a *authHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	signupData := usecases.SignupStruct{
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
-		Email:    r.FormValue("email"),
+		FullName: r.FormValue("full_name"),
 		Role:     entities.Role(roleInt),
 	}
 

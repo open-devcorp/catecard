@@ -41,7 +41,7 @@
           <div>
             <label class="form-label">Grupo</label>
             <input type="text" :value="groupInputText" class="form-input focus:outline-none" readonly />
-            <p class="text-gray-500 text-sm mt-5">El QR se podrá escanear solo 3 veces según coordinación</p>
+            <p class="text-gray-500 text-sm mt-5">El QR se podrá escanear solo 2 veces según coordinación</p>
           </div>
 
           <div class="flex justify-end space-x-2 mt-5">

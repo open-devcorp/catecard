@@ -3,7 +3,7 @@ package entities
 type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
-	Email    string `json:"email"`
+	FullName string `json:"full_name"`
 	Password string `json:"password"`
 	Role     Role   `json:"role"`
 }
@@ -17,11 +17,11 @@ const (
 	SCANNER
 )
 
-func NewUser(username, email, password string, role Role) User {
+func NewUser(username, fullName, password string, role Role) User {
 
 	return User{
 		Username: username,
-		Email:    email,
+		FullName: fullName,
 		Password: password,
 		Role:     role,
 	}
@@ -32,7 +32,7 @@ func FakeUser() User {
 	return User{
 		ID:       1,
 		Username: "rodrigo@devcorp.pe",
-		Email:    "rodrigo@devcorp.pe",
+		FullName: "Rodrigo Devcorp",
 		Password: "123456",
 		Role:     ADMIN,
 	}

@@ -183,7 +183,7 @@
           <select v-model.number="editForm.catechist_id" required
                   class="form-select">
             <option value="" disabled>Seleccione un catequista</option>
-            <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.username }}</option>
+            <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.full_name }}</option>
           </select>
           <p v-if="loadingCatechistsOptions" class="text-xs text-gray-500 mt-1">Cargando catequistas…</p>
           <p v-else-if="!catechistsOptions.length" class="text-xs text-gray-500 mt-1">No hay catequistas disponibles.</p>
@@ -222,7 +222,7 @@
           <select v-model.number="addForm.catechist_id" required
                   class="form-select">
             <option value="" disabled selected>Seleccione un catequista</option>
-            <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.username }}</option>
+            <option v-for="c in catechistsOptions" :key="c.id" :value="c.id">{{ c.full_name }}</option>
           </select>
           <p v-if="loadingCatechistsOptions" class="text-xs text-gray-500 mt-1">Cargando catequistas…</p>
           <p v-else-if="!catechistsOptions.length" class="text-xs text-gray-500 mt-1">No hay catequistas disponibles.</p>
@@ -263,7 +263,7 @@ const props = defineProps({
 })
 
 type Group = { id: number; name: string; catechist_id: number; limit_catechumens?: number | null }
-type Catechist = { id?: number; username?: string; email?: string; role?: any }
+type Catechist = { id?: number; username?: string; full_name?: string; role?: any }
 
 /* ===== Estado base ===== */
 const raw = ref<Group[]>([])
@@ -308,7 +308,7 @@ async function fetchGroupInfo(id: number) {
   const c = gi?.Catechist ?? null
   return {
     group: { id: g.id, name: g.name, catechist_id: g.catechist_id,limit_catechumens: g.limit_catechumens } as Group,
-    catechist: c ? { id: c.id, username: c.username, email: c.email, role: c.role } : null,
+    catechist: c ? { id: c.id, username: c.username, full_name: (c.full_name || ''), role: c.role } as any : null,
     count: Number(gi?.CatechumenSize ?? 0),
   }
 }
@@ -333,8 +333,8 @@ const rows = computed(() => raw.value)
 const totalLabel = computed(() => (loading.value ? '...' : String(raw.value.length)))
 
 function leaderName(id: number) {
-  const c = details.value[id]?.catechist
-  return c?.username || c?.email || (c?.id ? `ID ${c.id}` : '—') || '—'
+  const c = details.value[id]?.catechist as any
+  return c?.full_name || c?.username || (c?.id ? `ID ${c.id}` : '—') || '—'
 }
 function countOf(id: number) {
   const n = details.value[id]?.count
@@ -434,9 +434,10 @@ async function openEditModal(id: number) {
   const { group, catechist: currentCatechist } = await fetchGroupInfo(id)
   await loadOptionsP
 
-  // Asegura que el catequista actual esté en las opciones (puede no estar si tiene grupo)
-  if (currentCatechist && !catechistsOptions.value.find(c => c.id === currentCatechist.id)) {
-    catechistsOptions.value.unshift({ id: currentCatechist.id, username: currentCatechist.username || `ID ${currentCatechist.id}`, email: currentCatechist.email })
+    // Asegura que el catequista actual esté en las opciones (puede no estar si tiene grupo)
+    if (currentCatechist && !catechistsOptions.value.find(c => c.id === currentCatechist.id)) {
+      const cc: any = currentCatechist as any
+      catechistsOptions.value.unshift({ id: cc.id, username: cc.username || `ID ${cc.id}`, full_name: cc.full_name || '' })
   }
 
   editForm.value = { id: group.id, name: group.name, catechist_id: group.catechist_id, limit_catechumens: (group.limit_catechumens ?? null) }
@@ -494,7 +495,7 @@ const addSuccess = ref<string|null>(null)
 const submittingAdd = ref(false)
 
 /* Opciones de catequistas (para selector) */
-const catechistsOptions = ref<Array<{ id: number; username: string; email?: string }>>([])
+const catechistsOptions = ref<Array<{ id: number; username: string; full_name?: string }>>([])
 const loadingCatechistsOptions = ref(false)
 
 async function loadCatechistsWithoutGroup() {
@@ -504,7 +505,7 @@ async function loadCatechistsWithoutGroup() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const payload = await res.json().catch(() => ([]))
     const list: any[] = Array.isArray(payload) ? payload : (Array.isArray(payload?.users) ? payload.users : [])
-    catechistsOptions.value = list.map(u => ({ id: u.id, username: u.username, email: u.email }))
+  catechistsOptions.value = list.map((u: any) => ({ id: u.id, username: u.username, full_name: u.full_name || '' }))
   } catch (e) {
     console.error('load catechists without group error', e)
     catechistsOptions.value = []

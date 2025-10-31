@@ -15,7 +15,7 @@ func (s *scanCatechumenRepository) GetAll() ([]ScanAndCatechume, error) {
 	query := `
 		SELECT
 			c.id, c.full_name, c.age, c.group_id,
-			u.id, u.username, u.email, u.password, u.role
+			u.id, u.username, u.full_name, u.password, u.role
 		FROM scan_catechumens sc
 		JOIN catechumens c ON sc.catechumen_id = c.id
 		JOIN users u       ON sc.scan_id = u.id
@@ -42,7 +42,7 @@ func (s *scanCatechumenRepository) GetAll() ([]ScanAndCatechume, error) {
 			&catechumen.GroupId,
 			&user.ID,
 			&user.Username,
-			&user.Email,
+			&user.FullName,
 			&user.Password,
 			&user.Role,
 		); err != nil {

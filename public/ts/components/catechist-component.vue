@@ -108,6 +108,22 @@
       </template>
     </modal-component>
 
+        <!-- Modal de confirmación (no bloquea el hilo) -->
+        <modal-component :show="showDeleteConfirm" @close="cancelDelete">
+          <template #default>
+            <div>
+              <h3 class="text-[18px] font-semibold text-gray-900 mb-1">Eliminar catecúmeno</h3>
+              <p class="text-sm text-gray-500 mb-4">Esta acción no se puede deshacer.</p>
+              <div class="flex justify-end gap-2">
+                <button @click="cancelDelete"
+                        class="px-3 py-2 bg-white rounded-lg text-sm hover:bg-gray-100 transition-colors border border-gray-300 cursor-pointer">Cancelar</button>
+                <button @click="performDelete"
+                        class="px-3 sm:px-4 py-2 text-red-500 bg-red-500/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">Eliminar</button>
+              </div>
+            </div>
+          </template>
+        </modal-component>
+
     <!-- Listado -->
     <div class="space-y-3 mt-6">
       <div v-if="loading" class="text-gray-500 text-sm">Cargando catecúmenos...</div>
@@ -145,7 +161,7 @@
                         class="px-3 sm:px-4 py-2 text-[#1A388B] bg-[#1A388B]/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
                   Editar
                 </button>
-                <button @click="remove(c.id)"
+                <button @click="askDelete(c)"
                         class="px-3 sm:px-4 py-2 text-red-500 bg-red-500/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
                   Eliminar
                 </button>
@@ -195,6 +211,10 @@ const form = ref<{ id: number | null; group_id: number | null; full_name: string
   full_name: '',
   age: ''
 })
+
+// Confirmación de eliminación no bloqueante
+const showDeleteConfirm = ref(false)
+const pendingDeleteId = ref<number | null>(null)
 
 /* ===== UI texts ===== */
 const modalTitle = computed(() => (isEditMode.value ? 'Editar Catecúmeno' : 'Agregar Catecúmeno'))
@@ -252,6 +272,21 @@ function openEdit(c: Catechumen) {
     age: c.age
   }
   showModal.value = true
+}
+
+function askDelete(c: Catechumen) {
+  pendingDeleteId.value = c.id
+  showDeleteConfirm.value = true
+}
+function cancelDelete() {
+  showDeleteConfirm.value = false
+  pendingDeleteId.value = null
+}
+async function performDelete() {
+  if (!pendingDeleteId.value) return
+  const id = pendingDeleteId.value
+  cancelDelete()
+  await remove(id, true)
 }
 
 // Abrir modal QR para un catecúmeno existente
@@ -330,9 +365,8 @@ async function submit() {
     }
 
     if (!res.ok) {
-      // intenta obtener el mensaje de error del servidor
-      const text = await res.text().catch(() => '')
-      throw new Error(text || `HTTP ${res.status}`)
+      const msg = await readErrorMessage(res)
+      throw new Error(msg)
     }
 
   const payload: any = await res.json().catch(() => ({}))
@@ -365,19 +399,22 @@ async function submit() {
     }
   } catch (e: any) {
     console.error('Error guardando catecúmeno:', e)
-    alert('Error de conexión: ' + (e?.message || e))
+    const msg = String(e?.message || e || '')
+    alert(msg)
   }
 }
 
-async function remove(id: number) {
+async function remove(id: number, skipConfirm?: boolean) {
   if (!id) return
-  if (!confirm('¿Seguro que deseas eliminar este catecúmeno?')) return
+  if (!skipConfirm) {
+    if (!confirm('¿Seguro que deseas eliminar este catecúmeno?')) return
+  }
 
   try {
     const res = await fetch(`${props.deleteUrlBase}/${id}`, { method: 'DELETE', headers: { Accept: 'application/json' }, credentials: 'include' })
     if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw new Error(text || `HTTP ${res.status}`)
+      const msg = await readErrorMessage(res)
+      throw new Error(msg)
     }
     await loadCatechumens()
   } catch (e: any) {
@@ -507,5 +544,39 @@ async function enrichScanStats() {
   }
   // lanzar N workers
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()))
+}
+
+// Extrae un mensaje de error legible desde una Response (JSON o texto)
+async function readErrorMessage(res: Response): Promise<string> {
+  // 1) Intentar leer JSON directamente
+  try {
+    const j: any = await res.clone().json()
+    const msg = j?.message || j?.error || j?.msg
+    if (msg) return String(msg)
+  } catch {}
+
+  // 2) Leer como texto y volver a intentar parsear/extraer
+  let text = ''
+  try { text = await res.text() } catch {}
+  if (text) {
+    // si es JSON en texto
+    try {
+      const j2: any = JSON.parse(text)
+      const msg2 = j2?.message || j2?.error || j2?.msg
+      if (msg2) return String(msg2)
+    } catch {}
+    // regex simple para "message": "..."
+    const m = text.match(/"message"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/)
+    if (m?.[1]) return m[1].replace(/\\"/g, '"')
+    // mapear frase conocida en inglés a español
+    if (/Group has reached its catechumen limit/i.test(text)) {
+      return 'Ya se alcanzó el límite de catecúmenos para tu grupo'
+    }
+    return text
+  }
+
+  // 3) Fallback por status
+  if (res.status === 409) return 'Ya se alcanzó el límite de catecúmenos para tu grupo'
+  return `HTTP ${res.status}`
 }
 </script>

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type CatechumenHandler interface {
@@ -54,6 +55,11 @@ func (c *catechumenHandler) AddCatechumen(User *entities.User, w http.ResponseWr
 	addedCatechumen, qr, err := c.uc.Add(User, &catechumen)
 	if err != nil {
 		c.log.Printf("Error adding catechumen: %v", err)
+		// Propaga un mensaje claro si es límite de grupo; no tocamos el use case.
+		if strings.Contains(err.Error(), "Group has reached its catechumen limit") {
+			writeJSONError(w, http.StatusConflict, "Ya se alcanzó el límite de catecúmenos para tu grupo")
+			return
+		}
 		writeJSONError(w, http.StatusInternalServerError, "Error adding catechumen")
 		return
 	}

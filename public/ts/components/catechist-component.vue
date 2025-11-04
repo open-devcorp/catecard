@@ -134,7 +134,7 @@
                class="bg-white p-3 sm:p-5 rounded-xl border border-gray-200 hover:shadow-md transition-all max-w-full">
             <div class="flex flex-row items-center justify-between gap-2 sm:gap-0">
               <div class="flex flex-row items-center gap-2 sm:gap-4 min-w-0 flex-1">
-                <div class="w-12 h-12 rounded-xl bg-[#1A388B]/10 flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1A388B]/10 flex items-center justify-center shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                        class="w-6 h-6 text-[#1A388B]">
@@ -142,14 +142,14 @@
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                 </div>
-                <div class="flex flex-col gap-1">
-                  <div class="flex flex-row gap-2 items-center">
-                    <p class="font-normal text-sm sm:text-base truncate">{{ c.full_name }}</p>
-                    <p class="text-xs sm:text-[13px] text-gray-500 block sm:hidden">- {{ c.age }} años</p>
+                  <div class="flex flex-col gap-1">
+                    <div class="flex flex-row gap-2 items-center">
+                      <p class="font-normal text-sm sm:text-base truncate flex-1 min-w-0 max-w-[65%] sm:max-w-none">{{ c.full_name }}</p>
+                      <p class="hidden">- {{ c.age }} años</p>
                   </div>
                   <div class="flex flex-row items-center gap-2 sm:gap-3 flex-wrap">
-                    <p class="text-xs bg-gray-200 px-2 rounded-lg py-1 truncate">{{ c.group?.name }}</p>
-                    <p class="text-xs sm:text-[13px] text-gray-500 hidden sm:block">{{ c.age }} años</p>
+                    <p class="text-xs bg-gray-200 px-2 rounded-lg py-1 truncate max-w-[50%] sm:max-w-none">{{ c.group?.name }}</p>
+                    <p class="text-xs sm:text-[13px] text-gray-500">{{ c.age }} años</p>
                     <p class="text-xs sm:text-[13px] text-gray-500">• {{ (c as any).scanUsed ?? '…' }}/{{ (c as any).scanTotal ?? '…' }} escaneos</p>
                   </div>
                 </div>
@@ -157,23 +157,23 @@
               <div class="flex flex-row gap-1 sm:gap-3 shrink-0">
                 <button
                   @click="openQr(c)"
-                  class="inline-flex items-center justify-center h-8 w-8 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm bg-[#1A388B] text-white rounded-lg cursor-pointer"
+                  class="inline-flex items-center justify-center h-7 w-7 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm bg-[#1A388B] text-white rounded-lg cursor-pointer"
                   title="Ver QR" aria-label="Ver QR">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white lucide lucide-qr-code w-4 h-4 sm:mr-2" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white lucide lucide-qr-code w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
                   <span class="hidden sm:inline">Ver QR</span>
                 </button>
                 <button
                   @click="openEdit(c)"
-                  class="inline-flex items-center justify-center h-8 w-8 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm text-[#1A388B] bg-[#1A388B]/20 rounded-lg font-medium hover:opacity-80 transition-all cursor-pointer"
+                  class="inline-flex items-center justify-center h-7 w-7 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm text-[#1A388B] bg-[#1A388B]/20 rounded-lg font-medium hover:opacity-80 transition-all cursor-pointer"
                   title="Editar" aria-label="Editar">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 sm:mr-2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                   <span class="hidden sm:inline">Editar</span>
                 </button>
                 <button
                   @click="askDelete(c)"
-                  class="inline-flex items-center justify-center h-8 w-8 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm text-red-600 bg-red-500/20 rounded-lg font-medium hover:opacity-80 transition-all cursor-pointer"
+                  class="inline-flex items-center justify-center h-7 w-7 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm text-red-600 bg-red-500/20 rounded-lg font-medium hover:opacity-80 transition-all cursor-pointer"
                   title="Eliminar" aria-label="Eliminar">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 sm:mr-2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4 a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4 a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
                   <span class="hidden sm:inline">Eliminar</span>
                 </button>
               </div>

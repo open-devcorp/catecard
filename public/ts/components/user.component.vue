@@ -51,21 +51,22 @@
       <template v-else>
         <div v-for="u in scanners" :key="'s-'+u.id"
              class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between hover:shadow-sm transition">
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-4 min-w-0">
             <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium">
               {{ u.full_name.charAt(0).toUpperCase() }}
             </span>
-            <div>
-              <p class="text-[15px] font-medium ">{{ u.full_name }}</p>
+            <div class="min-w-0">
+              <p class="text-[15px] font-medium truncate max-w-[160px] sm:max-w-none">{{ u.full_name }}</p>
 
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1 sm:gap-2">
             <button
               @click="openCredentials(u, 'scanner')"
-              class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg bg-gray-100 transition text-sm font-medium text-gray-800"
-              title="Ver credenciales">
+              class="inline-flex items-center justify-center h-8 w-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 border border-gray-300 rounded-md bg-gray-100 transition text-xs sm:text-sm font-medium text-gray-800"
+              title="Ver credenciales"
+              aria-label="Ver credenciales">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                    fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round"
@@ -76,7 +77,7 @@
                         10.75 10.75 0 0 1-19.876 0" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-              <span>Ver Credenciales</span>
+              <span class="hidden sm:inline">Ver Credenciales</span>
             </button>
 
             <button
@@ -128,12 +129,12 @@
       <template v-else>
         <div v-for="u in catechists" :key="'c-'+u.id"
             class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between hover:shadow-sm transition">
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-4 min-w-0">
             <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-medium">
               {{ u.full_name.charAt(0).toUpperCase() }}
             </span>
-            <div>
-              <p class="text-[15px] font-medium ">{{ u.full_name }}</p>
+            <div class="min-w-0">
+              <p class="text-[15px] font-medium truncate max-w-[160px] sm:max-w-none">{{ u.full_name }}</p>
               <div class="flex">
               <div class="flex gap-1 mt-1">
                 <span v-for="g in u.groups" :key="g.id"
@@ -146,10 +147,12 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1 sm:gap-2">
             <button
                 @click="openCredentials(u, 'catechist')"
-                class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg bg-gray-100 transition text-sm font-medium text-gray-800"
+                class="inline-flex items-center justify-center h-8 w-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 border border-gray-300 rounded-md bg-gray-100 transition text-xs sm:text-sm font-medium text-gray-800"
+                title="Ver credenciales"
+                aria-label="Ver credenciales"
               >
                 <svg xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24"
@@ -162,7 +165,7 @@
                           10.75 10.75 0 0 1-19.876 0" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
-                <span>Ver Credenciales</span>
+                <span class="hidden sm:inline">Ver Credenciales</span>
             </button>
 
 

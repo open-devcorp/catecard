@@ -154,16 +154,27 @@
                   </div>
                 </div>
               </div>
-              <div class="flex flex-row gap-2 sm:gap-3 shrink-0">
-        <button @click="openQr(c)" class="flex flex-row gap-2 items-center bg-[#1A388B] px-3 sm:px-4 py-2 text-sm text-white rounded-lg cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white lucide lucide-qr-code w-4 h-4 mr-2" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
-          Ver QR</button>
-                <button @click="openEdit(c)"
-                        class="px-3 sm:px-4 py-2 text-[#1A388B] bg-[#1A388B]/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
-                  Editar
+              <div class="flex flex-row gap-1 sm:gap-3 shrink-0">
+                <button
+                  @click="openQr(c)"
+                  class="inline-flex items-center justify-center h-8 w-8 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm bg-[#1A388B] text-white rounded-lg cursor-pointer"
+                  title="Ver QR" aria-label="Ver QR">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white lucide lucide-qr-code w-4 h-4 sm:mr-2" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                  <span class="hidden sm:inline">Ver QR</span>
                 </button>
-                <button @click="askDelete(c)"
-                        class="px-3 sm:px-4 py-2 text-red-500 bg-red-500/20 rounded-lg text-sm font-medium hover:opacity-80 transition-all cursor-pointer">
-                  Eliminar
+                <button
+                  @click="openEdit(c)"
+                  class="inline-flex items-center justify-center h-8 w-8 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm text-[#1A388B] bg-[#1A388B]/20 rounded-lg font-medium hover:opacity-80 transition-all cursor-pointer"
+                  title="Editar" aria-label="Editar">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 sm:mr-2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                  <span class="hidden sm:inline">Editar</span>
+                </button>
+                <button
+                  @click="askDelete(c)"
+                  class="inline-flex items-center justify-center h-8 w-8 sm:h-auto sm:w-auto sm:px-4 py-2 text-xs sm:text-sm text-red-600 bg-red-500/20 rounded-lg font-medium hover:opacity-80 transition-all cursor-pointer"
+                  title="Eliminar" aria-label="Eliminar">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 sm:mr-2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4 a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                  <span class="hidden sm:inline">Eliminar</span>
                 </button>
               </div>
             </div>

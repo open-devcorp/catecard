@@ -66,9 +66,13 @@
   const scanButton = document.getElementById('scanButton');
 
   let html5QrCode = null;
-  let scanning    = false;
+  let scanning = false;
   let claimedOnce = false;
   let warmupStream = null;
+
+  let lastDecodedText = null;
+  let lastScanTime = 0;
+  const STABILITY_DELAY = 800;
 
   // Reset total y seguro
   async function hardReset() {
@@ -160,7 +164,24 @@
     };
 
     const onScanSuccess = async (decodedText) => {
+      const now = Date.now();
+
+      // 1️⃣ Si es igual al último QR y pasó poco tiempo, ignorar
+      if (decodedText === lastDecodedText && now - lastScanTime < STABILITY_DELAY) return;
+
+      // 2️⃣ Registrar intento actual
+      lastDecodedText = decodedText;
+      lastScanTime = now;
+
+      // 3️⃣ Esperar un pequeño retardo para confirmar estabilidad (no parpadeo)
+      await new Promise(r => setTimeout(r, STABILITY_DELAY));
+
+      // 4️⃣ Si cambió durante el retardo, abortar
+      if (decodedText !== lastDecodedText) return;
+
+      // 5️⃣ Evitar múltiples claims
       if (claimedOnce) return;
+      claimedOnce = true;
 
       const id = extractId(decodedText);
       if (!id) {
@@ -169,16 +190,13 @@
         return;
       }
 
-      claimedOnce = true;
       try { await html5QrCode.stop(); } catch {}
+      if (navigator.vibrate) navigator.vibrate(60);
 
-      if (navigator.vibrate) navigator.vibrate(50);
-
-      // Redirigir vía POST para reclamar asistencia
+      // POST de reclamo (como ya tenías)
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = `/qr/${id}/claim`;
-
       const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
       if (csrf) {
         const input = document.createElement('input');
@@ -187,10 +205,10 @@
         input.value = csrf;
         form.appendChild(input);
       }
-
       document.body.appendChild(form);
       form.submit();
     };
+
 
     try {
       // 6) Iniciar escáner

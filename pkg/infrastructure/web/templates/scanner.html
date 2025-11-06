@@ -62,7 +62,7 @@
 <script src="https://unpkg.com/html5-qrcode" defer></script>
 
 <script>
-  const preview    = document.getElementById('preview');
+  const preview = document.getElementById('preview');
   const scanButton = document.getElementById('scanButton');
 
   let html5QrCode = null;
@@ -74,7 +74,6 @@
   let lastScanTime = 0;
   const STABILITY_DELAY = 800;
 
-  // Reset total y seguro
   async function hardReset() {
     if (html5QrCode) {
       try { await html5QrCode.stop(); } catch {}
@@ -89,13 +88,11 @@
     scanning = false;
     claimedOnce = false;
 
-    // UI: botón
     if (scanButton) {
       scanButton.disabled = false;
       scanButton.textContent = "Escanear QR";
     }
 
-    // UI: overlay visible, video detenido si quedó alguno
     if (preview) {
       const v = preview.querySelector('video');
       if (v && v.srcObject) {
@@ -106,19 +103,16 @@
     }
   }
 
-  // Forzar prompt de permisos si no están concedidos “permanentes”
   async function ensureCameraPermission() {
     warmupStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: "environment" } },
       audio: false
     });
-    // Cerramos enseguida; html5-qrcode abrirá su propio stream
     warmupStream.getTracks().forEach(t => t.stop());
     warmupStream = null;
   }
 
   function extractId(text) {
-    // Soporta: /qr/123, /qr/123/claim, ... o solo "123"
     const m = text.match(/(?:^|https?:\/\/[^ ]+)?(?:\/)?qr\/(\d+)(?:\/claim)?(?:[?#].*)?$/i);
     if (m) return parseInt(m[1], 10);
     if (/^\d+$/.test(text)) return parseInt(text, 10);
@@ -130,33 +124,26 @@
     scanning = true;
     claimedOnce = false;
 
-    // 1) Reset PRIMERO para evitar flickers/estados viejos
     await hardReset();
 
-    // 2) UI -> escaneando
-    const originalText = scanButton.textContent;
     scanButton.disabled = true;
     scanButton.textContent = "Escaneando...";
 
-    // 3) Oculta overlay actual
     const overlay = document.getElementById('previewOverlay');
     if (overlay) overlay.style.display = 'none';
 
-    // 4) Forzar permiso
     try {
       await ensureCameraPermission();
     } catch (err) {
-      console.error("Permiso de cámara denegado o falló:", err);
       alert("No se pudo acceder a la cámara 📷\n" + (err?.message || err));
       await hardReset();
       return;
     }
 
-    // 5) Nueva instancia SIEMPRE
     html5QrCode = new Html5Qrcode("preview");
 
     const config = {
-      fps: 10,
+      fps: 5,
       qrbox(viewfinder) {
         const side = Math.floor(Math.min(viewfinder.width, viewfinder.height) * 0.8);
         return { width: side, height: side };
@@ -166,20 +153,13 @@
     const onScanSuccess = async (decodedText) => {
       const now = Date.now();
 
-      // 1️⃣ Si es igual al último QR y pasó poco tiempo, ignorar
       if (decodedText === lastDecodedText && now - lastScanTime < STABILITY_DELAY) return;
-
-      // 2️⃣ Registrar intento actual
       lastDecodedText = decodedText;
       lastScanTime = now;
 
-      // 3️⃣ Esperar un pequeño retardo para confirmar estabilidad (no parpadeo)
       await new Promise(r => setTimeout(r, STABILITY_DELAY));
 
-      // 4️⃣ Si cambió durante el retardo, abortar
       if (decodedText !== lastDecodedText) return;
-
-      // 5️⃣ Evitar múltiples claims
       if (claimedOnce) return;
       claimedOnce = true;
 
@@ -193,7 +173,6 @@
       try { await html5QrCode.stop(); } catch {}
       if (navigator.vibrate) navigator.vibrate(60);
 
-      // POST de reclamo (como ya tenías)
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = `/qr/${id}/claim`;
@@ -209,17 +188,14 @@
       form.submit();
     };
 
-
     try {
-      // 6) Iniciar escáner
       await html5QrCode.start(
         { facingMode: "environment" },
         config,
         onScanSuccess,
-        () => {} // onScanFailure silencioso
+        () => {}
       );
 
-      // Ajustes visuales del <video> (iOS inline, cover, radios)
       queueMicrotask(() => {
         const video = preview.querySelector('video');
         if (video) {
@@ -232,30 +208,22 @@
         }
       });
     } catch (err) {
-      console.error("Error al iniciar el escáner:", err);
       alert("No se pudo iniciar el escáner 📷\n" + (err?.message || err));
       await hardReset();
       return;
     }
-
-    // 7) Volver a estado “listo”
-    scanButton.disabled = false;
-    scanButton.textContent = originalText;
   }
 
-  // Ciclo de vida: al ocultar/abandonar la página, resetea
   document.addEventListener('visibilitychange', async () => {
     if (document.hidden) await hardReset();
   });
 
-  // Nota: muchos navegadores no esperan async en beforeunload; hazlo síncrono
   window.addEventListener('beforeunload', () => {
     try { html5QrCode?.stop(); } catch {}
     try { html5QrCode?.clear(); } catch {}
     try { warmupStream?.getTracks().forEach(t => t.stop()); } catch {}
   });
 
-  // Solo el BOTÓN abre la cámara
   scanButton.addEventListener('click', startScanner);
 </script>
 
